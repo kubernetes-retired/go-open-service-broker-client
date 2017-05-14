@@ -1,0 +1,8 @@
+language: go
+
+go_import_path: github.com/pmorie/go-open-service-broker-client
+
+go:
+  - 1.7.4
+
+script: go build ./...
