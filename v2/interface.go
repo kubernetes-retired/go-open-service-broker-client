@@ -73,7 +73,8 @@ type ClientConfiguration struct {
 // DefaultClientConfiguration returns a default ClientConfiguration:
 //
 // - latest API version
-// - 60 second timeout (referenced as a typical timeout in the Open Service Broker API spec)
+// - 60 second timeout (referenced as a typical timeout in the Open Service
+//   Broker API spec)
 // - alpha features disabled
 func DefaultClientConfiguration() *ClientConfiguration {
 	return &ClientConfiguration{
