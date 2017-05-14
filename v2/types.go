@@ -111,6 +111,9 @@ type ProvisionRequest struct {
 
 // ProvisionResponse is sent in response to a provision call
 type ProvisionResponse struct {
+	// Async indicates whether the broker is handling the provision request
+	// asynchronously.
+	Async bool
 	// DashboardURL is the URL of a web-based management user interface for
 	// the service instance.
 	DashboardURL *string `json:"dashboard_url,omitempty"`
@@ -158,6 +161,9 @@ type UpdateInstanceRequest struct {
 // UpdateInstanceResponse represents a broker's response to an update instance
 // request.
 type UpdateInstanceResponse struct {
+	// Async indicates whether the broker is handling the update request
+	// asynchronously.
+	Async bool
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
 	OperationKey *OperationKey `json:"operationKey,omitempty"`
@@ -178,6 +184,9 @@ type DeprovisionRequest struct {
 
 // DeprovisionResponse represents a broker's response to a deprovision request.
 type DeprovisionResponse struct {
+	// Async indicates whether the broker is handling the deprovision request
+	// asynchronously.
+	Async bool
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
 	OperationKey *OperationKey `json:"operationKey,omitempty"`
@@ -273,8 +282,14 @@ type BindResponse struct {
 
 // UnbindRequest represents a request to unbind a particular binding.
 type UnbindRequest struct {
+	// InstanceID is the ID of the instance the binding is for.
+	InstanceID string `json:"instance_id"`
 	// BindingID is the ID of the binding to delete.
 	BindingID string `json:"binding_id"`
+	// ServiceID is the ID of the service the instance was provisioned from.
+	ServiceID string `json:"service_id"`
+	// PlanID is the ID of the plan the instance was provisioned from.
+	PlanID string `json:"plan_id"`
 }
 
 // UnbindResponse represents a broker's response to an UnbindRequest.
