@@ -113,7 +113,7 @@ type ProvisionRequest struct {
 type ProvisionResponse struct {
 	// Async indicates whether the broker is handling the provision request
 	// asynchronously.
-	Async bool
+	Async bool `json:"async"`
 	// DashboardURL is the URL of a web-based management user interface for
 	// the service instance.
 	DashboardURL *string `json:"dashboard_url,omitempty"`
@@ -163,7 +163,7 @@ type UpdateInstanceRequest struct {
 type UpdateInstanceResponse struct {
 	// Async indicates whether the broker is handling the update request
 	// asynchronously.
-	Async bool
+	Async bool `json:"async"`
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
 	OperationKey *OperationKey `json:"operationKey,omitempty"`
@@ -186,7 +186,7 @@ type DeprovisionRequest struct {
 type DeprovisionResponse struct {
 	// Async indicates whether the broker is handling the deprovision request
 	// asynchronously.
-	Async bool
+	Async bool `json:"async"`
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
 	OperationKey *OperationKey `json:"operationKey,omitempty"`
