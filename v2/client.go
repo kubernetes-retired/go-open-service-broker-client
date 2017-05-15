@@ -27,7 +27,8 @@ const (
 	queryParamFmt         = "%s=%s"
 )
 
-// NewClient is a CreateFunc for creating a new functional Client.
+// NewClient is a CreateFunc for creating a new functional Client and
+// implements the CreateFunc interface.
 func NewClient(config *ClientConfiguration) (Client, error) {
 	httpClient := &http.Client{
 		Timeout: time.Duration(config.TimeoutSeconds) * time.Second,
