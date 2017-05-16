@@ -428,8 +428,8 @@ func (c *client) prepareAndDoRequest(method, URL string, body interface{}) (*htt
 	return c.httpClient.Do(request)
 }
 
-// appendQueryParam appends key=value to buffer if value is non-null.
-// If buffer is non-empty appends &key=value
+// appendQueryParam appends key=value to buffer if value is non-null,
+// prepending the '&' character if the buffer is non-empty.
 func appendQueryParam(buffer *bytes.Buffer, key, value string) error {
 	if value == "" {
 		return nil

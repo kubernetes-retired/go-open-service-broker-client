@@ -80,6 +80,42 @@ func okCatalogResponse() *CatalogResponse {
 	}
 }
 
+const okCatalog2Bytes = `{
+  "services": [{
+    "name": "fake-service-2",
+    "id": "fake-service-2-id",
+    "description": "service-description-2",
+    "bindable": false,
+    "plans": [{
+      "name": "fake-plan-2",
+      "id": "fake-plan-2-id",
+      "description": "description-2",
+      "bindable": true
+    }]
+  }]
+}`
+
+func okCatalog2Response() *CatalogResponse {
+	return &CatalogResponse{
+		Services: []Service{
+			{
+				ID:          "fake-service-2-id",
+				Name:        "fake-service-2",
+				Description: "service-description-2",
+				Bindable:    false,
+				Plans: []Plan{
+					{
+						ID:          "fake-plan-2-id",
+						Name:        "fake-plan-2",
+						Description: "description-2",
+						Bindable:    truePtr(),
+					},
+				},
+			},
+		},
+	}
+}
+
 func truePtr() *bool {
 	b := true
 	return &b
@@ -90,14 +126,43 @@ func falsePtr() *bool {
 	return &b
 }
 
-func TestGetCatalogSuccess(t *testing.T) {
+func TestGetCatalog(t *testing.T) {
+	cases := []struct {
+		name             string
+		responseBody     string
+		expectedResponse *CatalogResponse
+		expectedErr      error
+	}{
+		{
+			name:             "success 1",
+			responseBody:     okCatalogBytes,
+			expectedResponse: okCatalogResponse(),
+		},
+		{
+			name:             "success 2",
+			responseBody:     okCatalog2Bytes,
+			expectedResponse: okCatalog2Response(),
+		},
+	}
+
+	for _, tc := range cases {
+		doGetCatalogTest(t, tc.name, tc.responseBody, tc.expectedResponse, tc.expectedErr)
+	}
+}
+
+func doGetCatalogTest(
+	t *testing.T,
+	name, responseBody string,
+	expectedResponse *CatalogResponse,
+	expectedErr error,
+) {
 	router := mux.NewRouter()
 	router.HandleFunc("/v2/catalog", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		bodyBytes := []byte(okCatalogBytes)
+		bodyBytes := []byte(responseBody)
 		_, err := w.Write(bodyBytes)
 		if err != nil {
-			t.Fatalf("error writing response bytes: %v", err)
+			t.Errorf("%v: error writing response bytes: %v", name, err)
 		}
 	})
 
@@ -110,15 +175,18 @@ func TestGetCatalogSuccess(t *testing.T) {
 
 	client, err := NewClient(config)
 	if err != nil {
-		t.Fatalf("error creating client: %v", err)
+		t.Errorf("%v: error creating client: %v", name, err)
+		return
 	}
 
-	catalog, err := client.GetCatalog()
+	response, err := client.GetCatalog()
 	if err != nil {
-		t.Fatalf("error getting catalog: %v", err)
+		t.Errorf("%v: error getting catalog: %v", name, err)
+		return
 	}
 
-	if e, a := okCatalogResponse(), catalog; !reflect.DeepEqual(e, a) {
-		t.Fatalf("unexpected diff in catalog response; expected %+v, got %+v", e, a)
+	if e, a := expectedResponse, response; !reflect.DeepEqual(e, a) {
+		t.Errorf("%v: unexpected diff in catalog response; expected %+v, got %+v", name, e, a)
+		return
 	}
 }
