@@ -89,7 +89,7 @@ func (c *client) GetCatalog() (*CatalogResponse, error) {
 
 	switch response.StatusCode {
 	case http.StatusOK:
-		var catalogResponse *CatalogResponse
+		catalogResponse := &CatalogResponse{}
 		if err := c.unmarshalResponse(response, catalogResponse); err != nil {
 			return nil, err
 		}
