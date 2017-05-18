@@ -1,6 +1,7 @@
 # `go-open-service-broker-client`
 
 [![Build Status](https://travis-ci.org/pmorie/go-open-service-broker-client.svg?branch=master)](https://travis-ci.org/pmorie/go-open-service-broker-client)
+[![Coverage Status](https://coveralls.io/repos/github/pmorie/go-open-service-broker-client/badge.svg)](https://coveralls.io/github/pmorie/go-open-service-broker-client)
 
 A golang client for communicating with service brokers implementing the
 [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker).
