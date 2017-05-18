@@ -17,7 +17,7 @@ func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 	appendQueryParam(&queryParamBuffer, planIDKey, r.PlanID)
 	fullURL += "?" + queryParamBuffer.String()
 
-	response, err := c.prepareAndDoRequest(http.MethodDelete, fullURL, nil)
+	response, err := c.prepareAndDoFunc(http.MethodDelete, fullURL, nil)
 	if err != nil {
 		return nil, err
 	}

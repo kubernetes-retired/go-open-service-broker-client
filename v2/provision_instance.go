@@ -40,7 +40,7 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 		parameters:       r.Parameters,
 	}
 
-	response, err := c.prepareAndDoRequest(http.MethodPut, fullURL, requestBody)
+	response, err := c.prepareAndDoFunc(http.MethodPut, fullURL, requestBody)
 	if err != nil {
 		return nil, err
 	}

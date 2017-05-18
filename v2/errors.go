@@ -25,7 +25,18 @@ type HTTPStatusCodeError struct {
 }
 
 func (e HTTPStatusCodeError) Error() string {
-	return fmt.Sprintf("Status: %v; ErrorMessage: %q; Description: %q", e.StatusCode, e.ErrorMessage, e.Description)
+	var (
+		errorMessage string = "nil"
+		description  string = "nil"
+	)
+	if e.ErrorMessage != nil {
+		errorMessage = *e.ErrorMessage
+	}
+	if e.Description != nil {
+		description = *e.Description
+	}
+
+	return fmt.Sprintf("Status: %v; ErrorMessage: %v; Description: %v", e.StatusCode, errorMessage, description)
 }
 
 // IsConflictError returns whether the error represents a conflict.

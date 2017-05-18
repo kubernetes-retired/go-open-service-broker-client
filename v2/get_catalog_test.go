@@ -1,6 +1,9 @@
 package v2
 
 import (
+	"bytes"
+	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -8,6 +11,11 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+// func init() {
+// 	flag.Set("alsologtostderr", "true")
+// 	flag.Set("v", "5")
+// }
 
 const okCatalogBytes = `{
   "services": [{
@@ -116,6 +124,18 @@ func okCatalog2Response() *CatalogResponse {
 	}
 }
 
+const malformedResponse = `{`
+const conventionalFailureResponseBody = `{
+	"error": "TestError",
+	"description": "test error description"
+}`
+
+func testHttpStatusCodeError() error {
+	errorMessage := "TestError"
+	description := "test error description"
+	return HTTPStatusCodeError{http.StatusInternalServerError, &errorMessage, &description}
+}
+
 func truePtr() *bool {
 	b := true
 	return &b
@@ -126,12 +146,39 @@ func falsePtr() *bool {
 	return &b
 }
 
+func returnErrFunc(message string) prepareAndDoFunc {
+	return func(_, _ string, _ interface{}) (*http.Response, error) {
+		return nil, errors.New(message)
+	}
+}
+
+func closer(s string) io.ReadCloser {
+	return nopCloser{bytes.NewBufferString(s)}
+}
+
+type nopCloser struct {
+	io.Reader
+}
+
+func (nopCloser) Close() error { return nil }
+
+func returnHttpResponseFunc(statusCode int, body string) prepareAndDoFunc {
+	return func(_, _ string, _ interface{}) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: statusCode,
+			Body:       closer(body),
+		}, nil
+	}
+}
+
 func TestGetCatalog(t *testing.T) {
 	cases := []struct {
-		name             string
-		responseBody     string
-		expectedResponse *CatalogResponse
-		expectedErr      error
+		name               string
+		prepareAndDo       prepareAndDoFunc
+		responseBody       string
+		expectedResponse   *CatalogResponse
+		expectedErrMessage string
+		expectedErr        error
 	}{
 		{
 			name:             "success 1",
@@ -143,17 +190,43 @@ func TestGetCatalog(t *testing.T) {
 			responseBody:     okCatalog2Bytes,
 			expectedResponse: okCatalog2Response(),
 		},
+		{
+			name:               "malformed response",
+			expectedErrMessage: "unexpected end of JSON input",
+		},
+		{
+			name:               "http error",
+			prepareAndDo:       returnErrFunc("http error"),
+			expectedErrMessage: "http error",
+		},
+		{
+			name:               "200 with malformed response",
+			prepareAndDo:       returnHttpResponseFunc(http.StatusOK, malformedResponse),
+			expectedErrMessage: "unexpected end of JSON input",
+		},
+		{
+			name:               "500 with malformed response",
+			prepareAndDo:       returnHttpResponseFunc(http.StatusInternalServerError, malformedResponse),
+			expectedErrMessage: "unexpected end of JSON input",
+		},
+		{
+			name:         "500 with conventional failure response",
+			prepareAndDo: returnHttpResponseFunc(http.StatusInternalServerError, conventionalFailureResponseBody),
+			expectedErr:  testHttpStatusCodeError(),
+		},
 	}
 
 	for _, tc := range cases {
-		doGetCatalogTest(t, tc.name, tc.responseBody, tc.expectedResponse, tc.expectedErr)
+		doGetCatalogTest(t, tc.name, tc.responseBody, tc.prepareAndDo, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
 }
 
 func doGetCatalogTest(
 	t *testing.T,
 	name, responseBody string,
+	prepareAndDo prepareAndDoFunc,
 	expectedResponse *CatalogResponse,
+	expectedErrMessage string,
 	expectedErr error,
 ) {
 	router := mux.NewRouter()
@@ -170,18 +243,35 @@ func doGetCatalogTest(
 	URL := server.URL
 	defer server.Close()
 
-	config := DefaultClientConfiguration()
-	config.URL = URL
+	var klient Client
+	if prepareAndDo != nil {
+		klient = &client{
+			Name:             "test client",
+			Verbose:          true,
+			URL:              URL,
+			prepareAndDoFunc: prepareAndDo,
+		}
+	} else {
+		config := DefaultClientConfiguration()
+		config.URL = URL
 
-	client, err := NewClient(config)
-	if err != nil {
-		t.Errorf("%v: error creating client: %v", name, err)
-		return
+		var err error
+		klient, err = NewClient(config)
+		if err != nil {
+			t.Errorf("%v: error creating client: %v", name, err)
+			return
+		}
 	}
 
-	response, err := client.GetCatalog()
-	if err != nil {
+	response, err := klient.GetCatalog()
+	if err != nil && expectedErrMessage == "" && expectedErr == nil {
 		t.Errorf("%v: error getting catalog: %v", name, err)
+		return
+	} else if err != nil && expectedErrMessage != "" && expectedErrMessage != err.Error() {
+		t.Errorf("%v: unexpected error message: expected %v, got %v", name, expectedErrMessage, err)
+		return
+	} else if err != nil && expectedErr != nil && !reflect.DeepEqual(expectedErr, err) {
+		t.Errorf("%v: unexpected error: expected %+v, got %v", name, expectedErr, err)
 		return
 	}
 
@@ -189,4 +279,5 @@ func doGetCatalogTest(
 		t.Errorf("%v: unexpected diff in catalog response; expected %+v, got %+v", name, e, a)
 		return
 	}
+
 }
