@@ -125,6 +125,7 @@ func okCatalog2Response() *CatalogResponse {
 }
 
 const malformedResponse = `{`
+
 const conventionalFailureResponseBody = `{
 	"error": "TestError",
 	"description": "test error description"
@@ -189,10 +190,6 @@ func TestGetCatalog(t *testing.T) {
 			name:             "success 2",
 			responseBody:     okCatalog2Bytes,
 			expectedResponse: okCatalog2Response(),
-		},
-		{
-			name:               "malformed response",
-			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
 			name:               "http error",
@@ -279,5 +276,4 @@ func doGetCatalogTest(
 		t.Errorf("%v: unexpected diff in catalog response; expected %+v, got %+v", name, e, a)
 		return
 	}
-
 }

@@ -10,16 +10,16 @@ import (
 // internal message body types
 
 type provisionRequestBody struct {
-	serviceID        string                 `json:"service_id"`
-	planID           string                 `json:"plan_id"`
-	organizationGUID string                 `json:"organization_guid"`
-	spaceGUID        string                 `json:"space_guid"`
-	parameters       map[string]interface{} `json:"parameters,omitempty"`
+	ServiceID        string                 `json:"service_id"`
+	PlanID           string                 `json:"plan_id"`
+	OrganizationGUID string                 `json:"organization_guid"`
+	SpaceGUID        string                 `json:"space_guid"`
+	Parameters       map[string]interface{} `json:"parameters,omitempty"`
 }
 
 type provisionSuccessResponseBody struct {
-	dashboardURL *string `json:"dashboard_url"`
-	operation    *string `json:"operation"`
+	DashboardURL *string `json:"dashboard_url"`
+	Operation    *string `json:"operation"`
 }
 
 func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, error) {
@@ -33,11 +33,11 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 	}
 
 	requestBody := &provisionRequestBody{
-		serviceID:        r.ServiceID,
-		planID:           r.PlanID,
-		organizationGUID: r.OrganizationGUID,
-		spaceGUID:        r.SpaceGUID,
-		parameters:       r.Parameters,
+		ServiceID:        r.ServiceID,
+		PlanID:           r.PlanID,
+		OrganizationGUID: r.OrganizationGUID,
+		SpaceGUID:        r.SpaceGUID,
+		Parameters:       r.Parameters,
 	}
 
 	response, err := c.prepareAndDoFunc(http.MethodPut, fullURL, requestBody)
@@ -53,14 +53,14 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 		}
 
 		var opPtr *OperationKey
-		if responseBodyObj.operation != nil {
-			opStr := *responseBodyObj.operation
+		if responseBodyObj.Operation != nil {
+			opStr := *responseBodyObj.Operation
 			op := OperationKey(opStr)
 			opPtr = &op
 		}
 
 		userResponse := &ProvisionResponse{
-			DashboardURL: responseBodyObj.dashboardURL,
+			DashboardURL: responseBodyObj.DashboardURL,
 			OperationKey: opPtr,
 		}
 		if response.StatusCode == http.StatusAccepted {
