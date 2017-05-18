@@ -51,10 +51,11 @@ func NewClient(config *ClientConfiguration) (Client, error) {
 		EnableAlphaFeatures: config.EnableAlphaFeatures,
 		httpClient:          httpClient,
 	}
+	c.prepareAndDoFunc = c.prepareAndDo
 
 	if config.AuthConfig != nil {
 		if config.AuthConfig.BasicAuthConfig == nil {
-			return nil, errors.New("BasicAuthConfig is required is AuthConfig is provided")
+			return nil, errors.New("BasicAuthConfig is required if AuthConfig is provided")
 		}
 
 		c.BasicAuthConfig = config.AuthConfig.BasicAuthConfig
@@ -65,6 +66,8 @@ func NewClient(config *ClientConfiguration) (Client, error) {
 
 var _ CreateFunc = NewClient
 
+type prepareAndDoFunc func(method, URL string, body interface{}) (*http.Response, error)
+
 // client provides a functional implementation of the Client interface.
 type client struct {
 	Name                string
@@ -74,7 +77,8 @@ type client struct {
 	EnableAlphaFeatures bool
 	Verbose             bool
 
-	httpClient *http.Client
+	httpClient       *http.Client
+	prepareAndDoFunc prepareAndDoFunc
 }
 
 var _ Client = &client{}
@@ -95,11 +99,11 @@ const (
 	jsonType    = "application/json"
 )
 
-// prepareAndDoRequest prepares a request for the given method, URL, and
+// prepareAndDo prepares a request for the given method, URL, and
 // message body, and executes the request, returning an http.Response or an
 // error.  Errors returned from this function represent http-layer errors and
 // not errors in the Open Service Broker API.
-func (c *client) prepareAndDoRequest(method, URL string, body interface{}) (*http.Response, error) {
+func (c *client) prepareAndDo(method, URL string, body interface{}) (*http.Response, error) {
 	var bodyReader io.Reader
 
 	if body != nil {
@@ -156,7 +160,7 @@ func (c *client) unmarshalResponse(response *http.Response, obj interface{}) err
 	}
 
 	if c.Verbose {
-		glog.Info("broker %q: response body: %v", c.Name, string(body))
+		glog.Infof("broker %q: response body: %v, type: %T", c.Name, string(body), obj)
 	}
 
 	err = json.Unmarshal(body, obj)
@@ -170,6 +174,7 @@ func (c *client) unmarshalResponse(response *http.Response, obj interface{}) err
 // handleFailureResponse returns an HTTPStatusCodeError for the given
 // response.
 func (c *client) handleFailureResponse(response *http.Response) error {
+	glog.Info("handling failure responses")
 	brokerResponse := &failureResponseBody{}
 	if err := c.unmarshalResponse(response, brokerResponse); err != nil {
 		return err
@@ -177,8 +182,8 @@ func (c *client) handleFailureResponse(response *http.Response) error {
 
 	return HTTPStatusCodeError{
 		StatusCode:   response.StatusCode,
-		ErrorMessage: brokerResponse.err,
-		Description:  brokerResponse.description,
+		ErrorMessage: brokerResponse.Err,
+		Description:  brokerResponse.Description,
 	}
 }
 
@@ -189,6 +194,6 @@ type asyncSuccessResponseBody struct {
 }
 
 type failureResponseBody struct {
-	err         *string `json:"error,omitempty"`
-	description *string `json:"description,omitempty"`
+	Err         *string `json:"error,omitempty"`
+	Description *string `json:"description,omitempty"`
 }

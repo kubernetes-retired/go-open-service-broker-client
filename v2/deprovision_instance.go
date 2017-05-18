@@ -30,7 +30,7 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 		planID:    &requestPlanID,
 	}
 
-	response, err := c.prepareAndDoRequest(http.MethodDelete, fullURL, requestBody)
+	response, err := c.prepareAndDoFunc(http.MethodDelete, fullURL, requestBody)
 	if err != nil {
 		return nil, err
 	}

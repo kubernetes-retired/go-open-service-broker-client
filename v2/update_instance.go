@@ -32,7 +32,7 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 		parameters: r.Parameters,
 	}
 
-	response, err := c.prepareAndDoRequest(http.MethodPatch, fullURL, requestBody)
+	response, err := c.prepareAndDoFunc(http.MethodPatch, fullURL, requestBody)
 	if err != nil {
 		return nil, err
 	}

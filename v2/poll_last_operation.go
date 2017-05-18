@@ -37,7 +37,7 @@ func (c *client) PollLastOperation(r *LastOperationRequest) (*LastOperationRespo
 		fullURL += "?" + queryParamBuffer.String()
 	}
 
-	response, err := c.prepareAndDoRequest(http.MethodGet, fullURL, nil)
+	response, err := c.prepareAndDoFunc(http.MethodGet, fullURL, nil)
 	if err != nil {
 		return nil, err
 	}
