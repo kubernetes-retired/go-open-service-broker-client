@@ -71,6 +71,15 @@ func TestIsAsyncRequiredError(t *testing.T) {
 			},
 			expected: true,
 		},
+		{
+			name: "app guid required error",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(appGUIDRequiredErrorMessage),
+				Description:  strPtr(appGUIDRequiredErrorDescription),
+			},
+			expected: false,
+		},
 	}
 
 	for _, tc := range cases {
@@ -95,6 +104,15 @@ func TestIsAppGUIDRequiredError(t *testing.T) {
 			name: "other http error",
 			err: HTTPStatusCodeError{
 				StatusCode: http.StatusForbidden,
+			},
+			expected: false,
+		},
+		{
+			name: "async required error",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(asyncErrorMessage),
+				Description:  strPtr(asyncErrorDescription),
 			},
 			expected: false,
 		},
