@@ -2,8 +2,13 @@
 
 [![Build Status](https://travis-ci.org/pmorie/go-open-service-broker-client.svg?branch=master)](https://travis-ci.org/pmorie/go-open-service-broker-client)
 
-A golang client for service brokers implementing the
+A golang client for communicating with service brokers implementing the
 [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker).
+
+## Who should use this library?
+
+This library is most interesting if you are implementing an integration
+between an application platform and the Open Service Broker API.
 
 ## Example
 
