@@ -8,7 +8,7 @@ import (
 func (c *client) GetCatalog() (*CatalogResponse, error) {
 	fullURL := fmt.Sprintf(catalogURL, c.URL)
 
-	response, err := c.prepareAndDoFunc(http.MethodGet, fullURL, nil)
+	response, err := c.prepareAndDo(http.MethodGet, fullURL, nil /* params */, nil /* request body */)
 	if err != nil {
 		return nil, err
 	}

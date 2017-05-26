@@ -1,12 +1,10 @@
 package v2
 
 import (
+	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"reflect"
 	"testing"
-
-	"github.com/gorilla/mux"
 )
 
 const (
@@ -25,6 +23,12 @@ func defaultProvisionRequest() *ProvisionRequest {
 		OrganizationGUID: testOrganizationGUID,
 		SpaceGUID:        testSpaceGUID,
 	}
+}
+
+func defaultAsyncProvisionRequest() *ProvisionRequest {
+	r := defaultProvisionRequest()
+	r.AcceptsIncomplete = true
+	return r
 }
 
 const successProvisionResponseBody = `{
@@ -56,58 +60,78 @@ func TestProvisionInstance(t *testing.T) {
 	cases := []struct {
 		name               string
 		request            *ProvisionRequest
-		prepareAndDo       prepareAndDoFunc
-		responseBody       string
+		httpChecks         httpChecks
+		httpReaction       httpReaction
 		expectedResponse   *ProvisionResponse
 		expectedErrMessage string
 		expectedErr        error
 	}{
 		{
-			name:             "success - synchronous",
-			request:          defaultProvisionRequest(),
-			prepareAndDo:     returnHttpResponseFunc(http.StatusOK, successProvisionResponseBody),
+			name:    "success - synchronous",
+			request: defaultProvisionRequest(),
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successProvisionResponseBody,
+			},
 			expectedResponse: successProvisionResponse(),
 		},
 		{
-			name:             "success - asynchronous",
-			request:          defaultProvisionRequest(),
-			prepareAndDo:     returnHttpResponseFunc(http.StatusAccepted, successAsyncProvisionResponseBody),
+			name:    "success - asynchronous",
+			request: defaultAsyncProvisionRequest(),
+			httpChecks: httpChecks{
+				params: map[string]string{
+					"accepts_incomplete": "true",
+				},
+			},
+			httpReaction: httpReaction{
+				status: http.StatusAccepted,
+				body:   successAsyncProvisionResponseBody,
+			},
 			expectedResponse: successProvisionResponseAsync(),
 		},
 		{
-			name:               "malformed response",
-			request:            defaultProvisionRequest(),
-			responseBody:       malformedResponse,
-			expectedErrMessage: "unexpected end of JSON input",
-		},
-		{
-			name:               "http error",
-			request:            defaultProvisionRequest(),
-			prepareAndDo:       returnErrFunc("http error"),
+			name:    "http error",
+			request: defaultProvisionRequest(),
+			httpReaction: httpReaction{
+				err: fmt.Errorf("http error"),
+			},
 			expectedErrMessage: "http error",
 		},
 		{
-			name:               "200 with malformed response",
-			request:            defaultProvisionRequest(),
-			prepareAndDo:       returnHttpResponseFunc(http.StatusOK, malformedResponse),
+			name:    "200 with malformed response",
+			request: defaultProvisionRequest(),
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   malformedResponse,
+			},
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:               "500 with malformed response",
-			request:            defaultProvisionRequest(),
-			prepareAndDo:       returnHttpResponseFunc(http.StatusInternalServerError, malformedResponse),
+			name:    "500 with malformed response",
+			request: defaultProvisionRequest(),
+			httpReaction: httpReaction{
+				status: http.StatusInternalServerError,
+				body:   malformedResponse,
+			},
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:         "500 with conventional failure response",
-			request:      defaultProvisionRequest(),
-			prepareAndDo: returnHttpResponseFunc(http.StatusInternalServerError, conventionalFailureResponseBody),
-			expectedErr:  testHttpStatusCodeError(),
+			name:    "500 with conventional failure response",
+			request: defaultProvisionRequest(),
+			httpReaction: httpReaction{
+				status: http.StatusInternalServerError,
+				body:   conventionalFailureResponseBody,
+			},
+			expectedErr: testHttpStatusCodeError(),
 		},
 	}
 
 	for _, tc := range cases {
-		doProvisionInstanceTest(t, tc.name, tc.request, tc.responseBody, tc.prepareAndDo, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
+		if tc.httpChecks.URL == "" {
+			tc.httpChecks.URL = "/v2/service_instances/test-instance-id"
+		}
+
+		doProvisionInstanceTest(t, tc.name, tc.request, tc.httpChecks, tc.httpReaction, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
 }
 
@@ -115,44 +139,17 @@ func doProvisionInstanceTest(
 	t *testing.T,
 	name string,
 	request *ProvisionRequest,
-	responseBody string,
-	prepareAndDo prepareAndDoFunc,
+	httpChecks httpChecks,
+	httpReaction httpReaction,
 	expectedResponse *ProvisionResponse,
 	expectedErrMessage string,
 	expectedErr error,
 ) {
-	router := mux.NewRouter()
-	router.HandleFunc("/v2/service_instances/test-instance-id", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		bodyBytes := []byte(responseBody)
-		_, err := w.Write(bodyBytes)
-		if err != nil {
-			t.Errorf("%v: error writing response bytes: %v", name, err)
-		}
-	})
-
-	server := httptest.NewServer(router)
-	URL := server.URL
-	defer server.Close()
-
-	var klient Client
-	if prepareAndDo != nil {
-		klient = &client{
-			Name:             "test client",
-			Verbose:          true,
-			URL:              URL,
-			prepareAndDoFunc: prepareAndDo,
-		}
-	} else {
-		config := DefaultClientConfiguration()
-		config.URL = URL
-
-		var err error
-		klient, err = NewClient(config)
-		if err != nil {
-			t.Errorf("%v: error creating client: %v", name, err)
-			return
-		}
+	klient := &client{
+		Name:          "test client",
+		Verbose:       true,
+		URL:           "https://example.com",
+		doRequestFunc: doHTTP(t, name, httpChecks, httpReaction),
 	}
 
 	response, err := klient.ProvisionInstance(request)

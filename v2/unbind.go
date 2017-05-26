@@ -1,7 +1,6 @@
 package v2
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 )
@@ -12,12 +11,11 @@ func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 	}
 
 	fullURL := fmt.Sprintf(bindingURLFmt, c.URL, r.InstanceID, r.BindingID)
-	var queryParamBuffer bytes.Buffer
-	appendQueryParam(&queryParamBuffer, serviceIDKey, r.ServiceID)
-	appendQueryParam(&queryParamBuffer, planIDKey, r.PlanID)
-	fullURL += "?" + queryParamBuffer.String()
+	params := map[string]string{}
+	params[serviceIDKey] = r.ServiceID
+	params[planIDKey] = r.PlanID
 
-	response, err := c.prepareAndDoFunc(http.MethodDelete, fullURL, nil)
+	response, err := c.prepareAndDo(http.MethodDelete, fullURL, params, nil)
 	if err != nil {
 		return nil, err
 	}
