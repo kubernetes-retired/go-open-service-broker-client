@@ -8,10 +8,10 @@ import (
 // internal message body types
 
 type bindRequestBody struct {
-	serviceID    string                 `json:"service_id"`
-	planID       string                 `json:"plan_id"`
-	parameters   map[string]interface{} `json:"parameters,omitempty"`
-	bindResource map[string]interface{} `json:"bind_resource,omitempty"`
+	ServiceID    string                 `json:"service_id"`
+	PlanID       string                 `json:"plan_id"`
+	Parameters   map[string]interface{} `json:"parameters,omitempty"`
+	BindResource map[string]interface{} `json:"bind_resource,omitempty"`
 }
 
 const (
@@ -27,18 +27,18 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 	fullURL := fmt.Sprintf(bindingURLFmt, c.URL, r.InstanceID, r.BindingID)
 
 	requestBody := &bindRequestBody{
-		serviceID:  r.ServiceID,
-		planID:     r.PlanID,
-		parameters: r.Parameters,
+		ServiceID:  r.ServiceID,
+		PlanID:     r.PlanID,
+		Parameters: r.Parameters,
 	}
 
 	if r.BindResource != nil {
-		requestBody.bindResource = map[string]interface{}{}
+		requestBody.BindResource = map[string]interface{}{}
 		if r.BindResource.AppGUID != nil {
-			requestBody.bindResource[bindResourceAppGUIDKey] = *r.BindResource.AppGUID
+			requestBody.BindResource[bindResourceAppGUIDKey] = *r.BindResource.AppGUID
 		}
 		if r.BindResource.Route != nil {
-			requestBody.bindResource[bindResourceRouteKey] = *r.BindResource.AppGUID
+			requestBody.BindResource[bindResourceRouteKey] = *r.BindResource.AppGUID
 		}
 	}
 
