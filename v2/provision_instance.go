@@ -28,8 +28,10 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 	}
 
 	fullURL := fmt.Sprintf(serviceInstanceURLFmt, c.URL, r.InstanceID)
+
+	params := map[string]string{}
 	if r.AcceptsIncomplete {
-		fullURL += "?accepts_incomplete=true"
+		params[asyncQueryParamKey] = "true"
 	}
 
 	requestBody := &provisionRequestBody{
@@ -40,7 +42,7 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 		Parameters:       r.Parameters,
 	}
 
-	response, err := c.prepareAndDoFunc(http.MethodPut, fullURL, requestBody)
+	response, err := c.prepareAndDo(http.MethodPut, fullURL, params, requestBody)
 	if err != nil {
 		return nil, err
 	}

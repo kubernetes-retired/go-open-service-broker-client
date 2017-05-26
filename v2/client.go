@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -24,7 +23,7 @@ const (
 	serviceInstanceURLFmt = "%s/v2/service_instances/%s"
 	lastOperationURLFmt   = "%s/v2/service_instances/%s/last_operation"
 	bindingURLFmt         = "%s/v2/service_instances/%s/service_bindings/%s"
-	queryParamFmt         = "%s=%s"
+	asyncQueryParamKey    = "accepts_incomplete"
 )
 
 // NewClient is a CreateFunc for creating a new functional Client and
@@ -51,7 +50,7 @@ func NewClient(config *ClientConfiguration) (Client, error) {
 		EnableAlphaFeatures: config.EnableAlphaFeatures,
 		httpClient:          httpClient,
 	}
-	c.prepareAndDoFunc = c.prepareAndDo
+	c.doRequestFunc = c.doRequest
 
 	if config.AuthConfig != nil {
 		if config.AuthConfig.BasicAuthConfig == nil {
@@ -66,7 +65,7 @@ func NewClient(config *ClientConfiguration) (Client, error) {
 
 var _ CreateFunc = NewClient
 
-type prepareAndDoFunc func(method, URL string, body interface{}) (*http.Response, error)
+type doRequestFunc func(request *http.Request) (*http.Response, error)
 
 // client provides a functional implementation of the Client interface.
 type client struct {
@@ -77,8 +76,8 @@ type client struct {
 	EnableAlphaFeatures bool
 	Verbose             bool
 
-	httpClient       *http.Client
-	prepareAndDoFunc prepareAndDoFunc
+	httpClient    *http.Client
+	doRequestFunc doRequestFunc
 }
 
 var _ Client = &client{}
@@ -103,7 +102,7 @@ const (
 // message body, and executes the request, returning an http.Response or an
 // error.  Errors returned from this function represent http-layer errors and
 // not errors in the Open Service Broker API.
-func (c *client) prepareAndDo(method, URL string, body interface{}) (*http.Response, error) {
+func (c *client) prepareAndDo(method, URL string, params map[string]string, body interface{}) (*http.Response, error) {
 	var bodyReader io.Reader
 
 	if body != nil {
@@ -124,31 +123,28 @@ func (c *client) prepareAndDo(method, URL string, body interface{}) (*http.Respo
 	if bodyReader != nil {
 		request.Header.Set(contentType, jsonType)
 	}
+
 	if c.BasicAuthConfig != nil {
 		request.SetBasicAuth(c.BasicAuthConfig.Username, c.BasicAuthConfig.Password)
+	}
+
+	if params != nil {
+		q := request.URL.Query()
+		for k, v := range params {
+			q.Set(k, v)
+		}
+		request.URL.RawQuery = q.Encode()
 	}
 
 	if c.Verbose {
 		glog.Infof("broker %q: doing request to %q", c.Name, URL)
 	}
 
-	return c.httpClient.Do(request)
+	return c.doRequestFunc(request)
 }
 
-// appendQueryParam appends key=value to buffer if value is non-null,
-// prepending the '&' character if the buffer is non-empty.
-func appendQueryParam(buffer *bytes.Buffer, key, value string) error {
-	if value == "" {
-		return nil
-	}
-	if buffer.Len() > 0 {
-		_, err := buffer.WriteString("&")
-		if err != nil {
-			return err
-		}
-	}
-	_, err := buffer.WriteString(fmt.Sprintf(queryParamFmt, key, value))
-	return err
+func (c *client) doRequest(request *http.Request) (*http.Response, error) {
+	return c.httpClient.Do(request)
 }
 
 // unmarshalResponse unmartials the response body of the given response into

@@ -2,14 +2,12 @@ package v2
 
 import (
 	"bytes"
-	"errors"
+	// "errors"
+	"fmt"
 	"io"
 	"net/http"
-	"net/http/httptest"
 	"reflect"
 	"testing"
-
-	"github.com/gorilla/mux"
 )
 
 // func init() {
@@ -147,12 +145,6 @@ func falsePtr() *bool {
 	return &b
 }
 
-func returnErrFunc(message string) prepareAndDoFunc {
-	return func(_, _ string, _ interface{}) (*http.Response, error) {
-		return nil, errors.New(message)
-	}
-}
-
 func closer(s string) io.ReadCloser {
 	return nopCloser{bytes.NewBufferString(s)}
 }
@@ -163,101 +155,119 @@ type nopCloser struct {
 
 func (nopCloser) Close() error { return nil }
 
-func returnHttpResponseFunc(statusCode int, body string) prepareAndDoFunc {
-	return func(_, _ string, _ interface{}) (*http.Response, error) {
+type httpChecks struct {
+	URL    string
+	params map[string]string
+}
+
+type httpReaction struct {
+	status int
+	body   string
+	err    error
+}
+
+var walkingGhostErr = fmt.Errorf("test has already failed")
+
+func doHTTP(t *testing.T, name string, checks httpChecks, reaction httpReaction) func(*http.Request) (*http.Response, error) {
+	return func(request *http.Request) (*http.Response, error) {
+		if len(checks.URL) > 0 && checks.URL != request.URL.Path {
+			t.Errorf("%v: unexpected URL; expected %v, got %v", name, checks.URL, request.URL.Path)
+			return nil, walkingGhostErr
+		}
+
+		if len(checks.params) > 0 {
+			for k, v := range checks.params {
+				actualValue := request.URL.Query().Get(k)
+				if e, a := v, actualValue; e != a {
+					t.Errorf("%v: unexpected parameter value for key %v; expected %v, got %v", name, k, e, a)
+					return nil, walkingGhostErr
+				}
+			}
+		}
+
 		return &http.Response{
-			StatusCode: statusCode,
-			Body:       closer(body),
-		}, nil
+			StatusCode: reaction.status,
+			Body:       closer(reaction.body),
+		}, reaction.err
 	}
 }
 
 func TestGetCatalog(t *testing.T) {
 	cases := []struct {
 		name               string
-		prepareAndDo       prepareAndDoFunc
-		responseBody       string
+		httpReaction       httpReaction
 		expectedResponse   *CatalogResponse
 		expectedErrMessage string
 		expectedErr        error
 	}{
 		{
-			name:             "success 1",
-			responseBody:     okCatalogBytes,
+			name: "success 1",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   okCatalogBytes,
+			},
 			expectedResponse: okCatalogResponse(),
 		},
 		{
-			name:             "success 2",
-			responseBody:     okCatalog2Bytes,
+			name: "success 2",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   okCatalog2Bytes,
+			},
 			expectedResponse: okCatalog2Response(),
 		},
 		{
-			name:               "http error",
-			prepareAndDo:       returnErrFunc("http error"),
+			name: "http error",
+			httpReaction: httpReaction{
+				err: fmt.Errorf("http error"),
+			},
 			expectedErrMessage: "http error",
 		},
 		{
-			name:               "200 with malformed response",
-			prepareAndDo:       returnHttpResponseFunc(http.StatusOK, malformedResponse),
+			name: "200 with malformed response",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   malformedResponse,
+			},
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:               "500 with malformed response",
-			prepareAndDo:       returnHttpResponseFunc(http.StatusInternalServerError, malformedResponse),
+			name: "500 with malformed response",
+			httpReaction: httpReaction{
+				status: http.StatusInternalServerError,
+				body:   malformedResponse,
+			},
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:         "500 with conventional failure response",
-			prepareAndDo: returnHttpResponseFunc(http.StatusInternalServerError, conventionalFailureResponseBody),
-			expectedErr:  testHttpStatusCodeError(),
+			name: "500 with malformed response",
+			httpReaction: httpReaction{
+				status: http.StatusInternalServerError,
+				body:   conventionalFailureResponseBody,
+			},
+			expectedErr: testHttpStatusCodeError(),
 		},
 	}
 
 	for _, tc := range cases {
-		doGetCatalogTest(t, tc.name, tc.responseBody, tc.prepareAndDo, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
+		doGetCatalogTest(t, tc.name, tc.httpReaction, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
 }
 
 func doGetCatalogTest(
 	t *testing.T,
-	name, responseBody string,
-	prepareAndDo prepareAndDoFunc,
+	name string,
+	httpReaction httpReaction,
 	expectedResponse *CatalogResponse,
 	expectedErrMessage string,
 	expectedErr error,
 ) {
-	router := mux.NewRouter()
-	router.HandleFunc("/v2/catalog", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		bodyBytes := []byte(responseBody)
-		_, err := w.Write(bodyBytes)
-		if err != nil {
-			t.Errorf("%v: error writing response bytes: %v", name, err)
-		}
-	})
 
-	server := httptest.NewServer(router)
-	URL := server.URL
-	defer server.Close()
-
-	var klient Client
-	if prepareAndDo != nil {
-		klient = &client{
-			Name:             "test client",
-			Verbose:          true,
-			URL:              URL,
-			prepareAndDoFunc: prepareAndDo,
-		}
-	} else {
-		config := DefaultClientConfiguration()
-		config.URL = URL
-
-		var err error
-		klient, err = NewClient(config)
-		if err != nil {
-			t.Errorf("%v: error creating client: %v", name, err)
-			return
-		}
+	klient := &client{
+		Name:          "test client",
+		Verbose:       true,
+		URL:           "https://example.com",
+		doRequestFunc: doHTTP(t, name, httpChecks{}, httpReaction),
 	}
 
 	response, err := klient.GetCatalog()

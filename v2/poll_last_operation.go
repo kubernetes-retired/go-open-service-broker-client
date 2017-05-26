@@ -1,7 +1,6 @@
 package v2
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 )
@@ -20,24 +19,21 @@ func (c *client) PollLastOperation(r *LastOperationRequest) (*LastOperationRespo
 	}
 
 	fullURL := fmt.Sprintf(lastOperationURLFmt, c.URL, r.InstanceID)
-	var queryParamBuffer bytes.Buffer
+	params := map[string]string{}
 	switch {
 	case r.ServiceID != nil:
-		appendQueryParam(&queryParamBuffer, serviceIDKey, *r.ServiceID)
+		params[serviceIDKey] = *r.ServiceID
 		fallthrough
 	case r.PlanID != nil:
-		appendQueryParam(&queryParamBuffer, planIDKey, *r.PlanID)
+		params[planIDKey] = *r.PlanID
 		fallthrough
 	case r.OperationKey != nil:
 		op := *r.OperationKey
 		opStr := string(op)
-		appendQueryParam(&queryParamBuffer, operationKey, opStr)
-	}
-	if queryParamBuffer.Len() > 0 {
-		fullURL += "?" + queryParamBuffer.String()
+		params[operationKey] = opStr
 	}
 
-	response, err := c.prepareAndDoFunc(http.MethodGet, fullURL, nil)
+	response, err := c.prepareAndDo(http.MethodGet, fullURL, params, nil /* request body */)
 	if err != nil {
 		return nil, err
 	}

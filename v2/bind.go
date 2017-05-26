@@ -42,7 +42,7 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 		}
 	}
 
-	response, err := c.prepareAndDoFunc(http.MethodPut, fullURL, requestBody)
+	response, err := c.prepareAndDo(http.MethodPut, fullURL, nil /* params */, requestBody)
 	if err != nil {
 		return nil, err
 	}
