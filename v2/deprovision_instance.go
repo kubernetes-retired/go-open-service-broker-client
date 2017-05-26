@@ -18,8 +18,10 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 	}
 
 	fullURL := fmt.Sprintf(serviceInstanceURLFmt, c.URL, r.InstanceID)
+
+	params := map[string]string{}
 	if r.AcceptsIncomplete {
-		fullURL += "?accepts_incomplete=true"
+		params[asyncQueryParamKey] = "true"
 	}
 
 	requestServiceID := string(r.ServiceID)
@@ -30,7 +32,7 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 		planID:    &requestPlanID,
 	}
 
-	response, err := c.prepareAndDo(http.MethodDelete, fullURL, nil /* params */, requestBody)
+	response, err := c.prepareAndDo(http.MethodDelete, fullURL, params, requestBody)
 	if err != nil {
 		return nil, err
 	}
@@ -45,8 +47,8 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 		}
 
 		var opPtr *OperationKey
-		if responseBodyObj.operation != nil {
-			opStr := *responseBodyObj.operation
+		if responseBodyObj.Operation != nil {
+			opStr := *responseBodyObj.Operation
 			op := OperationKey(opStr)
 			opPtr = &op
 		}

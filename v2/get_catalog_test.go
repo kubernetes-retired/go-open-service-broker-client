@@ -5,6 +5,7 @@ import (
 	// "errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"testing"
@@ -157,6 +158,7 @@ func (nopCloser) Close() error { return nil }
 
 type httpChecks struct {
 	URL    string
+	body   string
 	params map[string]string
 }
 
@@ -183,6 +185,21 @@ func doHTTP(t *testing.T, name string, checks httpChecks, reaction httpReaction)
 					return nil, walkingGhostErr
 				}
 			}
+		}
+
+		var bodyBytes []byte
+		if request.Body != nil {
+			var err error
+			bodyBytes, err = ioutil.ReadAll(request.Body)
+			if err != nil {
+				t.Errorf("%v: error reading request body bytes: %v", name, err)
+				return nil, walkingGhostErr
+			}
+		}
+
+		if e, a := checks.body, string(bodyBytes); e != a {
+			t.Errorf("%v: unexpected request body: expected %v, got %v", name, e, a)
+			return nil, walkingGhostErr
 		}
 
 		return &http.Response{
