@@ -31,6 +31,8 @@ func defaultAsyncProvisionRequest() *ProvisionRequest {
 	return r
 }
 
+const successProvisionRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id","organization_guid":"test-organization-guid","space_guid":"test-space-guid"}`
+
 const successProvisionResponseBody = `{
   "dashboard_url": "https://example.com/dashboard"
 }`
@@ -67,7 +69,16 @@ func TestProvisionInstance(t *testing.T) {
 		expectedErr        error
 	}{
 		{
-			name:    "success - synchronous",
+			name:    "success - created",
+			request: defaultProvisionRequest(),
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   successProvisionResponseBody,
+			},
+			expectedResponse: successProvisionResponse(),
+		},
+		{
+			name:    "success - ok",
 			request: defaultProvisionRequest(),
 			httpReaction: httpReaction{
 				status: http.StatusOK,
@@ -129,6 +140,10 @@ func TestProvisionInstance(t *testing.T) {
 	for _, tc := range cases {
 		if tc.httpChecks.URL == "" {
 			tc.httpChecks.URL = "/v2/service_instances/test-instance-id"
+		}
+
+		if tc.httpChecks.body == "" {
+			tc.httpChecks.body = successProvisionRequestBody
 		}
 
 		doProvisionInstanceTest(t, tc.name, tc.request, tc.httpChecks, tc.httpReaction, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)

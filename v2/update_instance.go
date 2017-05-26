@@ -47,8 +47,8 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 		}
 
 		var opPtr *OperationKey
-		if responseBodyObj.operation != nil {
-			opStr := *responseBodyObj.operation
+		if responseBodyObj.Operation != nil {
+			opStr := *responseBodyObj.Operation
 			op := OperationKey(opStr)
 			opPtr = &op
 		}

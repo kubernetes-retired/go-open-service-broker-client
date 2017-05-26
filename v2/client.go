@@ -186,7 +186,7 @@ func (c *client) handleFailureResponse(response *http.Response) error {
 // internal message body types
 
 type asyncSuccessResponseBody struct {
-	operation *string `json:"operation"`
+	Operation *string `json:"operation"`
 }
 
 type failureResponseBody struct {
