@@ -68,6 +68,15 @@ func TestProvisionInstance(t *testing.T) {
 		expectedErr        error
 	}{
 		{
+			name: "invalid request",
+			request: func() *ProvisionRequest {
+				r := defaultProvisionRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			expectedErrMessage: "instanceID is required",
+		},
+		{
 			name: "success - created",
 			httpReaction: httpReaction{
 				status: http.StatusCreated,
@@ -148,5 +157,75 @@ func TestProvisionInstance(t *testing.T) {
 		response, err := klient.ProvisionInstance(tc.request)
 
 		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
+	}
+}
+
+func TestValidateProvisionRequest(t *testing.T) {
+	cases := []struct {
+		name    string
+		request *ProvisionRequest
+		valid   bool
+	}{
+		{
+			name:    "valid",
+			request: defaultProvisionRequest(),
+			valid:   true,
+		},
+		{
+			name: "missing instance ID",
+			request: func() *ProvisionRequest {
+				r := defaultProvisionRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing service ID",
+			request: func() *ProvisionRequest {
+				r := defaultProvisionRequest()
+				r.ServiceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing plan ID",
+			request: func() *ProvisionRequest {
+				r := defaultProvisionRequest()
+				r.PlanID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing organization GUID",
+			request: func() *ProvisionRequest {
+				r := defaultProvisionRequest()
+				r.OrganizationGUID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing space GUID",
+			request: func() *ProvisionRequest {
+				r := defaultProvisionRequest()
+				r.SpaceGUID = ""
+				return r
+			}(),
+			valid: false,
+		},
+	}
+
+	for _, tc := range cases {
+		err := validateProvisionRequest(tc.request)
+		if err != nil {
+			if tc.valid {
+				t.Errorf("%v: expected valid, got error: %v", tc.name, err)
+			}
+		} else if !tc.valid {
+			t.Errorf("%v: expected invalid, got valid", tc.name)
+		}
 	}
 }

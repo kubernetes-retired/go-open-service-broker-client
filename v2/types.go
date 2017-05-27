@@ -177,9 +177,11 @@ type DeprovisionRequest struct {
 	// AcceptsIncomple indicates whether the client can accept asynchronous
 	// provisioning.  If the broker does not support asynchronous provisioning
 	// of a service, it will reject a request with this field set to true.
-	AcceptsIncomplete bool   `json:"accepts_incomplete"`
-	ServiceID         string `json:service_id"`
-	PlanID            string `json:plan_id"`
+	AcceptsIncomplete bool `json:"accepts_incomplete"`
+	// ServiceID is the ID of the service the instance is provisioned from.
+	ServiceID string `json:service_id"`
+	// PlanID is the ID of the plan the instance is provisioned from.
+	PlanID string `json:plan_id"`
 }
 
 // DeprovisionResponse represents a broker's response to a deprovision request.
@@ -234,11 +236,11 @@ const (
 // BindRequest represents a request to create a new binding to an instance of
 // a service.
 type BindRequest struct {
-	// InstanceID is the ID of the instance to bind to.
-	InstanceID string `json:"instance_id"`
 	// BindingID is the ID of the new binding to create.  The Open Service
 	// Broker API specification recommends using a GUID for this field.
 	BindingID string `json:"binding_id"`
+	// InstanceID is the ID of the instance to bind to.
+	InstanceID string `json:"instance_id"`
 
 	// ServiceID is the ID of the service the instance was provisioned from.
 	ServiceID string `json:"service_id"`

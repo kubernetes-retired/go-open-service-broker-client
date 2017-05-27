@@ -69,6 +69,15 @@ func TestBind(t *testing.T) {
 		expectedErr        error
 	}{
 		{
+			name: "invalid request",
+			request: func() *BindRequest {
+				r := defaultBindRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			expectedErrMessage: "instanceID is required",
+		},
+		{
 			name: "success - created",
 			httpReaction: httpReaction{
 				status: http.StatusCreated,
@@ -147,5 +156,66 @@ func TestBind(t *testing.T) {
 		response, err := klient.Bind(tc.request)
 
 		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
+	}
+}
+
+func TestValidateBindRequest(t *testing.T) {
+	cases := []struct {
+		name    string
+		request *BindRequest
+		valid   bool
+	}{
+		{
+			name:    "valid",
+			request: defaultBindRequest(),
+			valid:   true,
+		},
+		{
+			name: "missing binding ID",
+			request: func() *BindRequest {
+				r := defaultBindRequest()
+				r.BindingID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing instance ID",
+			request: func() *BindRequest {
+				r := defaultBindRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing service ID",
+			request: func() *BindRequest {
+				r := defaultBindRequest()
+				r.ServiceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing plan ID",
+			request: func() *BindRequest {
+				r := defaultBindRequest()
+				r.PlanID = ""
+				return r
+			}(),
+			valid: false,
+		},
+	}
+
+	for _, tc := range cases {
+		err := validateBindRequest(tc.request)
+		if err != nil {
+			if tc.valid {
+				t.Errorf("%v: expected valid, got error: %v", tc.name, err)
+			}
+		} else if !tc.valid {
+			t.Errorf("%v: expected invalid, got valid", tc.name)
+		}
 	}
 }

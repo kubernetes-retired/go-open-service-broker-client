@@ -65,3 +65,19 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 
 	return nil, nil
 }
+
+func validateDeprovisionRequest(request *DeprovisionRequest) error {
+	if request.InstanceID == "" {
+		return required("instanceID")
+	}
+
+	if request.ServiceID == "" {
+		return required("serviceID")
+	}
+
+	if request.PlanID == "" {
+		return required("planID")
+	}
+
+	return nil
+}

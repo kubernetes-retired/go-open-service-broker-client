@@ -34,3 +34,23 @@ func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 
 	return nil, nil
 }
+
+func validateUnbindRequest(request *UnbindRequest) error {
+	if request.BindingID == "" {
+		return required("bindingID")
+	}
+
+	if request.InstanceID == "" {
+		return required("instanceID")
+	}
+
+	if request.ServiceID == "" {
+		return required("serviceID")
+	}
+
+	if request.PlanID == "" {
+		return required("planID")
+	}
+
+	return nil
+}
