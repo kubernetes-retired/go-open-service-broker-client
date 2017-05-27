@@ -3,7 +3,6 @@ package v2
 import (
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 )
 
@@ -35,8 +34,7 @@ func TestUnbind(t *testing.T) {
 		expectedErr        error
 	}{
 		{
-			name:    "success - ok",
-			request: defaultUnbindRequest(),
+			name: "success - ok",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successUnbindResponseBody,
@@ -44,16 +42,14 @@ func TestUnbind(t *testing.T) {
 			expectedResponse: successUnbindResponse(),
 		},
 		{
-			name:    "http error",
-			request: defaultUnbindRequest(),
+			name: "http error",
 			httpReaction: httpReaction{
 				err: fmt.Errorf("http error"),
 			},
 			expectedErrMessage: "http error",
 		},
 		{
-			name:    "200 with malformed response",
-			request: defaultUnbindRequest(),
+			name: "200 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   malformedResponse,
@@ -61,8 +57,7 @@ func TestUnbind(t *testing.T) {
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:    "500 with malformed response",
-			request: defaultUnbindRequest(),
+			name: "500 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   malformedResponse,
@@ -70,8 +65,7 @@ func TestUnbind(t *testing.T) {
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:    "500 with conventional failure response",
-			request: defaultUnbindRequest(),
+			name: "500 with conventional failure response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,
@@ -81,6 +75,10 @@ func TestUnbind(t *testing.T) {
 	}
 
 	for _, tc := range cases {
+		if tc.request == nil {
+			tc.request = defaultUnbindRequest()
+		}
+
 		if tc.httpChecks.URL == "" {
 			tc.httpChecks.URL = "/v2/service_instances/test-instance-id/service_bindings/test-binding-id"
 		}
@@ -91,41 +89,10 @@ func TestUnbind(t *testing.T) {
 			tc.httpChecks.params[planIDKey] = testPlanID
 		}
 
-		doUnbindInstanceTest(t, tc.name, tc.request, tc.httpChecks, tc.httpReaction, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
-	}
-}
+		klient := newTestClient(t, tc.name, tc.httpChecks, tc.httpReaction)
 
-func doUnbindInstanceTest(
-	t *testing.T,
-	name string,
-	request *UnbindRequest,
-	httpChecks httpChecks,
-	httpReaction httpReaction,
-	expectedResponse *UnbindResponse,
-	expectedErrMessage string,
-	expectedErr error,
-) {
-	klient := &client{
-		Name:          "test client",
-		Verbose:       true,
-		URL:           "https://example.com",
-		doRequestFunc: doHTTP(t, name, httpChecks, httpReaction),
-	}
+		response, err := klient.Unbind(tc.request)
 
-	response, err := klient.Unbind(request)
-	if err != nil && expectedErrMessage == "" && expectedErr == nil {
-		t.Errorf("%v: error getting catalog: %v", name, err)
-		return
-	} else if err != nil && expectedErrMessage != "" && expectedErrMessage != err.Error() {
-		t.Errorf("%v: unexpected error message: expected %v, got %v", name, expectedErrMessage, err)
-		return
-	} else if err != nil && expectedErr != nil && !reflect.DeepEqual(expectedErr, err) {
-		t.Errorf("%v: unexpected error: expected %+v, got %v", name, expectedErr, err)
-		return
-	}
-
-	if e, a := expectedResponse, response; !reflect.DeepEqual(e, a) {
-		t.Errorf("%v: unexpected diff in bind response; expected %+v, got %+v", name, e, a)
-		return
+		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
 }

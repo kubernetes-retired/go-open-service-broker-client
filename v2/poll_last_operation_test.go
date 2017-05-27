@@ -3,7 +3,6 @@ package v2
 import (
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 )
 
@@ -126,41 +125,10 @@ func TestPollLastOperation(t *testing.T) {
 			tc.httpChecks.params[planIDKey] = testPlanID
 		}
 
-		doPollLastOperationTest(t, tc.name, tc.request, tc.httpChecks, tc.httpReaction, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
-	}
-}
+		klient := newTestClient(t, tc.name, tc.httpChecks, tc.httpReaction)
 
-func doPollLastOperationTest(
-	t *testing.T,
-	name string,
-	request *LastOperationRequest,
-	httpChecks httpChecks,
-	httpReaction httpReaction,
-	expectedResponse *LastOperationResponse,
-	expectedErrMessage string,
-	expectedErr error,
-) {
-	klient := &client{
-		Name:          "test client",
-		Verbose:       true,
-		URL:           "https://example.com",
-		doRequestFunc: doHTTP(t, name, httpChecks, httpReaction),
-	}
+		response, err := klient.PollLastOperation(tc.request)
 
-	response, err := klient.PollLastOperation(request)
-	if err != nil && expectedErrMessage == "" && expectedErr == nil {
-		t.Errorf("%v: error getting catalog: %v", name, err)
-		return
-	} else if err != nil && expectedErrMessage != "" && expectedErrMessage != err.Error() {
-		t.Errorf("%v: unexpected error message: expected %v, got %v", name, expectedErrMessage, err)
-		return
-	} else if err != nil && expectedErr != nil && !reflect.DeepEqual(expectedErr, err) {
-		t.Errorf("%v: unexpected error: expected %+v, got %v", name, expectedErr, err)
-		return
-	}
-
-	if e, a := expectedResponse, response; !reflect.DeepEqual(e, a) {
-		t.Errorf("%v: unexpected diff in catalog response; expected %+v, got %+v", name, e, a)
-		return
+		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
 }
