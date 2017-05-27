@@ -167,5 +167,4 @@ func doDeprovisionInstanceTest(
 		t.Errorf("%v: unexpected diff in catalog response; expected %+v, got %+v", name, e, a)
 		return
 	}
-
 }

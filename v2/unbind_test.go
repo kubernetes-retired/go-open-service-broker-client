@@ -85,9 +85,10 @@ func TestUnbind(t *testing.T) {
 			tc.httpChecks.URL = "/v2/service_instances/test-instance-id/service_bindings/test-binding-id"
 		}
 
-		if len(tc.httpChecks.params) != 0 {
-			tc.httpChecks.params["service_id"] = testServiceID
-			tc.httpChecks.params["plan_id"] = testPlanID
+		if len(tc.httpChecks.params) == 0 {
+			tc.httpChecks.params = map[string]string{}
+			tc.httpChecks.params[serviceIDKey] = testServiceID
+			tc.httpChecks.params[planIDKey] = testPlanID
 		}
 
 		doUnbindInstanceTest(t, tc.name, tc.request, tc.httpChecks, tc.httpReaction, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
@@ -127,5 +128,4 @@ func doUnbindInstanceTest(
 		t.Errorf("%v: unexpected diff in bind response; expected %+v, got %+v", name, e, a)
 		return
 	}
-
 }
