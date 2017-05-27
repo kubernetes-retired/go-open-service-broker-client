@@ -82,7 +82,7 @@ func TestBind(t *testing.T) {
 			name:    "success - ok",
 			request: defaultBindRequest(),
 			httpReaction: httpReaction{
-				status: http.StatusCreated,
+				status: http.StatusOK,
 				body:   successBindResponseBody,
 			},
 			expectedResponse: successBindResponse(),
