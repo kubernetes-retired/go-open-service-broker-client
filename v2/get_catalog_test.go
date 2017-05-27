@@ -1,20 +1,10 @@
 package v2
 
 import (
-	"bytes"
-	// "errors"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"net/http"
-	"reflect"
 	"testing"
 )
-
-// func init() {
-// 	flag.Set("alsologtostderr", "true")
-// 	flag.Set("v", "5")
-// }
 
 const okCatalogBytes = `{
   "services": [{
@@ -123,92 +113,6 @@ func okCatalog2Response() *CatalogResponse {
 	}
 }
 
-const malformedResponse = `{`
-
-const conventionalFailureResponseBody = `{
-	"error": "TestError",
-	"description": "test error description"
-}`
-
-func testHttpStatusCodeError() error {
-	errorMessage := "TestError"
-	description := "test error description"
-	return HTTPStatusCodeError{http.StatusInternalServerError, &errorMessage, &description}
-}
-
-func truePtr() *bool {
-	b := true
-	return &b
-}
-
-func falsePtr() *bool {
-	b := false
-	return &b
-}
-
-func closer(s string) io.ReadCloser {
-	return nopCloser{bytes.NewBufferString(s)}
-}
-
-type nopCloser struct {
-	io.Reader
-}
-
-func (nopCloser) Close() error { return nil }
-
-type httpChecks struct {
-	URL    string
-	body   string
-	params map[string]string
-}
-
-type httpReaction struct {
-	status int
-	body   string
-	err    error
-}
-
-var walkingGhostErr = fmt.Errorf("test has already failed")
-
-func doHTTP(t *testing.T, name string, checks httpChecks, reaction httpReaction) func(*http.Request) (*http.Response, error) {
-	return func(request *http.Request) (*http.Response, error) {
-		if len(checks.URL) > 0 && checks.URL != request.URL.Path {
-			t.Errorf("%v: unexpected URL; expected %v, got %v", name, checks.URL, request.URL.Path)
-			return nil, walkingGhostErr
-		}
-
-		if len(checks.params) > 0 {
-			for k, v := range checks.params {
-				actualValue := request.URL.Query().Get(k)
-				if e, a := v, actualValue; e != a {
-					t.Errorf("%v: unexpected parameter value for key %v; expected %v, got %v", name, k, e, a)
-					return nil, walkingGhostErr
-				}
-			}
-		}
-
-		var bodyBytes []byte
-		if request.Body != nil {
-			var err error
-			bodyBytes, err = ioutil.ReadAll(request.Body)
-			if err != nil {
-				t.Errorf("%v: error reading request body bytes: %v", name, err)
-				return nil, walkingGhostErr
-			}
-		}
-
-		if e, a := checks.body, string(bodyBytes); e != a {
-			t.Errorf("%v: unexpected request body: expected %v, got %v", name, e, a)
-			return nil, walkingGhostErr
-		}
-
-		return &http.Response{
-			StatusCode: reaction.status,
-			Body:       closer(reaction.body),
-		}, reaction.err
-	}
-}
-
 func TestGetCatalog(t *testing.T) {
 	cases := []struct {
 		name               string
@@ -267,40 +171,14 @@ func TestGetCatalog(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		doGetCatalogTest(t, tc.name, tc.httpReaction, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
-	}
-}
+		httpChecks := httpChecks{
+			URL: "/v2/catalog",
+		}
 
-func doGetCatalogTest(
-	t *testing.T,
-	name string,
-	httpReaction httpReaction,
-	expectedResponse *CatalogResponse,
-	expectedErrMessage string,
-	expectedErr error,
-) {
+		klient := newTestClient(t, tc.name, httpChecks, tc.httpReaction)
 
-	klient := &client{
-		Name:          "test client",
-		Verbose:       true,
-		URL:           "https://example.com",
-		doRequestFunc: doHTTP(t, name, httpChecks{}, httpReaction),
-	}
+		response, err := klient.GetCatalog()
 
-	response, err := klient.GetCatalog()
-	if err != nil && expectedErrMessage == "" && expectedErr == nil {
-		t.Errorf("%v: error getting catalog: %v", name, err)
-		return
-	} else if err != nil && expectedErrMessage != "" && expectedErrMessage != err.Error() {
-		t.Errorf("%v: unexpected error message: expected %v, got %v", name, expectedErrMessage, err)
-		return
-	} else if err != nil && expectedErr != nil && !reflect.DeepEqual(expectedErr, err) {
-		t.Errorf("%v: unexpected error: expected %+v, got %v", name, expectedErr, err)
-		return
-	}
-
-	if e, a := expectedResponse, response; !reflect.DeepEqual(e, a) {
-		t.Errorf("%v: unexpected diff in catalog response; expected %+v, got %+v", name, e, a)
-		return
+		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
 }

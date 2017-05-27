@@ -3,7 +3,6 @@ package v2
 import (
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 )
 
@@ -69,8 +68,7 @@ func TestProvisionInstance(t *testing.T) {
 		expectedErr        error
 	}{
 		{
-			name:    "success - created",
-			request: defaultProvisionRequest(),
+			name: "success - created",
 			httpReaction: httpReaction{
 				status: http.StatusCreated,
 				body:   successProvisionResponseBody,
@@ -78,8 +76,7 @@ func TestProvisionInstance(t *testing.T) {
 			expectedResponse: successProvisionResponse(),
 		},
 		{
-			name:    "success - ok",
-			request: defaultProvisionRequest(),
+			name: "success - ok",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successProvisionResponseBody,
@@ -91,7 +88,7 @@ func TestProvisionInstance(t *testing.T) {
 			request: defaultAsyncProvisionRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
-					"accepts_incomplete": "true",
+					asyncQueryParamKey: "true",
 				},
 			},
 			httpReaction: httpReaction{
@@ -101,16 +98,14 @@ func TestProvisionInstance(t *testing.T) {
 			expectedResponse: successProvisionResponseAsync(),
 		},
 		{
-			name:    "http error",
-			request: defaultProvisionRequest(),
+			name: "http error",
 			httpReaction: httpReaction{
 				err: fmt.Errorf("http error"),
 			},
 			expectedErrMessage: "http error",
 		},
 		{
-			name:    "200 with malformed response",
-			request: defaultProvisionRequest(),
+			name: "200 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   malformedResponse,
@@ -118,8 +113,7 @@ func TestProvisionInstance(t *testing.T) {
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:    "500 with malformed response",
-			request: defaultProvisionRequest(),
+			name: "500 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   malformedResponse,
@@ -127,8 +121,7 @@ func TestProvisionInstance(t *testing.T) {
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:    "500 with conventional failure response",
-			request: defaultProvisionRequest(),
+			name: "500 with conventional failure response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,
@@ -138,6 +131,10 @@ func TestProvisionInstance(t *testing.T) {
 	}
 
 	for _, tc := range cases {
+		if tc.request == nil {
+			tc.request = defaultProvisionRequest()
+		}
+
 		if tc.httpChecks.URL == "" {
 			tc.httpChecks.URL = "/v2/service_instances/test-instance-id"
 		}
@@ -146,41 +143,10 @@ func TestProvisionInstance(t *testing.T) {
 			tc.httpChecks.body = successProvisionRequestBody
 		}
 
-		doProvisionInstanceTest(t, tc.name, tc.request, tc.httpChecks, tc.httpReaction, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
-	}
-}
+		klient := newTestClient(t, tc.name, tc.httpChecks, tc.httpReaction)
 
-func doProvisionInstanceTest(
-	t *testing.T,
-	name string,
-	request *ProvisionRequest,
-	httpChecks httpChecks,
-	httpReaction httpReaction,
-	expectedResponse *ProvisionResponse,
-	expectedErrMessage string,
-	expectedErr error,
-) {
-	klient := &client{
-		Name:          "test client",
-		Verbose:       true,
-		URL:           "https://example.com",
-		doRequestFunc: doHTTP(t, name, httpChecks, httpReaction),
-	}
+		response, err := klient.ProvisionInstance(tc.request)
 
-	response, err := klient.ProvisionInstance(request)
-	if err != nil && expectedErrMessage == "" && expectedErr == nil {
-		t.Errorf("%v: error getting catalog: %v", name, err)
-		return
-	} else if err != nil && expectedErrMessage != "" && expectedErrMessage != err.Error() {
-		t.Errorf("%v: unexpected error message: expected %v, got %v", name, expectedErrMessage, err)
-		return
-	} else if err != nil && expectedErr != nil && !reflect.DeepEqual(expectedErr, err) {
-		t.Errorf("%v: unexpected error: expected %+v, got %v", name, expectedErr, err)
-		return
-	}
-
-	if e, a := expectedResponse, response; !reflect.DeepEqual(e, a) {
-		t.Errorf("%v: unexpected diff in catalog response; expected %+v, got %+v", name, e, a)
-		return
+		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
 }

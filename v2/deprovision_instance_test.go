@@ -3,7 +3,6 @@ package v2
 import (
 	"fmt"
 	"net/http"
-	"reflect"
 	"testing"
 )
 
@@ -49,8 +48,7 @@ func TestDeprovisionInstance(t *testing.T) {
 		expectedErr        error
 	}{
 		{
-			name:    "success - ok",
-			request: defaultDeprovisionRequest(),
+			name: "success - ok",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successDeprovisionResponseBody,
@@ -58,8 +56,7 @@ func TestDeprovisionInstance(t *testing.T) {
 			expectedResponse: successDeprovisionResponse(),
 		},
 		{
-			name:    "success - gone",
-			request: defaultDeprovisionRequest(),
+			name: "success - gone",
 			httpReaction: httpReaction{
 				status: http.StatusGone,
 				body:   successDeprovisionResponseBody,
@@ -69,6 +66,11 @@ func TestDeprovisionInstance(t *testing.T) {
 		{
 			name:    "success - async",
 			request: defaultAsyncDeprovisionRequest(),
+			httpChecks: httpChecks{
+				params: map[string]string{
+					asyncQueryParamKey: "true",
+				},
+			},
 			httpReaction: httpReaction{
 				status: http.StatusAccepted,
 				body:   successAsyncDeprovisionResponseBody,
@@ -78,6 +80,11 @@ func TestDeprovisionInstance(t *testing.T) {
 		{
 			name:    "accepted with malformed response",
 			request: defaultAsyncDeprovisionRequest(),
+			httpChecks: httpChecks{
+				params: map[string]string{
+					asyncQueryParamKey: "true",
+				},
+			},
 			httpReaction: httpReaction{
 				status: http.StatusAccepted,
 				body:   malformedResponse,
@@ -85,16 +92,14 @@ func TestDeprovisionInstance(t *testing.T) {
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:    "http error",
-			request: defaultDeprovisionRequest(),
+			name: "http error",
 			httpReaction: httpReaction{
 				err: fmt.Errorf("http error"),
 			},
 			expectedErrMessage: "http error",
 		},
 		{
-			name:    "200 with malformed response",
-			request: defaultDeprovisionRequest(),
+			name: "200 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   malformedResponse,
@@ -102,8 +107,7 @@ func TestDeprovisionInstance(t *testing.T) {
 			expectedResponse: successDeprovisionResponse(),
 		},
 		{
-			name:    "500 with malformed response",
-			request: defaultDeprovisionRequest(),
+			name: "500 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   malformedResponse,
@@ -111,8 +115,7 @@ func TestDeprovisionInstance(t *testing.T) {
 			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
-			name:    "500 with conventional failure response",
-			request: defaultDeprovisionRequest(),
+			name: "500 with conventional failure response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,
@@ -122,6 +125,10 @@ func TestDeprovisionInstance(t *testing.T) {
 	}
 
 	for _, tc := range cases {
+		if tc.request == nil {
+			tc.request = defaultDeprovisionRequest()
+		}
+
 		if tc.httpChecks.URL == "" {
 			tc.httpChecks.URL = "/v2/service_instances/test-instance-id"
 		}
@@ -130,41 +137,10 @@ func TestDeprovisionInstance(t *testing.T) {
 			tc.httpChecks.body = "{}"
 		}
 
-		doDeprovisionInstanceTest(t, tc.name, tc.request, tc.httpChecks, tc.httpReaction, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
-	}
-}
+		klient := newTestClient(t, tc.name, tc.httpChecks, tc.httpReaction)
 
-func doDeprovisionInstanceTest(
-	t *testing.T,
-	name string,
-	request *DeprovisionRequest,
-	httpChecks httpChecks,
-	httpReaction httpReaction,
-	expectedResponse *DeprovisionResponse,
-	expectedErrMessage string,
-	expectedErr error,
-) {
-	klient := &client{
-		Name:          "test client",
-		Verbose:       true,
-		URL:           "https://example.com",
-		doRequestFunc: doHTTP(t, name, httpChecks, httpReaction),
-	}
+		response, err := klient.DeprovisionInstance(tc.request)
 
-	response, err := klient.DeprovisionInstance(request)
-	if err != nil && expectedErrMessage == "" && expectedErr == nil {
-		t.Errorf("%v: error getting catalog: %v", name, err)
-		return
-	} else if err != nil && expectedErrMessage != "" && expectedErrMessage != err.Error() {
-		t.Errorf("%v: unexpected error message: expected %v, got %v", name, expectedErrMessage, err)
-		return
-	} else if err != nil && expectedErr != nil && !reflect.DeepEqual(expectedErr, err) {
-		t.Errorf("%v: unexpected error: expected %+v, got %v", name, expectedErr, err)
-		return
-	}
-
-	if e, a := expectedResponse, response; !reflect.DeepEqual(e, a) {
-		t.Errorf("%v: unexpected diff in catalog response; expected %+v, got %+v", name, e, a)
-		return
+		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
 }
