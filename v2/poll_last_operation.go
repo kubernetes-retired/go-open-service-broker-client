@@ -20,14 +20,14 @@ func (c *client) PollLastOperation(r *LastOperationRequest) (*LastOperationRespo
 
 	fullURL := fmt.Sprintf(lastOperationURLFmt, c.URL, r.InstanceID)
 	params := map[string]string{}
-	switch {
-	case r.ServiceID != nil:
+
+	if r.ServiceID != nil {
 		params[serviceIDKey] = *r.ServiceID
-		fallthrough
-	case r.PlanID != nil:
+	}
+	if r.PlanID != nil {
 		params[planIDKey] = *r.PlanID
-		fallthrough
-	case r.OperationKey != nil:
+	}
+	if r.OperationKey != nil {
 		op := *r.OperationKey
 		opStr := string(op)
 		params[operationKey] = opStr
