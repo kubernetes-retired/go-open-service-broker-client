@@ -98,26 +98,57 @@ func DefaultClientConfiguration() *ClientConfiguration {
 // 1.  Create a new binding to an instance of a service with the Bind method
 // 2.  Delete a binding to an instance with the Unbind method
 type Client interface {
-	// GetCatalog calls GET on the Broker's catalog endpoint (/v2/catalog) and
-	// returns a response and an error.
+	// GetCatalog returns information about the services the broker offers and
+	// their plans or an error.  GetCatalog calls GET on the Broker's catalog
+	// endpoint (/v2/catalog).
 	GetCatalog() (*CatalogResponse, error)
-	// ProvisionInstance sends a provision request to the broker and returns
-	// the response or an error.
+	// ProvisionInstance requests that a new instance of a service be
+	// provisioned and returns information about the instance or an error.
+	// ProvisionInstance does a PUT on the Broker's endpoint for the requested
+	// instance ID (/v2/service_instances/instance-id).
+	//
+	// If the AcceptsIncomplete field of the request is set to true, the
+	// broker may complete the request asynchronously.  Callers should check
+	// the value of the Async field on the response and check the operation
+	// status using PollLastOperation if the Async field is true.
 	ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, error)
-	// UpdateInstance sends an update instance request to the broker and
-	// returns the response or an error.
+	// UpdateInstance requests that an instances plan or parameters be updated
+	// and returns information about asynchronous responses or an error.
+	// UpdateInstance does a PATCH on the Broker's endpoint for the requested
+	// instance ID (/v2/service_instances/instance-id).
+	//
+	// If the AcceptsIncomplete field of the request is set to true, the
+	// broker may complete the request asynchronously.  Callers should check
+	// the value of the Async field on the response and check the operation
+	// status using PollLastOperation if the Async field is true.
 	UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceResponse, error)
-	// DeprovisionInstance sends a deprovision request to the broker and
-	// returns the response or an error.
+	// DeprovisionInstance requests that an instances plan or parameters be
+	// updated and returns information about asynchronous responses or an
+	// error. DeprovisionInstance does a DELETE on the Broker's endpoint for
+	// the requested instance ID (/v2/service_instances/instance-id).
+	//
+	// If the AcceptsIncomplete field of the request is set to true, the
+	// broker may complete the request asynchronously.  Callers should check
+	// the value of the Async field on the response and check the operation
+	// status using PollLastOperation if the Async field is true.
 	DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionResponse, error)
 	// PollLastOperation sends a request to query the last operation for a
-	// service instance to the broker and returns the response or an error.
+	// service instance to the broker and returns information about the
+	// operation or an error.  PollLastOperation does a GET on the broker's
+	// last operation endpoint for the requested instance ID
+	// (/v2/service_instances/instance-id/last_operation).
+	//
+	// Callers should periodically call PollLastOperation until
 	PollLastOperation(r *LastOperationRequest) (*LastOperationResponse, error)
-	// Bind sends a bind request to the broker and returns the response or an
-	// error.
+	// Bind requests a new binding between a service instance and an
+	// application and returns information about the binding or an error. Bind
+	// does a PUT on the Broker's endpoint for the requested instance and
+	// binding IDs (/v2/service_instances/instance-id/service_bindings/binding-id).
 	Bind(r *BindRequest) (*BindResponse, error)
-	// Unbind sends an unbind request to the broker and returns the response
-	// or an error.
+	// Bind requests that a binding between a service instance and an
+	// application be deleted and returns information about the binding or an
+	// error. Unbind does a DELETE on the Broker's endpoint for the requested
+	// instance and binding IDs (/v2/service_instances/instance-id/service_bindings/binding-id).
 	Unbind(r *UnbindRequest) (*UnbindResponse, error)
 }
 

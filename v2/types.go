@@ -22,8 +22,7 @@ type Service struct {
 	// - route_forwarding
 	// - volume_mount
 	//
-	// See the doc on service permissions for more information.
-	// TODO: write doc
+	// See the Open Service Broker API spec for information on permissions.
 	Requires []string `json:"requires,omitempty"`
 	// Bindable represents whether a service is bindable.  May be overriden on
 	// a per-plan basis by the Plan.Bindable field.
