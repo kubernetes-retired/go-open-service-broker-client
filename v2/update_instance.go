@@ -22,8 +22,9 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 	}
 
 	fullURL := fmt.Sprintf(serviceInstanceURLFmt, c.URL, r.InstanceID)
+	params := map[string]string{}
 	if r.AcceptsIncomplete {
-		fullURL += "?accepts_incomplete=true"
+		params[asyncQueryParamKey] = "true"
 	}
 
 	requestBody := &updateInstanceRequestBody{
@@ -32,7 +33,7 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 		parameters: r.Parameters,
 	}
 
-	response, err := c.prepareAndDo(http.MethodPatch, fullURL, nil, requestBody)
+	response, err := c.prepareAndDo(http.MethodPatch, fullURL, params, requestBody)
 	if err != nil {
 		return nil, err
 	}
