@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-// const testBindingID = "test-binding-id"
-
 func defaultUnbindRequest() *UnbindRequest {
 	return &UnbindRequest{
 		BindingID:  testBindingID,
@@ -33,6 +31,15 @@ func TestUnbind(t *testing.T) {
 		expectedErrMessage string
 		expectedErr        error
 	}{
+		{
+			name: "invalid request",
+			request: func() *UnbindRequest {
+				r := defaultUnbindRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			expectedErrMessage: "instanceID is required",
+		},
 		{
 			name: "success - ok",
 			httpReaction: httpReaction{
@@ -94,5 +101,66 @@ func TestUnbind(t *testing.T) {
 		response, err := klient.Unbind(tc.request)
 
 		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
+	}
+}
+
+func TestValidateUnbindRequest(t *testing.T) {
+	cases := []struct {
+		name    string
+		request *UnbindRequest
+		valid   bool
+	}{
+		{
+			name:    "valid",
+			request: defaultUnbindRequest(),
+			valid:   true,
+		},
+		{
+			name: "missing binding ID",
+			request: func() *UnbindRequest {
+				r := defaultUnbindRequest()
+				r.BindingID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing instance ID",
+			request: func() *UnbindRequest {
+				r := defaultUnbindRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing service ID",
+			request: func() *UnbindRequest {
+				r := defaultUnbindRequest()
+				r.ServiceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing plan ID",
+			request: func() *UnbindRequest {
+				r := defaultUnbindRequest()
+				r.PlanID = ""
+				return r
+			}(),
+			valid: false,
+		},
+	}
+
+	for _, tc := range cases {
+		err := validateUnbindRequest(tc.request)
+		if err != nil {
+			if tc.valid {
+				t.Errorf("%v: expected valid, got error: %v", tc.name, err)
+			}
+		} else if !tc.valid {
+			t.Errorf("%v: expected invalid, got valid", tc.name)
+		}
 	}
 }

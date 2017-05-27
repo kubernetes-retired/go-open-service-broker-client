@@ -48,6 +48,15 @@ func TestUpdateInstanceInstance(t *testing.T) {
 		expectedErr        error
 	}{
 		{
+			name: "invalid request",
+			request: func() *UpdateInstanceRequest {
+				r := defaultUpdateInstanceRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			expectedErrMessage: "instanceID is required",
+		},
+		{
 			name: "success - ok",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
@@ -134,5 +143,39 @@ func TestUpdateInstanceInstance(t *testing.T) {
 		response, err := klient.UpdateInstance(tc.request)
 
 		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
+	}
+}
+
+func TestValidateUpdateInstanceRequest(t *testing.T) {
+	cases := []struct {
+		name    string
+		request *UpdateInstanceRequest
+		valid   bool
+	}{
+		{
+			name:    "valid",
+			request: defaultUpdateInstanceRequest(),
+			valid:   true,
+		},
+		{
+			name: "missing instance ID",
+			request: func() *UpdateInstanceRequest {
+				r := defaultUpdateInstanceRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+	}
+
+	for _, tc := range cases {
+		err := validateUpdateInstanceRequest(tc.request)
+		if err != nil {
+			if tc.valid {
+				t.Errorf("%v: expected valid, got error: %v", tc.name, err)
+			}
+		} else if !tc.valid {
+			t.Errorf("%v: expected invalid, got valid", tc.name)
+		}
 	}
 }

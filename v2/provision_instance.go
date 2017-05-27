@@ -77,3 +77,31 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 		return nil, c.handleFailureResponse(response)
 	}
 }
+
+func required(name string) error {
+	return fmt.Errorf("%v is required", name)
+}
+
+func validateProvisionRequest(request *ProvisionRequest) error {
+	if request.InstanceID == "" {
+		return required("instanceID")
+	}
+
+	if request.ServiceID == "" {
+		return required("serviceID")
+	}
+
+	if request.PlanID == "" {
+		return required("planID")
+	}
+
+	if request.OrganizationGUID == "" {
+		return required("organizationGUID")
+	}
+
+	if request.SpaceGUID == "" {
+		return required("spaceGUID")
+	}
+
+	return nil
+}

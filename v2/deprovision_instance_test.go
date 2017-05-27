@@ -48,6 +48,15 @@ func TestDeprovisionInstance(t *testing.T) {
 		expectedErr        error
 	}{
 		{
+			name: "invalid request",
+			request: func() *DeprovisionRequest {
+				r := defaultDeprovisionRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			expectedErrMessage: "instanceID is required",
+		},
+		{
 			name: "success - ok",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
@@ -142,5 +151,57 @@ func TestDeprovisionInstance(t *testing.T) {
 		response, err := klient.DeprovisionInstance(tc.request)
 
 		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
+	}
+}
+
+func TestValidateDeprovisionRequest(t *testing.T) {
+	cases := []struct {
+		name    string
+		request *DeprovisionRequest
+		valid   bool
+	}{
+		{
+			name:    "valid",
+			request: defaultDeprovisionRequest(),
+			valid:   true,
+		},
+		{
+			name: "missing instance ID",
+			request: func() *DeprovisionRequest {
+				r := defaultDeprovisionRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing service ID",
+			request: func() *DeprovisionRequest {
+				r := defaultDeprovisionRequest()
+				r.ServiceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+		{
+			name: "missing plan ID",
+			request: func() *DeprovisionRequest {
+				r := defaultDeprovisionRequest()
+				r.PlanID = ""
+				return r
+			}(),
+			valid: false,
+		},
+	}
+
+	for _, tc := range cases {
+		err := validateDeprovisionRequest(tc.request)
+		if err != nil {
+			if tc.valid {
+				t.Errorf("%v: expected valid, got error: %v", tc.name, err)
+			}
+		} else if !tc.valid {
+			t.Errorf("%v: expected invalid, got valid", tc.name)
+		}
 	}
 }

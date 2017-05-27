@@ -68,3 +68,15 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 
 	return nil, nil
 }
+
+func validateUpdateInstanceRequest(request *UpdateInstanceRequest) error {
+	if request.InstanceID == "" {
+		return required("instanceID")
+	}
+
+	if request.ServiceID == "" {
+		return required("serviceID")
+	}
+
+	return nil
+}

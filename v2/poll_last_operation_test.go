@@ -132,3 +132,37 @@ func TestPollLastOperation(t *testing.T) {
 		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
 }
+
+func TestValidateLastOperationRequest(t *testing.T) {
+	cases := []struct {
+		name    string
+		request *LastOperationRequest
+		valid   bool
+	}{
+		{
+			name:    "valid",
+			request: defaultLastOperationRequest(),
+			valid:   true,
+		},
+		{
+			name: "missing instance ID",
+			request: func() *LastOperationRequest {
+				r := defaultLastOperationRequest()
+				r.InstanceID = ""
+				return r
+			}(),
+			valid: false,
+		},
+	}
+
+	for _, tc := range cases {
+		err := validateLastOperationRequest(tc.request)
+		if err != nil {
+			if tc.valid {
+				t.Errorf("%v: expected valid, got error: %v", tc.name, err)
+			}
+		} else if !tc.valid {
+			t.Errorf("%v: expected invalid, got valid", tc.name)
+		}
+	}
+}

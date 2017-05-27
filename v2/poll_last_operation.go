@@ -56,3 +56,11 @@ func (c *client) PollLastOperation(r *LastOperationRequest) (*LastOperationRespo
 
 	return nil, nil
 }
+
+func validateLastOperationRequest(request *LastOperationRequest) error {
+	if request.InstanceID == "" {
+		return required("instanceID")
+	}
+
+	return nil
+}
