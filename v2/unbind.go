@@ -22,8 +22,12 @@ func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 
 	switch response.StatusCode {
 	case http.StatusOK, http.StatusGone:
-		// TODO: should we establish that the response body ('{}') is correct?
-		return &UnbindResponse{}, nil
+		userResponse := &UnbindResponse{}
+		if err := c.unmarshalResponse(response, userResponse); err != nil {
+			return nil, err
+		}
+
+		return userResponse, nil
 	default:
 		return nil, c.handleFailureResponse(response)
 	}
