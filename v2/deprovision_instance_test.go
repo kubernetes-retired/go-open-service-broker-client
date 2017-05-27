@@ -68,12 +68,21 @@ func TestDeprovisionInstance(t *testing.T) {
 		},
 		{
 			name:    "success - async",
-			request: defaultDeprovisionRequest(),
+			request: defaultAsyncDeprovisionRequest(),
 			httpReaction: httpReaction{
 				status: http.StatusAccepted,
 				body:   successAsyncDeprovisionResponseBody,
 			},
 			expectedResponse: successDeprovisionResponseAsync(),
+		},
+		{
+			name:    "accepted with malformed response",
+			request: defaultAsyncDeprovisionRequest(),
+			httpReaction: httpReaction{
+				status: http.StatusAccepted,
+				body:   malformedResponse,
+			},
+			expectedErrMessage: "unexpected end of JSON input",
 		},
 		{
 			name:    "http error",
