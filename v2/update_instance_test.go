@@ -40,6 +40,7 @@ func successUpdateInstanceResponseAsync() *UpdateInstanceResponse {
 func TestUpdateInstanceInstance(t *testing.T) {
 	cases := []struct {
 		name               string
+		enableAlpha        bool
 		request            *UpdateInstanceRequest
 		httpChecks         httpChecks
 		httpReaction       httpReaction
@@ -138,7 +139,7 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			tc.httpChecks.body = "{}"
 		}
 
-		klient := newTestClient(t, tc.name, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.UpdateInstance(tc.request)
 

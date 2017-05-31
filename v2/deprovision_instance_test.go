@@ -40,6 +40,7 @@ func successDeprovisionResponseAsync() *DeprovisionResponse {
 func TestDeprovisionInstance(t *testing.T) {
 	cases := []struct {
 		name               string
+		enableAlpha        bool
 		request            *DeprovisionRequest
 		httpChecks         httpChecks
 		httpReaction       httpReaction
@@ -146,7 +147,7 @@ func TestDeprovisionInstance(t *testing.T) {
 			tc.httpChecks.body = "{}"
 		}
 
-		klient := newTestClient(t, tc.name, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.DeprovisionInstance(tc.request)
 

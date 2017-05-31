@@ -57,9 +57,12 @@ func successProvisionResponseAsync() *ProvisionResponse {
 	return r
 }
 
+const alphaContextProvisionRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id","organization_guid":"test-organization-guid","space_guid":"test-space-guid","context":{"foo":"bar"}}`
+
 func TestProvisionInstance(t *testing.T) {
 	cases := []struct {
 		name               string
+		enableAlpha        bool
 		request            *ProvisionRequest
 		httpChecks         httpChecks
 		httpReaction       httpReaction
@@ -137,6 +140,25 @@ func TestProvisionInstance(t *testing.T) {
 			},
 			expectedErr: testHttpStatusCodeError(),
 		},
+		{
+			name:        "alpha - context",
+			enableAlpha: true,
+			request: func() *ProvisionRequest {
+				r := defaultProvisionRequest()
+				r.AlphaContext = map[string]interface{}{
+					"foo": "bar",
+				}
+				return r
+			}(),
+			httpChecks: httpChecks{
+				body: alphaContextProvisionRequestBody,
+			},
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   successProvisionResponseBody,
+			},
+			expectedResponse: successProvisionResponse(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -152,7 +174,7 @@ func TestProvisionInstance(t *testing.T) {
 			tc.httpChecks.body = successProvisionRequestBody
 		}
 
-		klient := newTestClient(t, tc.name, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.ProvisionInstance(tc.request)
 
