@@ -76,6 +76,49 @@ type Plan struct {
 	// facing content and display instructions.  Metadata may contain
 	// platform-conventional values.  Optional.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	// AlphaParameterSchemas is ALPHA and may change or disappear at any time.
+	// AlphaParameterSchemas will only be provided if alpha features are
+	// enabled.
+	//
+	// AlphaParameterSchemas is a set of optional JSONSchemas that describe
+	// the expected parameters for creation and update of instances and
+	// creation of bindings.
+	AlphaParameterSchemas *AlphaParameterSchemas `json:"schemas,omitempty"`
+}
+
+// AlphaParameterSchemas is ALPHA and may change or disappear at any time.
+//
+// AlphaParameterSchemas is a set of optional JSONSchemas that describe
+// the expected parameters for creation and update of instances and
+// creation of bindings.
+type AlphaParameterSchemas struct {
+	ServiceInstances *AlphaServiceInstanceSchema `json:"service_instance,omitempty"`
+	ServiceBindings  *AlphaServiceBindingSchema  `json:"service_binding,omitempty"`
+}
+
+// AlphaServiceInstanceSchema is ALPHA and may change or disappear at any time.
+//
+// AlphaServiceInstanceSchema represents a plan's schemas for creation and
+// update of an API resource.
+type AlphaServiceInstanceSchema struct {
+	Create *AlphaInputParameters `json:"create,omitempty"`
+	Update *AlphaInputParameters `json:"update,omitempty"`
+}
+
+// AlphaServiceBindingSchema is ALPHA and may change or disappear at any time.
+//
+// AlphaServiceBindingSchema represents a plan's schemas for the parameters
+// accepted for binding creation.
+type AlphaServiceBindingSchema struct {
+	Create *AlphaInputParameters `json:"create,omitempty"`
+}
+
+// AlphaInputParameters is ALPHA and may change or dissappear at any time.
+//
+// AlphaInputParameters represents a schema for input parameters for creation or
+// update of an API resource.
+type AlphaInputParameters struct {
+	Parameters interface{} `json:"parameters,omitempty"`
 }
 
 // CatalogResponse is sent as the response to catalog requests.

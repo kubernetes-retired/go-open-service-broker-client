@@ -19,6 +19,15 @@ func (c *client) GetCatalog() (*CatalogResponse, error) {
 		if err := c.unmarshalResponse(response, catalogResponse); err != nil {
 			return nil, err
 		}
+
+		if !c.EnableAlphaFeatures {
+			for ii := range catalogResponse.Services {
+				for jj := range catalogResponse.Services[ii].Plans {
+					catalogResponse.Services[ii].Plans[jj].AlphaParameterSchemas = nil
+				}
+			}
+		}
+
 		return catalogResponse, nil
 	default:
 		return nil, c.handleFailureResponse(response)
