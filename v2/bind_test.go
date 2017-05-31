@@ -61,6 +61,7 @@ const optionalFieldsBindRequestBody = `{"service_id":"test-service-id","plan_id"
 func TestBind(t *testing.T) {
 	cases := []struct {
 		name               string
+		enableAlpha        bool
 		request            *BindRequest
 		httpChecks         httpChecks
 		httpReaction       httpReaction
@@ -151,7 +152,7 @@ func TestBind(t *testing.T) {
 			tc.httpChecks.body = defaultBindRequestBody
 		}
 
-		klient := newTestClient(t, tc.name, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.Bind(tc.request)
 

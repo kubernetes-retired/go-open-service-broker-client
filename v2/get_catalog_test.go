@@ -116,6 +116,7 @@ func okCatalog2Response() *CatalogResponse {
 func TestGetCatalog(t *testing.T) {
 	cases := []struct {
 		name               string
+		enableAlpha        bool
 		httpReaction       httpReaction
 		expectedResponse   *CatalogResponse
 		expectedErrMessage string
@@ -175,7 +176,7 @@ func TestGetCatalog(t *testing.T) {
 			URL: "/v2/catalog",
 		}
 
-		klient := newTestClient(t, tc.name, httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, tc.enableAlpha, httpChecks, tc.httpReaction)
 
 		response, err := klient.GetCatalog()
 

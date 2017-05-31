@@ -46,6 +46,7 @@ const failedLastOperationResponseBody = `{"state":"failed","description":"test d
 func TestPollLastOperation(t *testing.T) {
 	cases := []struct {
 		name               string
+		enableAlpha        bool
 		request            *LastOperationRequest
 		httpChecks         httpChecks
 		httpReaction       httpReaction
@@ -125,7 +126,7 @@ func TestPollLastOperation(t *testing.T) {
 			tc.httpChecks.params[planIDKey] = testPlanID
 		}
 
-		klient := newTestClient(t, tc.name, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.PollLastOperation(tc.request)
 

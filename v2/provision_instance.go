@@ -15,6 +15,7 @@ type provisionRequestBody struct {
 	OrganizationGUID string                 `json:"organization_guid"`
 	SpaceGUID        string                 `json:"space_guid"`
 	Parameters       map[string]interface{} `json:"parameters,omitempty"`
+	AlphaContext     map[string]interface{} `json:"context,omitempty"`
 }
 
 type provisionSuccessResponseBody struct {
@@ -40,6 +41,10 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 		OrganizationGUID: r.OrganizationGUID,
 		SpaceGUID:        r.SpaceGUID,
 		Parameters:       r.Parameters,
+	}
+
+	if c.EnableAlphaFeatures {
+		requestBody.AlphaContext = r.AlphaContext
 	}
 
 	response, err := c.prepareAndDo(http.MethodPut, fullURL, params, requestBody)

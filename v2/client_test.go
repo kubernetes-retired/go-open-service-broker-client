@@ -60,12 +60,13 @@ type httpReaction struct {
 	err    error
 }
 
-func newTestClient(t *testing.T, name string, httpChecks httpChecks, httpReaction httpReaction) *client {
+func newTestClient(t *testing.T, name string, enableAlpha bool, httpChecks httpChecks, httpReaction httpReaction) *client {
 	return &client{
-		Name:          "test client",
-		Verbose:       true,
-		URL:           "https://example.com",
-		doRequestFunc: doHTTP(t, name, httpChecks, httpReaction),
+		Name:                "test client",
+		Verbose:             true,
+		URL:                 "https://example.com",
+		EnableAlphaFeatures: enableAlpha,
+		doRequestFunc:       doHTTP(t, name, httpChecks, httpReaction),
 	}
 }
 
