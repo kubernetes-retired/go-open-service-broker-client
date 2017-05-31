@@ -78,7 +78,7 @@ useful.
 
 This repository is a pet project of mine.  During the day, I work on the
 [Kubernetes](https://github.com/kubernetes/kubernetes)
-[Service Catalog](https://github.com/pmorie/go-open-service-broker-client) as
+[Service Catalog](https://github.com/kubernetes-incubator/service-catalog) as
 well as the Open Service Broker API specification.  I have never written a
 client library for a REST API before, and this one was relevant, so here we
 are.
