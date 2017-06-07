@@ -113,6 +113,84 @@ func okCatalog2Response() *CatalogResponse {
 	}
 }
 
+const alphaParameterSchemaCatalogBytes = `{
+  "services": [{
+    "name": "fake-service",
+    "id": "acb56d7c-XXXX-XXXX-XXXX-feb140a59a66",
+    "description": "fake service",
+    "tags": ["tag1", "tag2"],
+    "requires": ["route_forwarding"],
+    "bindable": true,
+    "metadata": {
+    	"a": "b",
+    	"c": "d"
+    },
+    "dashboard_client": {
+      "id": "398e2f8e-XXXX-XXXX-XXXX-19a71ecbcf64",
+      "secret": "277cabb0-XXXX-XXXX-XXXX-7822c0a90e5d",
+      "redirect_uri": "http://localhost:1234"
+    },
+    "plan_updateable": true,
+    "plans": [{
+      "name": "fake-plan-1",
+      "id": "d3031751-XXXX-XXXX-XXXX-a42377d3320e",
+      "description": "description1",
+      "metadata": {
+      	"b": "c",
+      	"d": "e"
+      },
+      "schemas": {
+      	"service_instance": {
+	  	  "create": {
+	  	  	"parameters": {
+	  		  "foo": "bar"	
+	  	  	}
+	  	  },
+	  	  "update": {
+	  	  	"parameters": {
+	  		  "baz": "zap"
+	  	    }
+	  	  }
+      	},
+      	"service_binding": {
+      	  "create": {
+	  	  	"parameters": {
+      	  	  "zoo": "blu"
+      	    }
+      	  }
+      	}
+      }
+    }]
+  }]
+}`
+
+func alphaParameterCatalogResponse() *CatalogResponse {
+	catalog := okCatalogResponse()
+	catalog.Services[0].Plans[0].AlphaParameterSchemas = &AlphaParameterSchemas{
+		ServiceInstances: &AlphaServiceInstanceSchema{
+			Create: &AlphaInputParameters{
+				Parameters: map[string]interface{}{
+					"foo": "bar",
+				},
+			},
+			Update: &AlphaInputParameters{
+				Parameters: map[string]interface{}{
+					"baz": "zap",
+				},
+			},
+		},
+		ServiceBindings: &AlphaServiceBindingSchema{
+			Create: &AlphaInputParameters{
+				Parameters: map[string]interface{}{
+					"zoo": "blu",
+				},
+			},
+		},
+	}
+
+	return catalog
+}
+
 func TestGetCatalog(t *testing.T) {
 	cases := []struct {
 		name               string
@@ -168,6 +246,23 @@ func TestGetCatalog(t *testing.T) {
 				body:   conventionalFailureResponseBody,
 			},
 			expectedErr: testHttpStatusCodeError(),
+		},
+		{
+			name:        "alpha enabled - schemas",
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   alphaParameterSchemaCatalogBytes,
+			},
+			expectedResponse: alphaParameterCatalogResponse(),
+		},
+		{
+			name: "alpha disabled - schemas",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   alphaParameterSchemaCatalogBytes,
+			},
+			expectedResponse: okCatalogResponse(),
 		},
 	}
 
