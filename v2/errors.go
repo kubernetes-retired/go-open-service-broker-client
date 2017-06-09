@@ -39,6 +39,16 @@ func (e HTTPStatusCodeError) Error() string {
 	return fmt.Sprintf("Status: %v; ErrorMessage: %v; Description: %v", e.StatusCode, errorMessage, description)
 }
 
+// IsGoneError returns whether the error represents an HTTP GONE status.
+func IsGoneError(err error) bool {
+	statusCodeError, ok := err.(HTTPStatusCodeError)
+	if !ok {
+		return false
+	}
+
+	return statusCodeError.StatusCode == http.StatusGone
+}
+
 // IsConflictError returns whether the error represents a conflict.
 func IsConflictError(err error) bool {
 	statusCodeError, ok := err.(HTTPStatusCodeError)

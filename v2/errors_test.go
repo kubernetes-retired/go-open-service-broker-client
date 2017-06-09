@@ -40,6 +40,40 @@ func TestIsConflictError(t *testing.T) {
 	}
 }
 
+func TestIsGoneError(t *testing.T) {
+	cases := []struct {
+		name     string
+		err      error
+		expected bool
+	}{
+		{
+			name:     "non-http error",
+			err:      errors.New("some error"),
+			expected: false,
+		},
+		{
+			name: "http non-gone error",
+			err: HTTPStatusCodeError{
+				StatusCode: http.StatusForbidden,
+			},
+			expected: false,
+		},
+		{
+			name: "http gone error",
+			err: HTTPStatusCodeError{
+				StatusCode: http.StatusGone,
+			},
+			expected: true,
+		},
+	}
+
+	for _, tc := range cases {
+		if e, a := tc.expected, IsGoneError(tc.err); e != a {
+			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
+		}
+	}
+}
+
 func strPtr(s string) *string {
 	return &s
 }

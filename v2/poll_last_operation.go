@@ -12,8 +12,6 @@ const (
 )
 
 func (c *client) PollLastOperation(r *LastOperationRequest) (*LastOperationResponse, error) {
-	// TODO: support special handling for delete responses
-
 	if err := validateLastOperationRequest(r); err != nil {
 		return nil, err
 	}
@@ -46,10 +44,6 @@ func (c *client) PollLastOperation(r *LastOperationRequest) (*LastOperationRespo
 		}
 
 		return userResponse, nil
-	case http.StatusGone:
-		// TODO: async operations for deprovision have a special case to be
-		// handled here
-		fallthrough
 	default:
 		return nil, c.handleFailureResponse(response)
 	}

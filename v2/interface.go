@@ -130,7 +130,9 @@ type Client interface {
 	// If the AcceptsIncomplete field of the request is set to true, the
 	// broker may complete the request asynchronously.  Callers should check
 	// the value of the Async field on the response and check the operation
-	// status using PollLastOperation if the Async field is true.
+	// status using PollLastOperation if the Async field is true.  Note that
+	// there are special semantics for PollLastOperation when checking the
+	// status of deprovision operations; see the doc for that method.
 	DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionResponse, error)
 	// PollLastOperation sends a request to query the last operation for a
 	// service instance to the broker and returns information about the
@@ -138,7 +140,14 @@ type Client interface {
 	// last operation endpoint for the requested instance ID
 	// (/v2/service_instances/instance-id/last_operation).
 	//
-	// Callers should periodically call PollLastOperation until
+	// Callers should periodically call PollLastOperation until they receive a
+	// success response.  PollLastOperation may return an HTTP GONE error for
+	// asynchronous deprovisions.  This is a valid response for async
+	// operations and means that the instance has been successfully
+	// deprovisioned.  When calling PollLastOperation to check the status of
+	// an asynchronous deprovision, callers check the status of an
+	// asynchronous deprovision, callers should test the value of the returned
+	// error with IsGoneError.
 	PollLastOperation(r *LastOperationRequest) (*LastOperationResponse, error)
 	// Bind requests a new binding between a service instance and an
 	// application and returns information about the binding or an error. Bind
