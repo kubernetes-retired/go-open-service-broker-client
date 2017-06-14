@@ -6,6 +6,36 @@ import (
 	"testing"
 )
 
+func TestIsHTTPError(t *testing.T) {
+	cases := []struct {
+		name     string
+		err      error
+		expected bool
+	}{
+		{
+			name:     "non-http error",
+			err:      errors.New("some error"),
+			expected: false,
+		},
+		{
+			name:     "http error",
+			err:      HTTPStatusCodeError{},
+			expected: true,
+		},
+		{
+			name:     "nil",
+			err:      nil,
+			expected: false,
+		},
+	}
+
+	for _, tc := range cases {
+		if e, a := tc.expected, IsHTTPError(tc.err); e != a {
+			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
+		}
+	}
+}
+
 func TestIsConflictError(t *testing.T) {
 	cases := []struct {
 		name     string

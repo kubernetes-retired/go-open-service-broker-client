@@ -39,6 +39,14 @@ func (e HTTPStatusCodeError) Error() string {
 	return fmt.Sprintf("Status: %v; ErrorMessage: %v; Description: %v", e.StatusCode, errorMessage, description)
 }
 
+// IsHTTPError returns whether the error represents an HTTP error.  A client
+// method returning an HTTP error indicates that the broker returned an error
+// code and a correctly formed response body.
+func IsHTTPError(err error) bool {
+	_, ok := err.(HTTPStatusCodeError)
+	return ok
+}
+
 // IsGoneError returns whether the error represents an HTTP GONE status.
 func IsGoneError(err error) bool {
 	statusCodeError, ok := err.(HTTPStatusCodeError)
