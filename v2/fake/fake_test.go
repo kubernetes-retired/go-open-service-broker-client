@@ -91,10 +91,20 @@ func TestGetCatalog(t *testing.T) {
 
 		if !reflect.DeepEqual(tc.response, response) {
 			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
+			continue
 		}
 
 		if !reflect.DeepEqual(tc.err, err) {
 			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
+			continue
+		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.GetCatalog, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
 		}
 	}
 }
@@ -146,6 +156,14 @@ func TestProvisionInstance(t *testing.T) {
 		if !reflect.DeepEqual(tc.err, err) {
 			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
 		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.ProvisionInstance, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+		}
 	}
 }
 
@@ -195,6 +213,14 @@ func TestUpdateInstance(t *testing.T) {
 
 		if !reflect.DeepEqual(tc.err, err) {
 			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
+		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.UpdateInstance, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
 		}
 	}
 }
@@ -246,6 +272,14 @@ func TestDeprovisionInstance(t *testing.T) {
 		if !reflect.DeepEqual(tc.err, err) {
 			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
 		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.DeprovisionInstance, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+		}
 	}
 }
 
@@ -295,6 +329,14 @@ func TestPollLastOperation(t *testing.T) {
 
 		if !reflect.DeepEqual(tc.err, err) {
 			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
+		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.PollLastOperation, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
 		}
 	}
 }
@@ -348,6 +390,14 @@ func TestBind(t *testing.T) {
 		if !reflect.DeepEqual(tc.err, err) {
 			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
 		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.Bind, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+		}
 	}
 }
 
@@ -395,6 +445,14 @@ func TestUnbind(t *testing.T) {
 
 		if !reflect.DeepEqual(tc.err, err) {
 			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
+		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.Unbind, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
 		}
 	}
 }
