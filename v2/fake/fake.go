@@ -6,23 +6,38 @@ import (
 	"github.com/pmorie/go-open-service-broker-client/v2"
 )
 
-// NewFakeClientFunc generates a v2.CreateFunc that returns a FakeClient with
+// NewFakeClientFunc returns a v2.CreateFunc that returns a FakeClient with
 // the given FakeClientConfiguration.  It is useful for injecting the
 // FakeClient in code that uses the v2.CreateFunc interface.
 func NewFakeClientFunc(config FakeClientConfiguration) v2.CreateFunc {
 	return func(_ *v2.ClientConfiguration) (v2.Client, error) {
-		return &FakeClient{
-			CatalogReaction:           config.CatalogReaction,
-			ProvisionReaction:         config.ProvisionReaction,
-			UpdateInstanceReaction:    config.UpdateInstanceReaction,
-			DeprovisionReaction:       config.DeprovisionReaction,
-			PollLastOperationReaction: config.PollLastOperationReaction,
-			BindReaction:              config.BindReaction,
-			UnbindReaction:            config.UnbindReaction,
-		}, nil
+		return NewFakeClient(config), nil
 	}
 }
 
+// ReturnFakeClientFunc returns a v2.CreateFunc that returns the given
+// FakeClient.
+func ReturnFakeClientFunc(c *FakeClient) v2.CreateFunc {
+	return func(_ *v2.ClientConfiguration) (v2.Client, error) {
+		return c, nil
+	}
+}
+
+// NewFakeClient returns a new fake Client with the given
+// FakeClientConfiguration.
+func NewFakeClient(config FakeClientConfiguration) *FakeClient {
+	return &FakeClient{
+		CatalogReaction:           config.CatalogReaction,
+		ProvisionReaction:         config.ProvisionReaction,
+		UpdateInstanceReaction:    config.UpdateInstanceReaction,
+		DeprovisionReaction:       config.DeprovisionReaction,
+		PollLastOperationReaction: config.PollLastOperationReaction,
+		BindReaction:              config.BindReaction,
+		UnbindReaction:            config.UnbindReaction,
+	}
+}
+
+// FakeClientConfiguration models the configuration of a FakeClient.
 type FakeClientConfiguration struct {
 	CatalogReaction           *CatalogReaction
 	ProvisionReaction         *ProvisionReaction
@@ -33,6 +48,10 @@ type FakeClientConfiguration struct {
 	UnbindReaction            *UnbindReaction
 }
 
+// FakeClient is a fake implementation of the v2.Client interface. It records
+// the actions that are taken on it and runs the appropriate reaction to those
+// actions. If an action for which there is no reaction specified occurs, it
+// returns an error.
 type FakeClient struct {
 	CatalogReaction           *CatalogReaction
 	ProvisionReaction         *ProvisionReaction
@@ -44,11 +63,14 @@ type FakeClient struct {
 	actions                   []Action
 }
 
+// Action is a record of a method call on the FakeClient.
 type Action struct {
 	Type    ActionType
 	Request interface{}
 }
 
+// ActionType is a typedef over the set of actions that can be taken on a
+// FakeClient.
 type ActionType string
 
 const (
