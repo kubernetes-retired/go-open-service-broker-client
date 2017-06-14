@@ -41,11 +41,35 @@ type FakeClient struct {
 	PollLastOperationReaction *PollLastOperationReaction
 	BindReaction              *BindReaction
 	UnbindReaction            *UnbindReaction
+	actions                   []Action
 }
+
+type Action struct {
+	Type    ActionType
+	Request interface{}
+}
+
+type ActionType string
+
+const (
+	GetCatalog          ActionType = "GetCatalog"
+	ProvisionInstance   ActionType = "ProvisionInstance"
+	UpdateInstance      ActionType = "UpdateInstance"
+	DeprovisionInstance ActionType = "DeprovisionInstance"
+	PollLastOperation   ActionType = "PollLastOperation"
+	Bind                ActionType = "Bind"
+	Unbind              ActionType = "Unbind"
+)
 
 var _ v2.Client = &FakeClient{}
 
+func (c *FakeClient) Actions() []Action {
+	return c.actions
+}
+
 func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
+	c.actions = append(c.actions, Action{Type: GetCatalog})
+
 	if c.CatalogReaction != nil {
 		return c.CatalogReaction.Response, c.CatalogReaction.Error
 	}
@@ -54,6 +78,8 @@ func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
 }
 
 func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
+	c.actions = append(c.actions, Action{ProvisionInstance, r})
+
 	if c.ProvisionReaction != nil {
 		return c.ProvisionReaction.Response, c.ProvisionReaction.Error
 	}
@@ -62,6 +88,8 @@ func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionRes
 }
 
 func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error) {
+	c.actions = append(c.actions, Action{UpdateInstance, r})
+
 	if c.UpdateInstanceReaction != nil {
 		return c.UpdateInstanceReaction.Response, c.UpdateInstanceReaction.Error
 	}
@@ -70,6 +98,8 @@ func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInst
 }
 
 func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
+	c.actions = append(c.actions, Action{DeprovisionInstance, r})
+
 	if c.DeprovisionReaction != nil {
 		return c.DeprovisionReaction.Response, c.DeprovisionReaction.Error
 	}
@@ -78,6 +108,8 @@ func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.Deprovis
 }
 
 func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
+	c.actions = append(c.actions, Action{PollLastOperation, r})
+
 	if c.PollLastOperationReaction != nil {
 		return c.PollLastOperationReaction.Response, c.PollLastOperationReaction.Error
 	}
@@ -86,6 +118,8 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 }
 
 func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
+	c.actions = append(c.actions, Action{Bind, r})
+
 	if c.BindReaction != nil {
 		return c.BindReaction.Response, c.BindReaction.Error
 	}
@@ -94,6 +128,8 @@ func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 }
 
 func (c *FakeClient) Unbind(r *v2.UnbindRequest) (*v2.UnbindResponse, error) {
+	c.actions = append(c.actions, Action{Unbind, r})
+
 	if c.UnbindReaction != nil {
 		return c.UnbindReaction.Response, c.UnbindReaction.Error
 	}
