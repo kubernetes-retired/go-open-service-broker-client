@@ -2,6 +2,7 @@ package fake
 
 import (
 	"errors"
+	"sync"
 
 	"github.com/pmorie/go-open-service-broker-client/v2"
 )
@@ -48,21 +49,6 @@ type FakeClientConfiguration struct {
 	UnbindReaction            *UnbindReaction
 }
 
-// FakeClient is a fake implementation of the v2.Client interface. It records
-// the actions that are taken on it and runs the appropriate reaction to those
-// actions. If an action for which there is no reaction specified occurs, it
-// returns an error.
-type FakeClient struct {
-	CatalogReaction           *CatalogReaction
-	ProvisionReaction         *ProvisionReaction
-	UpdateInstanceReaction    *UpdateInstanceReaction
-	DeprovisionReaction       *DeprovisionReaction
-	PollLastOperationReaction *PollLastOperationReaction
-	BindReaction              *BindReaction
-	UnbindReaction            *UnbindReaction
-	actions                   []Action
-}
-
 // Action is a record of a method call on the FakeClient.
 type Action struct {
 	Type    ActionType
@@ -83,13 +69,36 @@ const (
 	Unbind              ActionType = "Unbind"
 )
 
+// FakeClient is a fake implementation of the v2.Client interface. It records
+// the actions that are taken on it and runs the appropriate reaction to those
+// actions. If an action for which there is no reaction specified occurs, it
+// returns an error.  FakeClient is threadsafe.
+type FakeClient struct {
+	CatalogReaction           *CatalogReaction
+	ProvisionReaction         *ProvisionReaction
+	UpdateInstanceReaction    *UpdateInstanceReaction
+	DeprovisionReaction       *DeprovisionReaction
+	PollLastOperationReaction *PollLastOperationReaction
+	BindReaction              *BindReaction
+	UnbindReaction            *UnbindReaction
+
+	sync.Mutex
+	actions []Action
+}
+
 var _ v2.Client = &FakeClient{}
 
 func (c *FakeClient) Actions() []Action {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
 	return c.actions
 }
 
 func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
 	c.actions = append(c.actions, Action{Type: GetCatalog})
 
 	if c.CatalogReaction != nil {
@@ -100,6 +109,9 @@ func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
 }
 
 func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
 	c.actions = append(c.actions, Action{ProvisionInstance, r})
 
 	if c.ProvisionReaction != nil {
@@ -110,6 +122,9 @@ func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionRes
 }
 
 func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
 	c.actions = append(c.actions, Action{UpdateInstance, r})
 
 	if c.UpdateInstanceReaction != nil {
@@ -120,6 +135,9 @@ func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInst
 }
 
 func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
 	c.actions = append(c.actions, Action{DeprovisionInstance, r})
 
 	if c.DeprovisionReaction != nil {
@@ -130,6 +148,9 @@ func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.Deprovis
 }
 
 func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
 	c.actions = append(c.actions, Action{PollLastOperation, r})
 
 	if c.PollLastOperationReaction != nil {
@@ -140,6 +161,9 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 }
 
 func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
 	c.actions = append(c.actions, Action{Bind, r})
 
 	if c.BindReaction != nil {
@@ -150,6 +174,9 @@ func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 }
 
 func (c *FakeClient) Unbind(r *v2.UnbindRequest) (*v2.UnbindResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
 	c.actions = append(c.actions, Action{Unbind, r})
 
 	if c.UnbindReaction != nil {
