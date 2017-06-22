@@ -126,7 +126,8 @@ func TestPollLastOperation(t *testing.T) {
 			tc.httpChecks.params[planIDKey] = testPlanID
 		}
 
-		klient := newTestClient(t, tc.name, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		version := Version2_11()
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.PollLastOperation(tc.request)
 

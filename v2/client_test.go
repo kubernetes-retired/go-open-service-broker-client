@@ -60,9 +60,10 @@ type httpReaction struct {
 	err    error
 }
 
-func newTestClient(t *testing.T, name string, enableAlpha bool, httpChecks httpChecks, httpReaction httpReaction) *client {
+func newTestClient(t *testing.T, name string, version APIVersion, enableAlpha bool, httpChecks httpChecks, httpReaction httpReaction) *client {
 	return &client{
 		Name:                "test client",
+		APIVersion:          version,
 		Verbose:             true,
 		URL:                 "https://example.com",
 		EnableAlphaFeatures: enableAlpha,
