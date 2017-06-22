@@ -17,7 +17,7 @@ import (
 const (
 	// XBrokerAPIVersion is the header for the Open Service Broker API
 	// version.
-	XBrokerAPIVersion = "X-Broker-Api-Version"
+	XBrokerAPIVersion = "X-Broker-API-Version"
 
 	catalogURL            = "%s/v2/catalog"
 	serviceInstanceURLFmt = "%s/v2/service_instances/%s"
