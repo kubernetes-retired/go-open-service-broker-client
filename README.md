@@ -70,9 +70,9 @@ This project does not aim to provide:
 
 ## Current status
 
-I'm currently just sketching around in my free time, but would love to
-eventually donate this repo to an organization if people decide that it is
-useful.
+This repository is used in the 
+[Kubernetes `service-catalog`](https://github.com/kubernetes-incubator/service-catalog)
+incubator repo.
 
 ## Why?
 
