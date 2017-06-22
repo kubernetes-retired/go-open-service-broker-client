@@ -119,7 +119,7 @@ func (c *client) prepareAndDo(method, URL string, params map[string]string, body
 		return nil, err
 	}
 
-	request.Header.Set(XBrokerAPIVersion, string(c.APIVersion))
+	request.Header.Set(XBrokerAPIVersion, c.APIVersion.HeaderValue())
 	if bodyReader != nil {
 		request.Header.Set(contentType, jsonType)
 	}

@@ -152,7 +152,8 @@ func TestBind(t *testing.T) {
 			tc.httpChecks.body = defaultBindRequestBody
 		}
 
-		klient := newTestClient(t, tc.name, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		version := Version2_11()
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.Bind(tc.request)
 

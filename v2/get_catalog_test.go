@@ -271,7 +271,8 @@ func TestGetCatalog(t *testing.T) {
 			URL: "/v2/catalog",
 		}
 
-		klient := newTestClient(t, tc.name, tc.enableAlpha, httpChecks, tc.httpReaction)
+		version := Version2_11()
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, httpChecks, tc.httpReaction)
 
 		response, err := klient.GetCatalog()
 
