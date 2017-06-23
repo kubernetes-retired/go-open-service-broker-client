@@ -125,7 +125,7 @@ func TestProvisionInstance(t *testing.T) {
 				status: http.StatusOK,
 				body:   malformedResponse,
 			},
-			expectedErrMessage: "unexpected end of JSON input",
+			expectedErrMessage: "Status: 200; ErrorMessage: <nil>; Description: <nil>; ResponseError: unexpected end of JSON input",
 		},
 		{
 			name: "500 with malformed response",
@@ -133,7 +133,7 @@ func TestProvisionInstance(t *testing.T) {
 				status: http.StatusInternalServerError,
 				body:   malformedResponse,
 			},
-			expectedErrMessage: "unexpected end of JSON input",
+			expectedErrMessage: "Status: 500; ErrorMessage: <nil>; Description: <nil>; ResponseError: unexpected end of JSON input",
 		},
 		{
 			name: "500 with conventional failure response",

@@ -56,7 +56,7 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 	case http.StatusCreated, http.StatusOK, http.StatusAccepted:
 		responseBodyObj := &provisionSuccessResponseBody{}
 		if err := c.unmarshalResponse(response, responseBodyObj); err != nil {
-			return nil, err
+			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
 		}
 
 		var opPtr *OperationKey
