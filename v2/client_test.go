@@ -25,7 +25,11 @@ const conventionalFailureResponseBody = `{
 func testHttpStatusCodeError() error {
 	errorMessage := "TestError"
 	description := "test error description"
-	return HTTPStatusCodeError{http.StatusInternalServerError, &errorMessage, &description}
+	return HTTPStatusCodeError{
+		StatusCode:   http.StatusInternalServerError,
+		ErrorMessage: &errorMessage,
+		Description:  &description,
+	}
 }
 
 func truePtr() *bool {

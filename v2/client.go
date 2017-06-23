@@ -173,7 +173,7 @@ func (c *client) handleFailureResponse(response *http.Response) error {
 	glog.Info("handling failure responses")
 	brokerResponse := &failureResponseBody{}
 	if err := c.unmarshalResponse(response, brokerResponse); err != nil {
-		return err
+		return HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
 	}
 
 	return HTTPStatusCodeError{
