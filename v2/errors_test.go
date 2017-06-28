@@ -130,8 +130,8 @@ func TestIsAsyncRequiredError(t *testing.T) {
 			name: "async required error",
 			err: HTTPStatusCodeError{
 				StatusCode:   http.StatusUnprocessableEntity,
-				ErrorMessage: strPtr(asyncErrorMessage),
-				Description:  strPtr(asyncErrorDescription),
+				ErrorMessage: strPtr(AsyncErrorMessage),
+				Description:  strPtr(AsyncErrorDescription),
 			},
 			expected: true,
 		},
@@ -139,8 +139,8 @@ func TestIsAsyncRequiredError(t *testing.T) {
 			name: "app guid required error",
 			err: HTTPStatusCodeError{
 				StatusCode:   http.StatusUnprocessableEntity,
-				ErrorMessage: strPtr(appGUIDRequiredErrorMessage),
-				Description:  strPtr(appGUIDRequiredErrorDescription),
+				ErrorMessage: strPtr(AppGUIDRequiredErrorMessage),
+				Description:  strPtr(AppGUIDRequiredErrorDescription),
 			},
 			expected: false,
 		},
@@ -175,8 +175,8 @@ func TestIsAppGUIDRequiredError(t *testing.T) {
 			name: "async required error",
 			err: HTTPStatusCodeError{
 				StatusCode:   http.StatusUnprocessableEntity,
-				ErrorMessage: strPtr(asyncErrorMessage),
-				Description:  strPtr(asyncErrorDescription),
+				ErrorMessage: strPtr(AsyncErrorMessage),
+				Description:  strPtr(AsyncErrorDescription),
 			},
 			expected: false,
 		},
@@ -184,8 +184,8 @@ func TestIsAppGUIDRequiredError(t *testing.T) {
 			name: "app guid required error",
 			err: HTTPStatusCodeError{
 				StatusCode:   http.StatusUnprocessableEntity,
-				ErrorMessage: strPtr(appGUIDRequiredErrorMessage),
-				Description:  strPtr(appGUIDRequiredErrorDescription),
+				ErrorMessage: strPtr(AppGUIDRequiredErrorMessage),
+				Description:  strPtr(AppGUIDRequiredErrorDescription),
 			},
 			expected: true,
 		},

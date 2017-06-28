@@ -70,11 +70,11 @@ func IsConflictError(err error) bool {
 }
 
 const (
-	asyncErrorMessage     = "AsyncRequired"
-	asyncErrorDescription = "This service plan requires client support for asynchronous service operations."
+	AsyncErrorMessage     = "AsyncRequired"
+	AsyncErrorDescription = "This service plan requires client support for asynchronous service operations."
 
-	appGUIDRequiredErrorMessage     = "RequiresApp"
-	appGUIDRequiredErrorDescription = "This service supports generation of credentials through binding an application only."
+	AppGUIDRequiredErrorMessage     = "RequiresApp"
+	AppGUIDRequiredErrorDescription = "This service supports generation of credentials through binding an application only."
 )
 
 // IsAsyncRequiredError returns whether the error corresponds to the
@@ -90,11 +90,11 @@ func IsAsyncRequiredError(err error) bool {
 		return false
 	}
 
-	if *statusCodeError.ErrorMessage != asyncErrorMessage {
+	if *statusCodeError.ErrorMessage != AsyncErrorMessage {
 		return false
 	}
 
-	return *statusCodeError.Description == asyncErrorDescription
+	return *statusCodeError.Description == AsyncErrorDescription
 }
 
 // IsAppGUIDRequiredError returns whether the error corresponds to the
@@ -110,9 +110,9 @@ func IsAppGUIDRequiredError(err error) bool {
 		return false
 	}
 
-	if *statusCodeError.ErrorMessage != appGUIDRequiredErrorMessage {
+	if *statusCodeError.ErrorMessage != AppGUIDRequiredErrorMessage {
 		return false
 	}
 
-	return *statusCodeError.Description == appGUIDRequiredErrorDescription
+	return *statusCodeError.Description == AppGUIDRequiredErrorDescription
 }
