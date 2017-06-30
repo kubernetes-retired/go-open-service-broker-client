@@ -197,3 +197,41 @@ func TestIsAppGUIDRequiredError(t *testing.T) {
 		}
 	}
 }
+
+func TestHttpStatusCodeError(t *testing.T) {
+	cases := []struct {
+		name           string
+		err            error
+		expectedOutput string
+	}{
+		{
+			name: "async required error",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(AsyncErrorMessage),
+				Description:  strPtr(AsyncErrorDescription),
+			},
+			expectedOutput: "Status: 422; ErrorMessage: AsyncRequired; Description: This service plan requires client support for asynchronous service operations.; ResponseError: <nil>",
+		},
+		{
+			name: "app guid required error",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(AppGUIDRequiredErrorMessage),
+				Description:  strPtr(AppGUIDRequiredErrorDescription),
+			},
+			expectedOutput: "Status: 422; ErrorMessage: RequiresApp; Description: This service supports generation of credentials through binding an application only.; ResponseError: <nil>",
+		},
+		{
+			name:           "blank error",
+			err:            HTTPStatusCodeError{},
+			expectedOutput: "Status: 0; ErrorMessage: <nil>; Description: <nil>; ResponseError: <nil>",
+		},
+	}
+
+	for _, tc := range cases {
+		if e, a := tc.expectedOutput, tc.err.Error(); e != a {
+			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
+		}
+	}
+}

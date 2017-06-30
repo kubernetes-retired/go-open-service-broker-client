@@ -38,7 +38,16 @@ type HTTPStatusCodeError struct {
 }
 
 func (e HTTPStatusCodeError) Error() string {
-	return fmt.Sprintf("Status: %v; ErrorMessage: %v; Description: %v; ResponseError: %v", e.StatusCode, e.ErrorMessage, e.Description, e.ResponseError)
+	errorMessage := "<nil>"
+	description := "<nil>"
+
+	if e.ErrorMessage != nil {
+		errorMessage = *e.ErrorMessage
+	}
+	if e.Description != nil {
+		description = *e.Description
+	}
+	return fmt.Sprintf("Status: %v; ErrorMessage: %v; Description: %v; ResponseError: %v", e.StatusCode, errorMessage, description, e.ResponseError)
 }
 
 // IsHTTPError returns whether the error represents an HTTPStatusCodeError.  A
