@@ -162,10 +162,6 @@ func (c *client) prepareAndDo(method, URL string, params map[string]string, body
 	return c.doRequestFunc(request)
 }
 
-func (c *client) doRequest(request *http.Request) (*http.Response, error) {
-	return c.httpClient.Do(request)
-}
-
 // unmarshalResponse unmartials the response body of the given response into
 // the given object or returns an error.
 func (c *client) unmarshalResponse(response *http.Response, obj interface{}) error {
