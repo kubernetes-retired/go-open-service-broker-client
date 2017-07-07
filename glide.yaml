@@ -1,0 +1,6 @@
+package: go-open-service-broker-client
+import:
+- package: github.com/golang/glog
+- package: golang.org/x/oauth2
+  subpackages:
+  - google

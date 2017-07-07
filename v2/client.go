@@ -2,9 +2,11 @@ package v2
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -12,6 +14,7 @@ import (
 	"time"
 
 	"github.com/golang/glog"
+	"golang.org/x/oauth2/google"
 )
 
 const (
@@ -50,14 +53,35 @@ func NewClient(config *ClientConfiguration) (Client, error) {
 		EnableAlphaFeatures: config.EnableAlphaFeatures,
 		httpClient:          httpClient,
 	}
-	c.doRequestFunc = c.doRequest
 
 	if config.AuthConfig != nil {
-		if config.AuthConfig.BasicAuthConfig == nil {
-			return nil, errors.New("BasicAuthConfig is required if AuthConfig is provided")
-		}
+		if config.AuthConfig.BasicAuthConfig != nil {
+			c.doRequestFunc = func(req *http.Request) (*http.Response, error) {
+				req.SetBasicAuth(config.AuthConfig.BasicAuthConfig.Username, config.AuthConfig.BasicAuthConfig.Password)
+				return c.httpClient.Do(req)
+			}
+		} else if config.AuthConfig.OAuthConfig != nil {
+			oauthConfig := config.AuthConfig.OAuthConfig
+			jwtConfig, err := google.JWTConfigFromJSON(oauthConfig.OAuthJWT, oauthConfig.Scopes...)
+			if err != nil {
+				return nil, fmt.Errorf("Error getting JWT Config from json: %v", err)
+			}
 
-		c.BasicAuthConfig = config.AuthConfig.BasicAuthConfig
+			// TODO change context?
+			tokenSrc := jwtConfig.TokenSource(context.Background())
+			c.doRequestFunc = func(req *http.Request) (*http.Response, error) {
+				token, err := tokenSrc.Token()
+				if err != nil {
+					return nil, fmt.Errorf("Error getting token: %v", err)
+				}
+				token.SetAuthHeader(req)
+				return c.httpClient.Do(req)
+			}
+		} else {
+			return nil, errors.New("AuthConfig provided but with no values")
+		}
+	} else {
+		c.doRequestFunc = c.httpClient.Do
 	}
 
 	return c, nil
@@ -72,7 +96,6 @@ type client struct {
 	Name                string
 	URL                 string
 	APIVersion          APIVersion
-	BasicAuthConfig     *BasicAuthConfig
 	EnableAlphaFeatures bool
 	Verbose             bool
 
@@ -122,10 +145,6 @@ func (c *client) prepareAndDo(method, URL string, params map[string]string, body
 	request.Header.Set(XBrokerAPIVersion, c.APIVersion.HeaderValue())
 	if bodyReader != nil {
 		request.Header.Set(contentType, jsonType)
-	}
-
-	if c.BasicAuthConfig != nil {
-		request.SetBasicAuth(c.BasicAuthConfig.Username, c.BasicAuthConfig.Password)
 	}
 
 	if params != nil {
