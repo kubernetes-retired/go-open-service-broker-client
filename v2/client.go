@@ -50,38 +50,16 @@ func NewClient(config *ClientConfiguration) (Client, error) {
 		Name:                config.Name,
 		URL:                 strings.TrimRight(config.URL, "/"),
 		APIVersion:          config.APIVersion,
+		AuthConfig:          config.AuthConfig,
 		EnableAlphaFeatures: config.EnableAlphaFeatures,
 		httpClient:          httpClient,
+		doRequestFunc:       httpClient.Do,
 	}
 
 	if config.AuthConfig != nil {
-		if config.AuthConfig.BasicAuthConfig != nil {
-			c.doRequestFunc = func(req *http.Request) (*http.Response, error) {
-				req.SetBasicAuth(config.AuthConfig.BasicAuthConfig.Username, config.AuthConfig.BasicAuthConfig.Password)
-				return c.httpClient.Do(req)
-			}
-		} else if config.AuthConfig.OAuthConfig != nil {
-			oauthConfig := config.AuthConfig.OAuthConfig
-			jwtConfig, err := google.JWTConfigFromJSON(oauthConfig.OAuthJWT, oauthConfig.Scopes...)
-			if err != nil {
-				return nil, fmt.Errorf("Error getting JWT Config from json: %v", err)
-			}
-
-			// TODO change context?
-			tokenSrc := jwtConfig.TokenSource(context.Background())
-			c.doRequestFunc = func(req *http.Request) (*http.Response, error) {
-				token, err := tokenSrc.Token()
-				if err != nil {
-					return nil, fmt.Errorf("Error getting token: %v", err)
-				}
-				token.SetAuthHeader(req)
-				return c.httpClient.Do(req)
-			}
-		} else {
-			return nil, errors.New("AuthConfig provided but with no values")
+		if config.AuthConfig.BasicAuthConfig == nil && config.AuthConfig.OAuthConfig == nil {
+			return nil, errors.New("AuthConfig must contain either BasicAuthConfig or OAuthConfig")
 		}
-	} else {
-		c.doRequestFunc = c.httpClient.Do
 	}
 
 	return c, nil
@@ -96,6 +74,7 @@ type client struct {
 	Name                string
 	URL                 string
 	APIVersion          APIVersion
+	AuthConfig          *AuthConfig
 	EnableAlphaFeatures bool
 	Verbose             bool
 
@@ -145,6 +124,28 @@ func (c *client) prepareAndDo(method, URL string, params map[string]string, body
 	request.Header.Set(XBrokerAPIVersion, c.APIVersion.HeaderValue())
 	if bodyReader != nil {
 		request.Header.Set(contentType, jsonType)
+	}
+
+	if c.AuthConfig != nil {
+		if c.AuthConfig.BasicAuthConfig != nil {
+			request.SetBasicAuth(c.AuthConfig.BasicAuthConfig.Username, c.AuthConfig.BasicAuthConfig.Password)
+		} else if c.AuthConfig.OAuthConfig != nil {
+			oauthConfig := c.AuthConfig.OAuthConfig
+			jwtConfig, err := google.JWTConfigFromJSON(oauthConfig.OAuthJWT, oauthConfig.Scopes...)
+			if err != nil {
+				return nil, fmt.Errorf("Error getting JWT Config from json: %v", err)
+			}
+
+			// TODO change context?
+			tokenSrc := jwtConfig.TokenSource(context.Background())
+			token, err := tokenSrc.Token()
+			if err != nil {
+				return nil, fmt.Errorf("Error getting token: %v", err)
+			}
+			token.SetAuthHeader(request)
+		} else {
+			return nil, errors.New("AuthConfig provided but with no values")
+		}
 	}
 
 	if params != nil {

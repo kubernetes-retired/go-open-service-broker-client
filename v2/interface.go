@@ -23,7 +23,7 @@ type BasicAuthConfig struct {
 // Credentials for OAuth2
 type OAuthConfig struct {
 	OAuthJWT []byte
-	Scopes []string
+	Scopes   []string
 }
 
 // ClientConfiguration represents the configuration of a Client.
