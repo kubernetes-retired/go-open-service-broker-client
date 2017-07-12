@@ -53,9 +53,18 @@ func (e HTTPStatusCodeError) Error() string {
 // IsHTTPError returns whether the error represents an HTTPStatusCodeError.  A
 // client method returning an HTTP error indicates that the broker returned an
 // error code and a correctly formed response body.
-func IsHTTPError(err error) bool {
-	_, ok := err.(HTTPStatusCodeError)
-	return ok
+func IsHTTPError(err error) (*HTTPStatusCodeError, bool) {
+	statusCodeError, ok := err.(HTTPStatusCodeError)
+	if ok {
+		return &statusCodeError, ok
+	}
+
+	statusCodeErrorPointer, ok := err.(*HTTPStatusCodeError)
+	if ok {
+		return statusCodeErrorPointer, ok
+	}
+
+	return nil, ok
 }
 
 // IsGoneError returns whether the error represents an HTTP GONE status.
