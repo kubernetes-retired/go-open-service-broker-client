@@ -99,6 +99,10 @@ func IsAsyncRequiredError(err error) bool {
 		return false
 	}
 
+	if statusCodeError.ErrorMessage == nil || statusCodeError.Description == nil {
+		return false
+	}
+
 	if *statusCodeError.ErrorMessage != AsyncErrorMessage {
 		return false
 	}
@@ -116,6 +120,10 @@ func IsAppGUIDRequiredError(err error) bool {
 	}
 
 	if statusCodeError.StatusCode != http.StatusUnprocessableEntity {
+		return false
+	}
+
+	if statusCodeError.ErrorMessage == nil || statusCodeError.Description == nil {
 		return false
 	}
 
