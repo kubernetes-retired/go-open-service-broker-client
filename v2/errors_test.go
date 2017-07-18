@@ -11,27 +11,43 @@ func TestIsHTTPError(t *testing.T) {
 		name     string
 		err      error
 		expected bool
+		result   *HTTPStatusCodeError
 	}{
 		{
 			name:     "non-http error",
 			err:      errors.New("some error"),
 			expected: false,
+			result:   nil,
 		},
 		{
 			name:     "http error",
-			err:      HTTPStatusCodeError{},
+			err:      HTTPStatusCodeError{StatusCode: http.StatusGone},
 			expected: true,
+			result:   &HTTPStatusCodeError{StatusCode: http.StatusGone},
+		},
+		{
+			name:     "http pointer error",
+			err:      &HTTPStatusCodeError{StatusCode: http.StatusGone},
+			expected: true,
+			result:   &HTTPStatusCodeError{StatusCode: http.StatusGone},
 		},
 		{
 			name:     "nil",
 			err:      nil,
 			expected: false,
+			result:   nil,
 		},
 	}
 
 	for _, tc := range cases {
-		if e, a := tc.expected, IsHTTPError(tc.err); e != a {
-			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
+		err, actual := IsHTTPError(tc.err)
+		if tc.expected != actual {
+			t.Errorf("%v: expected %v, got %v", tc.name, tc.expected, actual)
+		}
+		if tc.result != err {
+			if *tc.result != *err {
+				t.Errorf("%v: expected %v, got %v", tc.name, tc.result, err)
+			}
 		}
 	}
 }
