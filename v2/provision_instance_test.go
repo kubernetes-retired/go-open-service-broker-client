@@ -63,15 +63,16 @@ func TestProvisionInstance(t *testing.T) {
 	v2_12 := Version2_12()
 
 	cases := []struct {
-		name               string
-		version            *APIVersion
-		enableAlpha        bool
-		request            *ProvisionRequest
-		httpChecks         httpChecks
-		httpReaction       httpReaction
-		expectedResponse   *ProvisionResponse
-		expectedErrMessage string
-		expectedErr        error
+		name                string
+		version             *APIVersion
+		enableAlpha         bool
+		originatingIdentity string
+		request             *ProvisionRequest
+		httpChecks          httpChecks
+		httpReaction        httpReaction
+		expectedResponse    *ProvisionResponse
+		expectedErrMessage  string
+		expectedErr         error
 	}{
 		{
 			name: "invalid request",
@@ -180,6 +181,26 @@ func TestProvisionInstance(t *testing.T) {
 			},
 			expectedResponse: successProvisionResponse(),
 		},
+		{
+			name:                "originating identity included",
+			originatingIdentity: "fakeOI",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: "fakeOI"}},
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   successProvisionResponseBody,
+			},
+			expectedResponse: successProvisionResponse(),
+		},
+		{
+			name:                "originating identity excluded",
+			originatingIdentity: "",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   successProvisionResponseBody,
+			},
+			expectedResponse: successProvisionResponse(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -201,7 +222,7 @@ func TestProvisionInstance(t *testing.T) {
 			version = tc.version
 		}
 
-		klient := newTestClient(t, tc.name, *version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, *version, tc.enableAlpha, tc.originatingIdentity, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.ProvisionInstance(tc.request)
 

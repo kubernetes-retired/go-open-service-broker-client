@@ -45,14 +45,15 @@ const failedLastOperationResponseBody = `{"state":"failed","description":"test d
 
 func TestPollLastOperation(t *testing.T) {
 	cases := []struct {
-		name               string
-		enableAlpha        bool
-		request            *LastOperationRequest
-		httpChecks         httpChecks
-		httpReaction       httpReaction
-		expectedResponse   *LastOperationResponse
-		expectedErrMessage string
-		expectedErr        error
+		name                string
+		enableAlpha         bool
+		originatingIdentity string
+		request             *LastOperationRequest
+		httpChecks          httpChecks
+		httpReaction        httpReaction
+		expectedResponse    *LastOperationResponse
+		expectedErrMessage  string
+		expectedErr         error
 	}{
 		{
 			name: "op succeeded",
@@ -109,6 +110,34 @@ func TestPollLastOperation(t *testing.T) {
 			},
 			expectedErr: testHttpStatusCodeError(),
 		},
+		{
+			name: "op succeeded",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successLastOperationResponseBody,
+			},
+			expectedResponse: successLastOperationResponse(),
+		},
+		{
+			name:                "originating identity included",
+			originatingIdentity: "fakeOI",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: "fakeOI"}},
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successLastOperationResponseBody,
+			},
+			expectedResponse: successLastOperationResponse(),
+		},
+		{
+			name:                "originating identity excluded",
+			originatingIdentity: "",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successLastOperationResponseBody,
+			},
+			expectedResponse: successLastOperationResponse(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -127,7 +156,7 @@ func TestPollLastOperation(t *testing.T) {
 		}
 
 		version := Version2_11()
-		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.originatingIdentity, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.PollLastOperation(tc.request)
 

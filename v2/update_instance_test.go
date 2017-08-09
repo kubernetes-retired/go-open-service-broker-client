@@ -39,14 +39,15 @@ func successUpdateInstanceResponseAsync() *UpdateInstanceResponse {
 
 func TestUpdateInstanceInstance(t *testing.T) {
 	cases := []struct {
-		name               string
-		enableAlpha        bool
-		request            *UpdateInstanceRequest
-		httpChecks         httpChecks
-		httpReaction       httpReaction
-		expectedResponse   *UpdateInstanceResponse
-		expectedErrMessage string
-		expectedErr        error
+		name                string
+		enableAlpha         bool
+		originatingIdentity string
+		request             *UpdateInstanceRequest
+		httpChecks          httpChecks
+		httpReaction        httpReaction
+		expectedResponse    *UpdateInstanceResponse
+		expectedErrMessage  string
+		expectedErr         error
 	}{
 		{
 			name: "invalid request",
@@ -124,6 +125,26 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			},
 			expectedErr: testHttpStatusCodeError(),
 		},
+		{
+			name:                "originating identity included",
+			originatingIdentity: "fakeOI",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: "fakeOI"}},
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBody,
+			},
+			expectedResponse: successUpdateInstanceResponse(),
+		},
+		{
+			name:                "originating identity excluded",
+			originatingIdentity: "",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBody,
+			},
+			expectedResponse: successUpdateInstanceResponse(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -140,7 +161,7 @@ func TestUpdateInstanceInstance(t *testing.T) {
 		}
 
 		version := Version2_11()
-		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.originatingIdentity, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.UpdateInstance(tc.request)
 

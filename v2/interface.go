@@ -64,6 +64,10 @@ type ClientConfiguration struct {
 	// CAData holds PEM-encoded bytes (typically read from a root certificates bundle).
 	// This CA certificate will be added to any specified in TLSConfig.RootCAs.
 	CAData []byte
+	// OriginatingIdentity is the originating identity that will supplied to
+	// the service broker. This is used to identify the user that initiated the
+	// request on the platform.
+	OriginatingIdentity OriginatingIdentity
 }
 
 // DefaultClientConfiguration returns a default ClientConfiguration:

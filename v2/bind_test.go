@@ -60,14 +60,15 @@ const optionalFieldsBindRequestBody = `{"service_id":"test-service-id","plan_id"
 
 func TestBind(t *testing.T) {
 	cases := []struct {
-		name               string
-		enableAlpha        bool
-		request            *BindRequest
-		httpChecks         httpChecks
-		httpReaction       httpReaction
-		expectedResponse   *BindResponse
-		expectedErrMessage string
-		expectedErr        error
+		name                string
+		enableAlpha         bool
+		originatingIdentity string
+		request             *BindRequest
+		httpChecks          httpChecks
+		httpReaction        httpReaction
+		expectedResponse    *BindResponse
+		expectedErrMessage  string
+		expectedErr         error
 	}{
 		{
 			name: "invalid request",
@@ -137,6 +138,26 @@ func TestBind(t *testing.T) {
 			},
 			expectedErr: testHttpStatusCodeError(),
 		},
+		{
+			name:                "originating identity included",
+			originatingIdentity: "fakeOI",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: "fakeOI"}},
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   successBindResponseBody,
+			},
+			expectedResponse: successBindResponse(),
+		},
+		{
+			name:                "originating identity excluded",
+			originatingIdentity: "",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   successBindResponseBody,
+			},
+			expectedResponse: successBindResponse(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -153,7 +174,7 @@ func TestBind(t *testing.T) {
 		}
 
 		version := Version2_11()
-		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.originatingIdentity, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.Bind(tc.request)
 

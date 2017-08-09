@@ -53,9 +53,10 @@ type nopCloser struct {
 func (nopCloser) Close() error { return nil }
 
 type httpChecks struct {
-	URL    string
-	body   string
-	params map[string]string
+	URL     string
+	body    string
+	params  map[string]string
+	headers map[string]string
 }
 
 type httpReaction struct {
@@ -64,14 +65,15 @@ type httpReaction struct {
 	err    error
 }
 
-func newTestClient(t *testing.T, name string, version APIVersion, enableAlpha bool, httpChecks httpChecks, httpReaction httpReaction) *client {
+func newTestClient(t *testing.T, name string, version APIVersion, enableAlpha bool, originatingIdentity string, httpChecks httpChecks, httpReaction httpReaction) *client {
 	return &client{
-		Name:                "test client",
-		APIVersion:          version,
-		Verbose:             true,
-		URL:                 "https://example.com",
-		EnableAlphaFeatures: enableAlpha,
-		doRequestFunc:       doHTTP(t, name, httpChecks, httpReaction),
+		Name:                           "test client",
+		APIVersion:                     version,
+		Verbose:                        true,
+		URL:                            "https://example.com",
+		EnableAlphaFeatures:            enableAlpha,
+		OriginatingIdentityHeaderValue: originatingIdentity,
+		doRequestFunc:                  doHTTP(t, name, httpChecks, httpReaction),
 	}
 }
 
@@ -82,6 +84,16 @@ func doHTTP(t *testing.T, name string, checks httpChecks, reaction httpReaction)
 		if len(checks.URL) > 0 && checks.URL != request.URL.Path {
 			t.Errorf("%v: unexpected URL; expected %v, got %v", name, checks.URL, request.URL.Path)
 			return nil, walkingGhostErr
+		}
+
+		if len(checks.headers) > 0 {
+			for k, v := range checks.headers {
+				actualValue := request.Header.Get(k)
+				if e, a := v, actualValue; e != a {
+					t.Errorf("%v: unexpected header value for key %v; expected %v, got %v", name, k, e, a)
+					return nil, walkingGhostErr
+				}
+			}
 		}
 
 		if len(checks.params) > 0 {

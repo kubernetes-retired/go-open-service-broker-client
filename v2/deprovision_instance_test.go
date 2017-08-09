@@ -39,14 +39,15 @@ func successDeprovisionResponseAsync() *DeprovisionResponse {
 
 func TestDeprovisionInstance(t *testing.T) {
 	cases := []struct {
-		name               string
-		enableAlpha        bool
-		request            *DeprovisionRequest
-		httpChecks         httpChecks
-		httpReaction       httpReaction
-		expectedResponse   *DeprovisionResponse
-		expectedErrMessage string
-		expectedErr        error
+		name                string
+		enableAlpha         bool
+		originatingIdentity string
+		request             *DeprovisionRequest
+		httpChecks          httpChecks
+		httpReaction        httpReaction
+		expectedResponse    *DeprovisionResponse
+		expectedErrMessage  string
+		expectedErr         error
 	}{
 		{
 			name: "invalid request",
@@ -138,6 +139,38 @@ func TestDeprovisionInstance(t *testing.T) {
 			},
 			expectedErr: testHttpStatusCodeError(),
 		},
+		{
+			name:                "originating identity included",
+			originatingIdentity: "fakeOI",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successDeprovisionResponseBody,
+			},
+			httpChecks: httpChecks{
+				headers: map[string]string{XBrokerAPIOriginatingIdentity: "fakeOI"},
+				params: map[string]string{
+					serviceIDKey: string(testServiceID),
+					planIDKey:    string(testPlanID),
+				},
+			},
+			expectedResponse: successDeprovisionResponse(),
+		},
+		{
+			name:                "originating identity excluded",
+			originatingIdentity: "",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successDeprovisionResponseBody,
+			},
+			httpChecks: httpChecks{
+				headers: map[string]string{XBrokerAPIOriginatingIdentity: ""},
+				params: map[string]string{
+					serviceIDKey: string(testServiceID),
+					planIDKey:    string(testPlanID),
+				},
+			},
+			expectedResponse: successDeprovisionResponse(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -150,7 +183,7 @@ func TestDeprovisionInstance(t *testing.T) {
 		}
 
 		version := Version2_11()
-		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.originatingIdentity, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.DeprovisionInstance(tc.request)
 

@@ -19,6 +19,8 @@ const (
 	// XBrokerAPIVersion is the header for the Open Service Broker API
 	// version.
 	XBrokerAPIVersion = "X-Broker-API-Version"
+	// XBrokerAPIOriginatingIdentity is the header for the originating identity
+	XBrokerAPIOriginatingIdentity = "X-Broker-API-Originating-Identity"
 
 	catalogURL            = "%s/v2/catalog"
 	serviceInstanceURLFmt = "%s/v2/service_instances/%s"
@@ -73,6 +75,14 @@ func NewClient(config *ClientConfiguration) (Client, error) {
 		c.AuthConfig = config.AuthConfig
 	}
 
+	if config.OriginatingIdentity != nil {
+		headerValue, err := buildOriginatingIdentityHeaderValue(config.OriginatingIdentity)
+		if err != nil {
+			return nil, err
+		}
+		c.OriginatingIdentityHeaderValue = headerValue
+	}
+
 	return c, nil
 }
 
@@ -82,12 +92,13 @@ type doRequestFunc func(request *http.Request) (*http.Response, error)
 
 // client provides a functional implementation of the Client interface.
 type client struct {
-	Name                string
-	URL                 string
-	APIVersion          APIVersion
-	AuthConfig          *AuthConfig
-	EnableAlphaFeatures bool
-	Verbose             bool
+	Name                           string
+	URL                            string
+	APIVersion                     APIVersion
+	AuthConfig                     *AuthConfig
+	EnableAlphaFeatures            bool
+	Verbose                        bool
+	OriginatingIdentityHeaderValue string
 
 	httpClient    *http.Client
 	doRequestFunc doRequestFunc
@@ -133,6 +144,9 @@ func (c *client) prepareAndDo(method, URL string, params map[string]string, body
 	}
 
 	request.Header.Set(XBrokerAPIVersion, c.APIVersion.HeaderValue())
+	if c.OriginatingIdentityHeaderValue != "" {
+		request.Header.Set(XBrokerAPIOriginatingIdentity, c.OriginatingIdentityHeaderValue)
+	}
 	if bodyReader != nil {
 		request.Header.Set(contentType, jsonType)
 	}

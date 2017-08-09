@@ -344,3 +344,37 @@ type UnbindRequest struct {
 type UnbindResponse struct {
 	// Currently, unbind responses have no fields.
 }
+
+// OriginatingIdentity is used to pass to the broker service an identity from
+// the platform
+type OriginatingIdentity interface {
+	// The name of the platform to which the user belongs
+	Platform() string
+	// A serialized JSON object that describes the user in a way that makes
+	// sense to the platform
+	Value() (string, error)
+}
+
+// CloudFoundryOriginatingIdentity is an originating identity to use with the
+// Cloud Foundry platform
+type CloudFoundryOriginatingIdentity struct {
+	// The user_id value from the Cloud Foundry JWT token
+	UserId string
+	// Additional properties to add to the Value() string. Each map entry value
+	// will be serialized using json.Marshal.
+	Extra map[string]interface{}
+}
+
+// KubernetesOriginatingIdentity is an originating identity to use with the
+// Kubernetes platform
+type KubernetesOriginatingIdentity struct {
+	// The username property from the Kubenernetes user.info object
+	Username string
+	// The uid property from the Kubenernetes user.info object
+	Uid string
+	// The groups property from the Kubenernetes user.info object
+	Groups []string
+	// Additional properties to add to the Value() string. Each map entry value
+	// will be serialized using json.Marshal.
+	Extra map[string]interface{}
+}
