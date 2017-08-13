@@ -2,6 +2,7 @@ package v2
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -67,13 +68,13 @@ type httpReaction struct {
 
 func newTestClient(t *testing.T, name string, version APIVersion, enableAlpha bool, originatingIdentity string, httpChecks httpChecks, httpReaction httpReaction) *client {
 	return &client{
-		Name:                           "test client",
-		APIVersion:                     version,
-		Verbose:                        true,
-		URL:                            "https://example.com",
-		EnableAlphaFeatures:            enableAlpha,
-		OriginatingIdentityHeaderValue: originatingIdentity,
-		doRequestFunc:                  doHTTP(t, name, httpChecks, httpReaction),
+		Name:                "test client",
+		APIVersion:          version,
+		Verbose:             true,
+		URL:                 "https://example.com",
+		EnableAlphaFeatures: enableAlpha,
+		OriginatingIdentity: originatingIdentity,
+		doRequestFunc:       doHTTP(t, name, httpChecks, httpReaction),
 	}
 }
 
@@ -143,5 +144,71 @@ func doResponseChecks(t *testing.T, name string, response interface{}, err error
 	if e, a := expectedResponse, response; !reflect.DeepEqual(e, a) {
 		t.Errorf("%v: unexpected diff in response; expected %+v, got %+v", name, e, a)
 		return
+	}
+}
+
+type fakeOriginatingIdentity struct {
+	platform   string
+	value      string
+	errMessage string
+}
+
+func (i *fakeOriginatingIdentity) Platform() string {
+	return i.platform
+}
+
+func (i *fakeOriginatingIdentity) Value() (string, error) {
+	if i.errMessage != "" {
+		return "", errors.New(i.errMessage)
+	}
+	return i.value, nil
+}
+
+func TestBuildOriginatingIdentityHeaderValue(t *testing.T) {
+	cases := []struct {
+		name                string
+		originatingIdentity *fakeOriginatingIdentity
+		platform            string
+		value               string
+		valueErrMessage     string
+		expectedHeaderValue string
+		expectedErrMessage  string
+	}{
+		{
+			name: "valid originating identity",
+			originatingIdentity: &fakeOriginatingIdentity{
+				platform: "fakeplatform",
+				value:    "{\"user\":\"name\"}",
+			},
+			expectedHeaderValue: "fakeplatform eyJ1c2VyIjoibmFtZSJ9",
+		},
+		{
+			name: "value raising error",
+			originatingIdentity: &fakeOriginatingIdentity{
+				platform:   "fakeplatform",
+				errMessage: "fakeerror",
+			},
+			expectedErrMessage: "fakeerror",
+		},
+	}
+	for _, tc := range cases {
+		headerValue, err := buildOriginatingIdentityHeaderValue(tc.originatingIdentity)
+		if tc.expectedErrMessage != "" {
+			if err == nil {
+				t.Errorf("%v: expected error not thrown: expected %v", tc.name, tc.expectedErrMessage)
+				return
+			}
+			if e, a := tc.expectedErrMessage, err.Error(); e != a {
+				t.Errorf("%v: unexpected error message: expected %v, got %v", tc.name, e, a)
+				return
+			}
+		} else if err != nil {
+			t.Errorf("%v: unexpected error: %v", tc.name, err)
+			return
+		} else {
+			if e, a := tc.expectedHeaderValue, headerValue; e != a {
+				t.Errorf("%v: unexpected header value: expected %v, got %v", tc.name, e, a)
+			}
+		}
 	}
 }

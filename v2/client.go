@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -75,12 +77,12 @@ func NewClient(config *ClientConfiguration) (Client, error) {
 		c.AuthConfig = config.AuthConfig
 	}
 
-	if config.OriginatingIdentity != nil {
+	if config.EnableAlphaFeatures && config.OriginatingIdentity != nil {
 		headerValue, err := buildOriginatingIdentityHeaderValue(config.OriginatingIdentity)
 		if err != nil {
 			return nil, err
 		}
-		c.OriginatingIdentityHeaderValue = headerValue
+		c.OriginatingIdentity = headerValue
 	}
 
 	return c, nil
@@ -92,13 +94,13 @@ type doRequestFunc func(request *http.Request) (*http.Response, error)
 
 // client provides a functional implementation of the Client interface.
 type client struct {
-	Name                           string
-	URL                            string
-	APIVersion                     APIVersion
-	AuthConfig                     *AuthConfig
-	EnableAlphaFeatures            bool
-	Verbose                        bool
-	OriginatingIdentityHeaderValue string
+	Name                string
+	URL                 string
+	APIVersion          APIVersion
+	AuthConfig          *AuthConfig
+	EnableAlphaFeatures bool
+	Verbose             bool
+	OriginatingIdentity string
 
 	httpClient    *http.Client
 	doRequestFunc doRequestFunc
@@ -144,8 +146,8 @@ func (c *client) prepareAndDo(method, URL string, params map[string]string, body
 	}
 
 	request.Header.Set(XBrokerAPIVersion, c.APIVersion.HeaderValue())
-	if c.OriginatingIdentityHeaderValue != "" {
-		request.Header.Set(XBrokerAPIOriginatingIdentity, c.OriginatingIdentityHeaderValue)
+	if c.EnableAlphaFeatures && c.OriginatingIdentity != "" {
+		request.Header.Set(XBrokerAPIOriginatingIdentity, c.OriginatingIdentity)
 	}
 	if bodyReader != nil {
 		request.Header.Set(contentType, jsonType)
@@ -214,6 +216,20 @@ func (c *client) handleFailureResponse(response *http.Response) error {
 		ErrorMessage: brokerResponse.Err,
 		Description:  brokerResponse.Description,
 	}
+}
+
+func buildOriginatingIdentityHeaderValue(i OriginatingIdentity) (string, error) {
+	if i == nil {
+		return "", nil
+	}
+	platform := i.Platform()
+	value, err := i.Value()
+	if err != nil {
+		return "", err
+	}
+	encodedValue := base64.StdEncoding.EncodeToString([]byte(value))
+	headerValue := fmt.Sprintf("%v %v", platform, encodedValue)
+	return headerValue, nil
 }
 
 // internal message body types

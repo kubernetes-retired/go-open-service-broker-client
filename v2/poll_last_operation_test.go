@@ -120,6 +120,7 @@ func TestPollLastOperation(t *testing.T) {
 		},
 		{
 			name:                "originating identity included",
+			enableAlpha:         true,
 			originatingIdentity: "fakeOI",
 			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: "fakeOI"}},
 			httpReaction: httpReaction{
@@ -130,7 +131,19 @@ func TestPollLastOperation(t *testing.T) {
 		},
 		{
 			name:                "originating identity excluded",
+			enableAlpha:         true,
 			originatingIdentity: "",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successLastOperationResponseBody,
+			},
+			expectedResponse: successLastOperationResponse(),
+		},
+		{
+			name:                "originating identity not sent unless alpha enabled",
+			enableAlpha:         false,
+			originatingIdentity: "fakeOI",
 			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
 			httpReaction: httpReaction{
 				status: http.StatusOK,

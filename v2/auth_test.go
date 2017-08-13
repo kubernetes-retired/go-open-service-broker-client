@@ -24,7 +24,7 @@ func TestBasicAuth(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		client := newTestClient(t, tc.name, Version2_11(), true, "", httpChecks{}, httpReaction{})
+		client := newTestClient(t, tc.name, Version2_11(), true, "" /*originatingIdentity*/, httpChecks{}, httpReaction{})
 		client.AuthConfig = &AuthConfig{
 			BasicAuthConfig: tc.BasicAuthConfig,
 		}
@@ -50,7 +50,7 @@ func TestBearerAuth(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		client := newTestClient(t, tc.name, Version2_11(), true, "", httpChecks{}, httpReaction{})
+		client := newTestClient(t, tc.name, Version2_11(), true, "" /*originatingIdentity*/, httpChecks{}, httpReaction{})
 		client.AuthConfig = &AuthConfig{
 			BearerConfig: tc.BearerConfig,
 		}

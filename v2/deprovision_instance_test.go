@@ -141,6 +141,7 @@ func TestDeprovisionInstance(t *testing.T) {
 		},
 		{
 			name:                "originating identity included",
+			enableAlpha:         true,
 			originatingIdentity: "fakeOI",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
@@ -157,7 +158,25 @@ func TestDeprovisionInstance(t *testing.T) {
 		},
 		{
 			name:                "originating identity excluded",
+			enableAlpha:         true,
 			originatingIdentity: "",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successDeprovisionResponseBody,
+			},
+			httpChecks: httpChecks{
+				headers: map[string]string{XBrokerAPIOriginatingIdentity: ""},
+				params: map[string]string{
+					serviceIDKey: string(testServiceID),
+					planIDKey:    string(testPlanID),
+				},
+			},
+			expectedResponse: successDeprovisionResponse(),
+		},
+		{
+			name:                "originating identity not sent unless alpha enabled",
+			enableAlpha:         false,
+			originatingIdentity: "fakeOI",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successDeprovisionResponseBody,

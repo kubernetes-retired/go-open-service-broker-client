@@ -83,6 +83,7 @@ func TestUnbind(t *testing.T) {
 		},
 		{
 			name:                "originating identity included",
+			enableAlpha:         true,
 			originatingIdentity: "fakeOI",
 			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: "fakeOI"}},
 			httpReaction: httpReaction{
@@ -93,7 +94,19 @@ func TestUnbind(t *testing.T) {
 		},
 		{
 			name:                "originating identity excluded",
+			enableAlpha:         true,
 			originatingIdentity: "",
+			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUnbindResponseBody,
+			},
+			expectedResponse: successUnbindResponse(),
+		},
+		{
+			name:                "originating identity not sent unless alpha enabled",
+			enableAlpha:         false,
+			originatingIdentity: "fakeOI",
 			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
 			httpReaction: httpReaction{
 				status: http.StatusOK,
