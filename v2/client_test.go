@@ -2,7 +2,6 @@ package v2
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -22,6 +21,17 @@ const conventionalFailureResponseBody = `{
 	"error": "TestError",
 	"description": "test error description"
 }`
+
+const (
+	testOriginatingIdentityPlatform    = "fakeplatform"
+	testOriginatingIdentityValue       = "{\"user\":\"name\"}"
+	testOriginatingIdentityHeaderValue = "fakeplatform eyJ1c2VyIjoibmFtZSJ9"
+)
+
+var testOriginatingIdentity *AlphaOriginatingIdentity = &AlphaOriginatingIdentity{
+	Platform: testOriginatingIdentityPlatform,
+	Value:    testOriginatingIdentityValue,
+}
 
 func testHttpStatusCodeError() error {
 	errorMessage := "TestError"
@@ -66,14 +76,13 @@ type httpReaction struct {
 	err    error
 }
 
-func newTestClient(t *testing.T, name string, version APIVersion, enableAlpha bool, originatingIdentity string, httpChecks httpChecks, httpReaction httpReaction) *client {
+func newTestClient(t *testing.T, name string, version APIVersion, enableAlpha bool, httpChecks httpChecks, httpReaction httpReaction) *client {
 	return &client{
 		Name:                "test client",
 		APIVersion:          version,
 		Verbose:             true,
 		URL:                 "https://example.com",
 		EnableAlphaFeatures: enableAlpha,
-		OriginatingIdentity: originatingIdentity,
 		doRequestFunc:       doHTTP(t, name, httpChecks, httpReaction),
 	}
 }
@@ -147,68 +156,55 @@ func doResponseChecks(t *testing.T, name string, response interface{}, err error
 	}
 }
 
-type fakeOriginatingIdentity struct {
-	platform   string
-	value      string
-	errMessage string
-}
-
-func (i *fakeOriginatingIdentity) Platform() string {
-	return i.platform
-}
-
-func (i *fakeOriginatingIdentity) Value() (string, error) {
-	if i.errMessage != "" {
-		return "", errors.New(i.errMessage)
-	}
-	return i.value, nil
-}
-
 func TestBuildOriginatingIdentityHeaderValue(t *testing.T) {
 	cases := []struct {
 		name                string
-		originatingIdentity *fakeOriginatingIdentity
 		platform            string
 		value               string
-		valueErrMessage     string
 		expectedHeaderValue string
-		expectedErrMessage  string
+		expectedError       bool
 	}{
 		{
-			name: "valid originating identity",
-			originatingIdentity: &fakeOriginatingIdentity{
-				platform: "fakeplatform",
-				value:    "{\"user\":\"name\"}",
-			},
-			expectedHeaderValue: "fakeplatform eyJ1c2VyIjoibmFtZSJ9",
+			name:                "valid originating identity",
+			platform:            testOriginatingIdentityPlatform,
+			value:               testOriginatingIdentityValue,
+			expectedHeaderValue: testOriginatingIdentityHeaderValue,
 		},
 		{
-			name: "value raising error",
-			originatingIdentity: &fakeOriginatingIdentity{
-				platform:   "fakeplatform",
-				errMessage: "fakeerror",
-			},
-			expectedErrMessage: "fakeerror",
+			name:          "empty platform",
+			platform:      "",
+			value:         testOriginatingIdentityValue,
+			expectedError: true,
+		},
+		{
+			name:          "empty value",
+			platform:      testOriginatingIdentityPlatform,
+			value:         "",
+			expectedError: true,
+		},
+		{
+			name:          "invalid value json",
+			platform:      testOriginatingIdentityPlatform,
+			value:         "{\"user\":name}",
+			expectedError: true,
 		},
 	}
 	for _, tc := range cases {
-		headerValue, err := buildOriginatingIdentityHeaderValue(tc.originatingIdentity)
-		if tc.expectedErrMessage != "" {
-			if err == nil {
-				t.Errorf("%v: expected error not thrown: expected %v", tc.name, tc.expectedErrMessage)
-				return
+		originatingIdentity := &AlphaOriginatingIdentity{
+			Platform: tc.platform,
+			Value:    tc.value,
+		}
+		headerValue, err := buildOriginatingIdentityHeaderValue(originatingIdentity)
+		if e, a := tc.expectedError, err != nil; e != a {
+			if e {
+				t.Errorf("%v: expected error not found", tc.name)
+			} else {
+				t.Errorf("%v: unexpected error: got %v", tc.name, a)
 			}
-			if e, a := tc.expectedErrMessage, err.Error(); e != a {
-				t.Errorf("%v: unexpected error message: expected %v, got %v", tc.name, e, a)
-				return
-			}
-		} else if err != nil {
-			t.Errorf("%v: unexpected error: %v", tc.name, err)
-			return
-		} else {
-			if e, a := tc.expectedHeaderValue, headerValue; e != a {
-				t.Errorf("%v: unexpected header value: expected %v, got %v", tc.name, e, a)
-			}
+			continue
+		}
+		if e, a := tc.expectedHeaderValue, headerValue; e != a {
+			t.Errorf("%v: unexpected header value: expected %v, got %v", tc.name, e, a)
 		}
 	}
 }

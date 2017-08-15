@@ -272,7 +272,7 @@ func TestGetCatalog(t *testing.T) {
 		}
 
 		version := Version2_11()
-		klient := newTestClient(t, tc.name, version, tc.enableAlpha, "" /*originatingIdentity*/, httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, httpChecks, tc.httpReaction)
 
 		response, err := klient.GetCatalog()
 

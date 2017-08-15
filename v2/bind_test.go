@@ -62,7 +62,7 @@ func TestBind(t *testing.T) {
 	cases := []struct {
 		name                string
 		enableAlpha         bool
-		originatingIdentity string
+		originatingIdentity *AlphaOriginatingIdentity
 		request             *BindRequest
 		httpChecks          httpChecks
 		httpReaction        httpReaction
@@ -141,8 +141,8 @@ func TestBind(t *testing.T) {
 		{
 			name:                "originating identity included",
 			enableAlpha:         true,
-			originatingIdentity: "fakeOI",
-			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: "fakeOI"}},
+			originatingIdentity: testOriginatingIdentity,
+			httpChecks:          httpChecks{headers: map[string]string{OriginatingIdentityHeader: testOriginatingIdentityHeaderValue}},
 			httpReaction: httpReaction{
 				status: http.StatusCreated,
 				body:   successBindResponseBody,
@@ -152,8 +152,8 @@ func TestBind(t *testing.T) {
 		{
 			name:                "originating identity excluded",
 			enableAlpha:         true,
-			originatingIdentity: "",
-			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
+			originatingIdentity: nil,
+			httpChecks:          httpChecks{headers: map[string]string{OriginatingIdentityHeader: ""}},
 			httpReaction: httpReaction{
 				status: http.StatusCreated,
 				body:   successBindResponseBody,
@@ -163,8 +163,8 @@ func TestBind(t *testing.T) {
 		{
 			name:                "originating identity not sent unless alpha enabled",
 			enableAlpha:         false,
-			originatingIdentity: "fakeOI",
-			httpChecks:          httpChecks{headers: map[string]string{XBrokerAPIOriginatingIdentity: ""}},
+			originatingIdentity: testOriginatingIdentity,
+			httpChecks:          httpChecks{headers: map[string]string{OriginatingIdentityHeader: ""}},
 			httpReaction: httpReaction{
 				status: http.StatusCreated,
 				body:   successBindResponseBody,
@@ -178,6 +178,8 @@ func TestBind(t *testing.T) {
 			tc.request = defaultBindRequest()
 		}
 
+		tc.request.OriginatingIdentity = tc.originatingIdentity
+
 		if tc.httpChecks.URL == "" {
 			tc.httpChecks.URL = "/v2/service_instances/test-instance-id/service_bindings/test-binding-id"
 		}
@@ -187,7 +189,7 @@ func TestBind(t *testing.T) {
 		}
 
 		version := Version2_11()
-		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.originatingIdentity, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.Bind(tc.request)
 

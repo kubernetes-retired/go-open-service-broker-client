@@ -41,7 +41,7 @@ func TestDeprovisionInstance(t *testing.T) {
 	cases := []struct {
 		name                string
 		enableAlpha         bool
-		originatingIdentity string
+		originatingIdentity *AlphaOriginatingIdentity
 		request             *DeprovisionRequest
 		httpChecks          httpChecks
 		httpReaction        httpReaction
@@ -142,13 +142,13 @@ func TestDeprovisionInstance(t *testing.T) {
 		{
 			name:                "originating identity included",
 			enableAlpha:         true,
-			originatingIdentity: "fakeOI",
+			originatingIdentity: testOriginatingIdentity,
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successDeprovisionResponseBody,
 			},
 			httpChecks: httpChecks{
-				headers: map[string]string{XBrokerAPIOriginatingIdentity: "fakeOI"},
+				headers: map[string]string{OriginatingIdentityHeader: testOriginatingIdentityHeaderValue},
 				params: map[string]string{
 					serviceIDKey: string(testServiceID),
 					planIDKey:    string(testPlanID),
@@ -159,13 +159,13 @@ func TestDeprovisionInstance(t *testing.T) {
 		{
 			name:                "originating identity excluded",
 			enableAlpha:         true,
-			originatingIdentity: "",
+			originatingIdentity: nil,
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successDeprovisionResponseBody,
 			},
 			httpChecks: httpChecks{
-				headers: map[string]string{XBrokerAPIOriginatingIdentity: ""},
+				headers: map[string]string{OriginatingIdentityHeader: ""},
 				params: map[string]string{
 					serviceIDKey: string(testServiceID),
 					planIDKey:    string(testPlanID),
@@ -176,13 +176,13 @@ func TestDeprovisionInstance(t *testing.T) {
 		{
 			name:                "originating identity not sent unless alpha enabled",
 			enableAlpha:         false,
-			originatingIdentity: "fakeOI",
+			originatingIdentity: testOriginatingIdentity,
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successDeprovisionResponseBody,
 			},
 			httpChecks: httpChecks{
-				headers: map[string]string{XBrokerAPIOriginatingIdentity: ""},
+				headers: map[string]string{OriginatingIdentityHeader: ""},
 				params: map[string]string{
 					serviceIDKey: string(testServiceID),
 					planIDKey:    string(testPlanID),
@@ -197,12 +197,14 @@ func TestDeprovisionInstance(t *testing.T) {
 			tc.request = defaultDeprovisionRequest()
 		}
 
+		tc.request.OriginatingIdentity = tc.originatingIdentity
+
 		if tc.httpChecks.URL == "" {
 			tc.httpChecks.URL = "/v2/service_instances/test-instance-id"
 		}
 
 		version := Version2_11()
-		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.originatingIdentity, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.DeprovisionInstance(tc.request)
 
