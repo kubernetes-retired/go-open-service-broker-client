@@ -225,7 +225,7 @@ func buildOriginatingIdentityHeaderValue(i *AlphaOriginatingIdentity) (string, e
 		return "", errors.New("originating identity value must not be empty")
 	}
 	if err := isValidJSON(i.Value); err != nil {
-		return "", errors.New(fmt.Sprintf("originating identity value must be valid JSON: %v", err))
+		return "", fmt.Errorf("originating identity value must be valid JSON: %v", err)
 	}
 	encodedValue := base64.StdEncoding.EncodeToString([]byte(i.Value))
 	headerValue := fmt.Sprintf("%v %v", i.Platform, encodedValue)

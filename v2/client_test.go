@@ -96,23 +96,19 @@ func doHTTP(t *testing.T, name string, checks httpChecks, reaction httpReaction)
 			return nil, walkingGhostErr
 		}
 
-		if len(checks.headers) > 0 {
-			for k, v := range checks.headers {
-				actualValue := request.Header.Get(k)
-				if e, a := v, actualValue; e != a {
-					t.Errorf("%v: unexpected header value for key %v; expected %v, got %v", name, k, e, a)
-					return nil, walkingGhostErr
-				}
+		for k, v := range checks.headers {
+			actualValue := request.Header.Get(k)
+			if e, a := v, actualValue; e != a {
+				t.Errorf("%v: unexpected header value for key %q; expected %v, got %v", name, k, e, a)
+				return nil, walkingGhostErr
 			}
 		}
 
-		if len(checks.params) > 0 {
-			for k, v := range checks.params {
-				actualValue := request.URL.Query().Get(k)
-				if e, a := v, actualValue; e != a {
-					t.Errorf("%v: unexpected parameter value for key %v; expected %v, got %v", name, k, e, a)
-					return nil, walkingGhostErr
-				}
+		for k, v := range checks.params {
+			actualValue := request.URL.Query().Get(k)
+			if e, a := v, actualValue; e != a {
+				t.Errorf("%v: unexpected parameter value for key %q; expected %v, got %v", name, k, e, a)
+				return nil, walkingGhostErr
 			}
 		}
 
