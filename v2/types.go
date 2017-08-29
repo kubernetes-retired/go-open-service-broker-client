@@ -24,8 +24,8 @@ type Service struct {
 	//
 	// See the Open Service Broker API spec for information on permissions.
 	Requires []string `json:"requires,omitempty"`
-	// Bindable represents whether a service is bindable.  May be overriden on
-	// a per-plan basis by the Plan.Bindable field.
+	// Bindable represents whether a service is bindable.  May be overridden
+	// on a per-plan basis by the Plan.Bindable field.
 	Bindable bool `json:"bindable"`
 	// PlanUpdatable represents whether instances of this service may be
 	// updated to a different plan.  The serialized form 'plan_updateable' is
@@ -113,7 +113,7 @@ type AlphaServiceBindingSchema struct {
 	Create *AlphaInputParameters `json:"create,omitempty"`
 }
 
-// AlphaInputParameters is ALPHA and may change or dissappear at any time.
+// AlphaInputParameters is ALPHA and may change or disappear at any time.
 //
 // AlphaInputParameters represents a schema for input parameters for creation or
 // update of an API resource.
@@ -184,7 +184,7 @@ type ProvisionResponse struct {
 	OriginatingIdentity AlphaOriginatingIdentity
 }
 
-// OperationKeys may be returned by the broker in order to provide extra
+// OperationKey is an extra identifier from the broker in order to provide extra
 // identifiers for asynchronous operations.
 type OperationKey string
 
@@ -233,7 +233,7 @@ type UpdateInstanceResponse struct {
 	OperationKey *OperationKey `json:"operationKey,omitempty"`
 }
 
-// Deprovision request represents a request to deprovision an instance of a
+// DeprovisionRequest represents a request to deprovision an instance of a
 // service.
 type DeprovisionRequest struct {
 	// InstanceID is the ID of the instance to deprovision.
@@ -243,9 +243,9 @@ type DeprovisionRequest struct {
 	// of a service, it will reject a request with this field set to true.
 	AcceptsIncomplete bool `json:"accepts_incomplete"`
 	// ServiceID is the ID of the service the instance is provisioned from.
-	ServiceID string `json:service_id"`
+	ServiceID string `json:"service_id"`
 	// PlanID is the ID of the plan the instance is provisioned from.
-	PlanID string `json:plan_id"`
+	PlanID string `json:"plan_id"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
 	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
 }

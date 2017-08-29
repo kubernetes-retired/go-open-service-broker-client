@@ -79,7 +79,7 @@ func TestUnbind(t *testing.T) {
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,
 			},
-			expectedErr: testHttpStatusCodeError(),
+			expectedErr: testHTTPStatusCodeError(),
 		},
 		{
 			name:                "originating identity included",

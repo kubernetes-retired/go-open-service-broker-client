@@ -123,7 +123,7 @@ func TestUpdateInstanceInstance(t *testing.T) {
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,
 			},
-			expectedErr: testHttpStatusCodeError(),
+			expectedErr: testHTTPStatusCodeError(),
 		},
 		{
 			name:                "originating identity included",
@@ -172,7 +172,7 @@ func TestUpdateInstanceInstance(t *testing.T) {
 		}
 
 		if tc.httpChecks.body == "" {
-			tc.httpChecks.body = "{}"
+			tc.httpChecks.body = "{\"service_id\":\"test-service-id\",\"plan_id\":\"test-plan-id\"}"
 		}
 
 		version := Version2_11()

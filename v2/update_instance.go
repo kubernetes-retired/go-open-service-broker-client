@@ -8,9 +8,9 @@ import (
 // internal message body types
 
 type updateInstanceRequestBody struct {
-	serviceID  string                 `json:"service_id"`
-	planID     *string                `json:"plan_id,omitempty"`
-	parameters map[string]interface{} `json:"parameters,omitempty"`
+	ServiceID  string                 `json:"service_id"`
+	PlanID     *string                `json:"plan_id,omitempty"`
+	Parameters map[string]interface{} `json:"parameters,omitempty"`
 
 	// Note: this client does not currently support the 'previous_values'
 	// field of this request body.
@@ -28,9 +28,9 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 	}
 
 	requestBody := &updateInstanceRequestBody{
-		serviceID:  r.ServiceID,
-		planID:     r.PlanID,
-		parameters: r.Parameters,
+		ServiceID:  r.ServiceID,
+		PlanID:     r.PlanID,
+		Parameters: r.Parameters,
 	}
 
 	response, err := c.prepareAndDo(http.MethodPatch, fullURL, params, requestBody, r.OriginatingIdentity)
@@ -69,8 +69,6 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 	default:
 		return nil, c.handleFailureResponse(response)
 	}
-
-	return nil, nil
 }
 
 func validateUpdateInstanceRequest(request *UpdateInstanceRequest) error {
