@@ -69,8 +69,6 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 	default:
 		return nil, c.handleFailureResponse(response)
 	}
-
-	return nil, nil
 }
 
 func validateUpdateInstanceRequest(request *UpdateInstanceRequest) error {

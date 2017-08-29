@@ -58,8 +58,6 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 	default:
 		return nil, c.handleFailureResponse(response)
 	}
-
-	return nil, nil
 }
 
 func validateBindRequest(request *BindRequest) error {
