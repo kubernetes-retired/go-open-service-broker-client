@@ -108,7 +108,7 @@ func TestPollLastOperation(t *testing.T) {
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,
 			},
-			expectedErr: testHttpStatusCodeError(),
+			expectedErr: testHTTPStatusCodeError(),
 		},
 		{
 			name: "op succeeded",

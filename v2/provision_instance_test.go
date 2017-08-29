@@ -142,7 +142,7 @@ func TestProvisionInstance(t *testing.T) {
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,
 			},
-			expectedErr: testHttpStatusCodeError(),
+			expectedErr: testHTTPStatusCodeError(),
 		},
 		{
 			name:    "context - 2.12",
