@@ -103,7 +103,7 @@ func TestPollLastOperation(t *testing.T) {
 			expectedErrMessage: "Status: 500; ErrorMessage: <nil>; Description: <nil>; ResponseError: unexpected end of JSON input",
 		},
 		{
-			name: "500 with convential response",
+			name: "500 with conventional response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,

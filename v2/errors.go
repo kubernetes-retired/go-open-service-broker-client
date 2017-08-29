@@ -32,7 +32,7 @@ type HTTPStatusCodeError struct {
 	// Description is a human-readable description of the error that may be
 	// returned by the broker.
 	Description *string
-	// ResponseError is set to the error that occured when unmarshalling a
+	// ResponseError is set to the error that occurred when unmarshalling a
 	// response body from the broker.
 	ResponseError error
 }

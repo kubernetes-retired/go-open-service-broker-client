@@ -24,8 +24,8 @@ type Service struct {
 	//
 	// See the Open Service Broker API spec for information on permissions.
 	Requires []string `json:"requires,omitempty"`
-	// Bindable represents whether a service is bindable.  May be overriden on
-	// a per-plan basis by the Plan.Bindable field.
+	// Bindable represents whether a service is bindable.  May be overridden
+	// on a per-plan basis by the Plan.Bindable field.
 	Bindable bool `json:"bindable"`
 	// PlanUpdatable represents whether instances of this service may be
 	// updated to a different plan.  The serialized form 'plan_updateable' is
@@ -113,7 +113,7 @@ type AlphaServiceBindingSchema struct {
 	Create *AlphaInputParameters `json:"create,omitempty"`
 }
 
-// AlphaInputParameters is ALPHA and may change or dissappear at any time.
+// AlphaInputParameters is ALPHA and may change or disappear at any time.
 //
 // AlphaInputParameters represents a schema for input parameters for creation or
 // update of an API resource.
