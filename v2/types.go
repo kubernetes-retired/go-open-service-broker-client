@@ -184,7 +184,7 @@ type ProvisionResponse struct {
 	OriginatingIdentity AlphaOriginatingIdentity
 }
 
-// OperationKeys may be returned by the broker in order to provide extra
+// OperationKey is an extra identifier from the broker in order to provide extra
 // identifiers for asynchronous operations.
 type OperationKey string
 
@@ -233,7 +233,7 @@ type UpdateInstanceResponse struct {
 	OperationKey *OperationKey `json:"operationKey,omitempty"`
 }
 
-// Deprovision request represents a request to deprovision an instance of a
+// DeprovisionRequest represents a request to deprovision an instance of a
 // service.
 type DeprovisionRequest struct {
 	// InstanceID is the ID of the instance to deprovision.
@@ -243,9 +243,9 @@ type DeprovisionRequest struct {
 	// of a service, it will reject a request with this field set to true.
 	AcceptsIncomplete bool `json:"accepts_incomplete"`
 	// ServiceID is the ID of the service the instance is provisioned from.
-	ServiceID string `json:service_id"`
+	ServiceID string `json:"service_id"`
 	// PlanID is the ID of the plan the instance is provisioned from.
-	PlanID string `json:plan_id"`
+	PlanID string `json:"plan_id"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
 	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
