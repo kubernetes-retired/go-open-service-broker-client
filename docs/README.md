@@ -26,7 +26,7 @@ There are 7 operations in the API:
 2.  Provisioning a new instance of a service: [`Client.ProvisionInstance`](#provisioning-a-new-instance-of-a-service)
 3.  Updating properties of an instance: `Client.UpdateInstance`
 4.  Deprovisioning an instance: `Client.DeprovisionInstance`
-5.  Checking the status of an asynchronous operation (provision, update, or deprovision) on an instance: `Client.PollLastOperation`
+5.  Checking the status of an asynchronous operation (provision, update, or deprovision) on an instance: [`Client.PollLastOperation`](#provisioning-a-new-instance-of-a-service)
 6.  Binding to an instance: `Client.Bind`
 7.  Unbinding from an instance: `Client.Unbind`
 
@@ -67,7 +67,7 @@ Key points:
    into the standard broker error type, allowing access to conventional
    broker-provided fields
 3. The `response.Async` field indicates whether the broker is performing the
-   provision concurrently.  See the `LastOperation` method for information
+   provision concurrently.  See the [`LastOperation`](#checking-the-status-of-an-async-operation) method for information
    about handling asynchronous operations.
 
 ```go
@@ -76,14 +76,6 @@ import (
 )
 
 func ProvisionService(client osb.Client, request osb.ProvisionRequest) (*osb.CatalogResponse, error) {
-	config := osb.DefaultClientConfiguration()
-	config.URL = URL
-
-	client, err := osb.NewClient(config)
-	if err != nil {
-		return nil, err
-	}
-
 	request := &ProvisionRequest{
 		InstanceID: "my-dbaas-service-instance",
 
@@ -125,14 +117,59 @@ func ProvisionService(client osb.Client, request osb.ProvisionRequest) (*osb.Cat
 }
 ```
 
-
-
-
 ### Updating properties of an instance
 
 ### Deprovisioning an instance
 
 ### Checking the status of an asynchronous operation
+
+If the client returns a response from [`ProvisionInstance`](#provisioning-a-new-instance-of-a-service),
+`UpdateInstance`, or `DeprovisionInstance` with the `response.Async` field set
+to true, it means the broker is executing the operation asynchronously.  You
+must call the `PollLastOperation` method on the client to check on the status
+of the operation.
+
+```go
+import (
+	osb "github.com/pmorie/go-open-service-broker-client/v2"
+)
+
+func PollServiceInstance(client osb.Client, deleting bool) error {
+	request := &osb.LastOperationRequest{
+		InstanceID: "my-dbaas-service-instance"
+		ServiceID:  "dbaas-service",
+		PlanID:     "dbaas-gold-plan",
+
+		// Brokers may provide an identifying key for an asychronous operation.
+		OperationKey: osb.OperationKey("12345")
+	}
+	
+	response, err := client.PollLastOperation(request)
+	if err != nil {
+		// If the operation was for delete and we receive a http.StatusGone,
+		// this is considered a success as per the spec.
+		if osb.IsGoneError(err) && deleting {
+			// handle instances that we were deprovisioning and that are now
+			// gone
+		}
+
+		// The broker returned an error.  While polling last operation, this
+		// represents an invalid response and callers should continue polling
+		// last operation.
+	}
+
+	switch response.State {
+	case osb.StateInProgress:
+		// The operation is still in progress
+	case osb.StateSucceeded:
+		// The operation succeeded
+	case osb.StateFailed:
+		// The operation failed.
+	}
+}
+
+```
+
 
 ### Binding to an instance
 
