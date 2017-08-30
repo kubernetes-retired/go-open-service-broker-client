@@ -67,8 +67,8 @@ Key points:
    into the standard broker error type, allowing access to conventional
    broker-provided fields
 3. The `response.Async` field indicates whether the broker is performing the
-   provision concurrently.  See the [`LastOperation`](#checking-the-status-of-an-async-operation) method for information
-   about handling asynchronous operations.
+   provision concurrently; see the [`LastOperation`](#checking-the-status-of-an-async-operation)
+   method for information about handling asynchronous operations
 
 ```go
 import (
@@ -121,6 +121,59 @@ func ProvisionService(client osb.Client, request osb.ProvisionRequest) (*osb.Cat
 
 ### Deprovisioning an instance
 
+To deprovision a service instance, call the `DeprovisionInstance` method:
+
+Key points:
+
+1. `DeprovisionInstance` returns a response from the broker for successful
+   operations, or an error if the broker returned an error response or
+   there was a problem communicating with the broker
+2. Use the `IsHTTPError` method to test and convert errors from Brokers
+   into the standard broker error type, allowing access to conventional
+   broker-provided fields
+3. An HTTP `Gone` response is equivalent to success -- use `IsGoneError` to
+   test for this condition
+4. The `response.Async` field indicates whether the broker is performing the
+   deprovision concurrently; see the [`LastOperation`](#checking-the-status-of-an-async-operation)
+   method for information about handling asynchronous operations
+
+```go
+import (
+	osb "github.com/pmorie/go-open-service-broker-client/v2"
+)
+
+func DeprovisionService(client osb.Client) {
+	request := &osb.DeprovisionRequest{
+		InstanceID:        "my-dbaas-service-instance",
+		ServiceID:         "dbaas-service",
+		PlanID:            "dbaas-gold-plan",
+		AcceptsIncomplete: true,
+	}
+
+	response, err := client.DeprovisionInstance(request)
+	if err != nil {
+		httpErr, isError := osb.IsHTTPError(err)
+		if isError {
+			// handle errors from broker
+
+			if osb.IsGoneError(httpErr) {
+				// A 'gone' status code means that the service instance
+				// doesn't exist.  This means there is no more work to do and
+				// should be equivalent to a success.
+			}
+		} else {
+			// handle errors communicating with broker
+		}
+	}
+
+	if response.Async {
+		// handle asynchronous deprovisions
+	} else {
+		// handle successful deprovision
+	}
+}
+```
+
 ### Checking the status of an asynchronous operation
 
 If the client returns a response from [`ProvisionInstance`](#provisioning-a-new-instance-of-a-service),
@@ -169,7 +222,6 @@ func PollServiceInstance(client osb.Client, deleting bool) error {
 }
 
 ```
-
 
 ### Binding to an instance
 
