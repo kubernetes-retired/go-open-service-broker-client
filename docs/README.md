@@ -28,7 +28,7 @@ There are 7 operations in the API:
 4.  Deprovisioning an instance: [`Client.DeprovisionInstance`](#deprovisioning-an-instance)
 5.  Checking the status of an asynchronous operation (provision, update, or deprovision) on an instance: [`Client.PollLastOperation`](#provisioning-a-new-instance-of-a-service)
 6.  Binding to an instance: [`Client.Bind`](#binding-to-an-instance)
-7.  Unbinding from an instance: `Client.Unbind`
+7.  Unbinding from an instance: [`Client.Unbind`](#unbinding-from-an-instance)
 
 ### Getting a broker's catalog
 
@@ -121,7 +121,7 @@ func ProvisionService(client osb.Client, request osb.ProvisionRequest) (*osb.Cat
 
 ### Deprovisioning an instance
 
-To deprovision a service instance, call the `DeprovisionInstance` method:
+To deprovision a service instance, call the `DeprovisionInstance` method.
 
 Key points:
 
@@ -225,7 +225,7 @@ func PollServiceInstance(client osb.Client, deleting bool) error {
 
 ### Binding to an instance
 
-To create a new binding to an instance, call the `Bind` method:
+To create a new binding to an instance, call the `Bind` method.
 
 Key points:
 
@@ -270,3 +270,40 @@ func BindToInstance(client osb.Client) {
 ```
 
 ### Unbinding from an instance
+
+To unbind from a service instance, call the `Unbind` method.
+
+Key points:
+
+1. `Unbind` returns a response from the broker for successful
+   operations, or an error if the broker returned an error response or
+   there was a problem communicating with the broker
+2. Use the `IsHTTPError` method to test and convert errors from Brokers
+   into the standard broker error type, allowing access to conventional
+   broker-provided fields
+
+```go
+import (
+	osb "github.com/pmorie/go-open-service-broker-client/v2"
+)
+
+func UnbindFromInstance(client osb.Client) {
+	request := &osb.UnbindRequest{
+		BindingID:  "binding-id",
+		InstanceID: "instance-id",
+		ServiceID:  "dbaas-service",
+		PlanID:     "dbaas-gold-plan",
+		AppGUID: "app-guid",
+	}
+
+	response, err := brokerClient.Unbind(request)
+	if err != nil {
+		httpErr, isError := osb.IsHTTPError(err)
+		if isError {
+			// handle errors from the broker
+		} else {
+			// handle errors communicating with the broker
+		}
+	}
+}
+```
