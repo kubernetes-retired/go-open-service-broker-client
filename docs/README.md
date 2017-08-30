@@ -25,9 +25,9 @@ There are 7 operations in the API:
 1.  Getting a broker's 'catalog' of services: [`Client.GetCatalog`](#getting-a-brokers-catalog)
 2.  Provisioning a new instance of a service: [`Client.ProvisionInstance`](#provisioning-a-new-instance-of-a-service)
 3.  Updating properties of an instance: `Client.UpdateInstance`
-4.  Deprovisioning an instance: `Client.DeprovisionInstance`
+4.  Deprovisioning an instance: [`Client.DeprovisionInstance`](#deprovisioning-an-instance)
 5.  Checking the status of an asynchronous operation (provision, update, or deprovision) on an instance: [`Client.PollLastOperation`](#provisioning-a-new-instance-of-a-service)
-6.  Binding to an instance: `Client.Bind`
+6.  Binding to an instance: [`Client.Bind`](#binding-to-an-instance)
 7.  Unbinding from an instance: `Client.Unbind`
 
 ### Getting a broker's catalog
@@ -224,5 +224,49 @@ func PollServiceInstance(client osb.Client, deleting bool) error {
 ```
 
 ### Binding to an instance
+
+To create a new binding to an instance, call the `Bind` method:
+
+Key points:
+
+1. `Bind` returns a response from the broker for successful
+   operations, or an error if the broker returned an error response or
+   there was a problem communicating with the broker
+2. Use the `IsHTTPError` method to test and convert errors from Brokers
+   into the standard broker error type, allowing access to conventional
+   broker-provided fields
+
+```go
+import (
+	osb "github.com/pmorie/go-open-service-broker-client/v2"
+)
+
+func BindToInstance(client osb.Client) {
+	request := &osb.BindRequest{
+		BindingID:  "binding-id",
+		InstanceID: "instance-id",
+		ServiceID:  "dbaas-service",
+		PlanID:     "dbaas-gold-plan",
+
+		// platforms might want to pass an identifier for applications here
+		AppGUID: "app-guid",
+
+		// pass parameters here
+		Parameters: map[string]interface{}{},
+	}
+
+	response, err := brokerClient.Bind(request)
+	if err != nil {
+		httpErr, isError := osb.IsHTTPError(err)
+		if isError {
+			// handle errors from the broker
+		} else {
+			// handle errors communicating with the broker
+		}
+	}
+
+	// do something with the credentials
+}
+```
 
 ### Unbinding from an instance
