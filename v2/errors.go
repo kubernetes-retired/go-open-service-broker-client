@@ -87,7 +87,7 @@ func IsConflictError(err error) bool {
 	return statusCodeError.StatusCode == http.StatusConflict
 }
 
-//These constants are used to check for "Async" and "RequiresApp" errors and their messages
+// Constants are used to check for "Async" and "RequiresApp" errors and their messages
 const (
 	AsyncErrorMessage               = "AsyncRequired"
 	AsyncErrorDescription           = "This service plan requires client support for asynchronous service operations."

@@ -60,7 +60,7 @@ type Action struct {
 // FakeClient.
 type ActionType string
 
-// These constants of type ActionType, are the set of actions that can be taken on a FakeClient
+// These are the set of actions that can be taken on a FakeClient
 const (
 	GetCatalog          ActionType = "GetCatalog"
 	ProvisionInstance   ActionType = "ProvisionInstance"
@@ -98,9 +98,7 @@ func (c *FakeClient) Actions() []Action {
 	return c.actions
 }
 
-// GetCatalog is a method defined on FakeClient that appends the GetCatalog Action to
-// the actions array in FakeClient and returns the CatalogReaction Response and Error
-// or an error message if one doesn't exist
+// GetCatalog implements the Client.GetCatalog method for the FakeClient
 func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -114,9 +112,7 @@ func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
 	return nil, UnexpectedActionError()
 }
 
-// ProvisionInstance is a method defined on FakeClient that appends the ProvisionInstance Action
-// to the actions array in FakeClient and returns the ProvisionReaction Response and Error
-// or an error message if one doesn't exist
+// ProvisionInstance implements the Client.ProvisionRequest method for the FakeClient
 func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -130,9 +126,7 @@ func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionRes
 	return nil, UnexpectedActionError()
 }
 
-// UpdateInstance is a method defined on FakeClient that appends the UpdateInstance Action
-// to the actions array in FakeClient and returns the UpdateInstanceReaction Response and Error
-// or an error message if one doesn't exist
+// UpdateInstance implements the Client.UpdateInstance method for the FakeClient
 func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -146,9 +140,7 @@ func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInst
 	return nil, UnexpectedActionError()
 }
 
-// DeprovisionInstance is a method defined on FakeClient that appends the DeprovisionInstance Action
-// to the actions array in FakeClient and returns the DeprovisionReaction Response and Error
-// or an error message if one doesn't exist
+// DeprovisionInstance implements the Client.DeprovisionInstance method on the FakeClient
 func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -162,9 +154,7 @@ func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.Deprovis
 	return nil, UnexpectedActionError()
 }
 
-// PollLastOperation is a method defined on FakeClient that appends the PollLastOperation Action
-// to the actions array in FakeClient and returns the PollLastOperationReaction Response and Error
-// or an error message if one doesn't exist
+// PollLastOperation implements the Client.PollLastOperation method on the FakeClient
 func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -178,9 +168,7 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 	return nil, UnexpectedActionError()
 }
 
-// Bind is a method defined on FakeClient that appends the Bind Action
-// to the actions array in FakeClient and returns the BindReaction Response and Error
-// or an error message if one doesn't exist
+// Bind implements the Client.Bind method on the FakeClient
 func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -194,9 +182,7 @@ func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 	return nil, UnexpectedActionError()
 }
 
-// Unbind is a method defined on FakeClient that appends the Unbind Action
-// to the actions array in FakeClient and returns the UnbindReaction Response and Error
-// or an error message if one doesn't exist
+// Unbind implements the Client.Unbind method on the FakeClient
 func (c *FakeClient) Unbind(r *v2.UnbindRequest) (*v2.UnbindResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()

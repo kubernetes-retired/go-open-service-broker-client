@@ -18,11 +18,10 @@ import (
 )
 
 const (
-	// APIVersionHeader specifies use of the XBrokerAPIVersion header for the Open
+	// APIVersionHeader is the header value associated with the version of the Open
 	// Service Broker API version.
 	APIVersionHeader = "X-Broker-API-Version"
-	// OriginatingIdentityHeader specifies use of the XBrokerAPIOriginatingIdentity
-	// header for the originating identity
+	// OriginatingIdentityHeader is the header associated with originating identity
 	OriginatingIdentityHeader = "X-Broker-API-Originating-Identity"
 
 	catalogURL            = "%s/v2/catalog"
