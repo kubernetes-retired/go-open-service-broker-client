@@ -524,8 +524,8 @@ func TestnewFakeClient(t *testing.T) {
 				BindReaction: &fake.BindReaction{
 					Response: bindResponse(),
 				},
-				response: bindResponse(),
 			},
+			response: bindResponse(),
 		},
 		{
 			name: "error",
