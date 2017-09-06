@@ -510,7 +510,7 @@ func TestFakeAppGUIDRequiredError(t *testing.T) {
 func TestnewFakeClient(t *testing.T) {
 	cases := []struct {
 		name     string
-		config   *fake.FakeClient
+		config   fake.FakeClientConfiguration
 		response *v2.BindResponse
 		err      error
 	}{
@@ -520,7 +520,7 @@ func TestnewFakeClient(t *testing.T) {
 		},
 		{
 			name: "BindReaction config",
-			config: &fake.FakeClient{
+			config: fake.FakeClientConfiguration{
 				BindReaction: &fake.BindReaction{
 					Response: bindResponse(),
 				},
@@ -529,19 +529,17 @@ func TestnewFakeClient(t *testing.T) {
 		},
 		{
 			name: "error",
-			config: &fake.FakeClient{
-				BindReaction: "",
+			config: fake.FakeClientConfiguration{
+				BindReaction: nil,
 			},
 			err: errors.New("oops"),
 		},
 	}
 
 	for _, tc := range cases {
-		fakeClient := &fake.NewFakeClient(fake.FakeClient{
-			BindReaction: tc.config,
-		})
+		fakeClient := fake.NewFakeClient(tc.config)
 
-		testClient := &fake.NewFakeClient(fakeClient.Bind(&v2.BindRequest{}))
+		response, err := fakeClient.Bind(&v2.BindRequest{})
 
 		if !reflect.DeepEqual(tc.response, response) {
 			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
