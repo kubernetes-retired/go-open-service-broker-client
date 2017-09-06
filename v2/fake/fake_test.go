@@ -508,45 +508,55 @@ func TestFakeAppGUIDRequiredError(t *testing.T) {
 }
 
 func TestnewFakeClient(t *testing.T) {
-	fakeClient:= &fake.FakeClient{
-			   CatalogReaction: &fake.CatalogReaction{
-				   Response: catalogResponse(),
-			   },
-			   ProvisionReaction: &fake.ProvisionReaction{
-				   Response: provisionResponse(),
-			   },
-			   UpdateInstanceReaction: &fake.UpdateInstanceReaction{
-				   Response: updateInstanceResponse(),
-			   },
-			   DeprovisionReaction: &fake.DeprovisionReaction{
-				   Response: deprovisionResponse(),
-			   },
-			   PollLastOperationReaction: &fake.PollLastOperationReaction{
-				   Response: lastOperationResponse(),
-			   },
-			   BindReaction: &fake.BindReaction{
-				   Response: bindResponse(),
-			   },
-			   UnbindReaction: &fake.UnbindReaction{
-				   Response: unbindResponse(),
-			   },
-		   }
+	cases := []struct {
+		name     string
+		config   *fake.FakeClient
+		response *v2.BindResponse
+		err      error
+	}{
+		{
+			name: "unexpected action",
+			err:  fake.UnexpectedActionError(),
+		},
+		{
+			name: "BindReaction config",
+			config: &fake.FakeClient{
+				BindReaction: &fake.BindReaction{
+					Response: bindResponse(),
+				},
+				response: bindResponse(),
+			},
+		},
+		{
+			name: "error",
+			config: &fake.FakeClient{
+				BindReaction: "",
+			},
+			err: errors.New("oops"),
+		},
+	}
 
-//	   newfakeclient := fake.NewFakeClient(&fakeClient)
-	   createFunc := fake.ReturnFakeClientFunc(fakeClient)
+	for _, tc := range cases {
+		fakeClient := &fake.NewFakeClient(fake.FakeClient{
+			BindReaction: tc.config,
+		})
 
-	//  := fakeClient.Bind(&v2.BindRequest{})
-		//   if !reflect.DeepEqual(tc.response, response) {
-		//	   t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
-		//   }
-		//   if !reflect.DeepEqual(tc.err, err) {
-		//	   t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
-		//   }
-		//   actions := fakeClient.Actions()
-		//   if e, a := 1, len(actions); e != a {
-		//	   t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
-		//   }
-		//   if e, a := fake.Bind, actions[0].Type; e != a {
-		//           t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
-	//	   }
+		testClient := &fake.NewFakeClient(fakeClient.Bind(&v2.BindRequest{}))
+
+		if !reflect.DeepEqual(tc.response, response) {
+			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
+		}
+
+		if !reflect.DeepEqual(tc.err, err) {
+			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
+		}
+
+		//		actions := fakeClient.Actions()
+		//		if e, a := 1, len(actions); e != a {
+		//			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		//		}
+		//		if e, a := fake.Bind, actions[0].Type; e != a {
+		//			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+		//		}
+	}
 }
