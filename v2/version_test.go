@@ -16,3 +16,10 @@ func TestAtLeast(t *testing.T) {
 		t.Error("Expected 2.11 < 2.12")
 	}
 }
+
+func TestLatestAPIVersion(t *testing.T) {
+
+	if LatestAPIVersion() != Version2_12() {
+		t.Error("Unexpected Latest API Verion--expected 2.12")
+	}
+}
