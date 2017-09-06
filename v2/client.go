@@ -21,7 +21,8 @@ const (
 	// APIVersionHeader is the header value associated with the version of the Open
 	// Service Broker API version.
 	APIVersionHeader = "X-Broker-API-Version"
-	// OriginatingIdentityHeader is the header associated with originating identity
+	// OriginatingIdentityHeader is the header associated with originating
+	// identity.
 	OriginatingIdentityHeader = "X-Broker-API-Originating-Identity"
 
 	catalogURL            = "%s/v2/catalog"
