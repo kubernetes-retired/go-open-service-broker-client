@@ -204,6 +204,16 @@ func TestValidateUpdateInstanceRequest(t *testing.T) {
 			}(),
 			valid: false,
 		},
+		{
+			name: "missing service ID",
+			request: func() *UpdateInstanceRequest {
+				r := defaultUpdateInstanceRequest()
+				r.InstanceID = "instanceID"
+				r.ServiceID = ""
+				return r
+			}(),
+			valid: false,
+		},
 	}
 
 	for _, tc := range cases {
