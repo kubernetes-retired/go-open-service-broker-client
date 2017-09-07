@@ -522,8 +522,6 @@ func TestnewFakeClient(t *testing.T) {
 	response, err := newfakeClient.Bind(&v2.BindRequest{})
 	response2, err2 := testfakeclient.Bind(&v2.BindRequest{})
 
-	//	returnedFakeClient := fake.ReturnFakeClientFunc(fakeClient)
-
 	//for _, tc := range cases {
 	//		fakeClient := fake.NewFakeClient(tc.config)
 
@@ -543,4 +541,23 @@ func TestnewFakeClient(t *testing.T) {
 	//			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
 	//		}
 	//	}
+
+	newcreatefunc := fake.NewFakeClientFunc(fake.FakeClientConfiguration{
+		BindReaction: &fake.BindReaction{
+			Response: bindResponse(),
+		},
+	})
+
+	returncreatefunc := fake.ReturnFakeClientFunc(newfakeClient)
+	//	client, err := newFakeClientfunc.Bind(&v2.BindRequest{})
+	//	response2, err2 := testfakeclient.Bind(&v2.BindRequest{})
+
+	if !reflect.DeepEqual(newcreatefunc, returncreatefunc) {
+		t.Errorf("%v: unexpected response; expected %+v, got %+v", newcreatefunc, returncreatefunc)
+	}
+
+	//	if !reflect.DeepEqual(newcreatefunc.error, returncreatefunc.error) {
+	//		t.Errorf("%v: unexpected error; expected %+v, got %+v", err, err2)
+	//	}
+
 }
