@@ -507,7 +507,7 @@ func TestFakeAppGUIDRequiredError(t *testing.T) {
 	}
 }
 
-func TestnewFakeClient(t *testing.T) {
+func TestNewFakeClient(t *testing.T) {
 	newfakeClient := fake.NewFakeClient(fake.FakeClientConfiguration{
 		BindReaction: &fake.BindReaction{
 			Response: bindResponse(),
@@ -533,31 +533,38 @@ func TestnewFakeClient(t *testing.T) {
 		t.Errorf("%v: unexpected error; expected %+v, got %+v", err, err2)
 	}
 
-	//		actions := fakeClient.Actions()
-	//		if e, a := 1, len(actions); e != a {
-	//			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
-	//		}
-	//		if e, a := fake.Bind, actions[0].Type; e != a {
-	//			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
-	//		}
-	//	}
-
-	newcreatefunc := fake.NewFakeClientFunc(fake.FakeClientConfiguration{
-		BindReaction: &fake.BindReaction{
-			Response: bindResponse(),
-		},
-	})
-
-	returncreatefunc := fake.ReturnFakeClientFunc(newfakeClient)
-	//	client, err := newFakeClientfunc.Bind(&v2.BindRequest{})
-	//	response2, err2 := testfakeclient.Bind(&v2.BindRequest{})
-
-	if !reflect.DeepEqual(newcreatefunc, returncreatefunc) {
-		t.Errorf("%v: unexpected response; expected %+v, got %+v", newcreatefunc, returncreatefunc)
+	actions := newfakeClient.Actions()
+	if e, a := 1, len(actions); e != a {
+		t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+	}
+	if e, a := fake.Bind, actions[0].Type; e != a {
+		t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
 	}
 
-	//	if !reflect.DeepEqual(newcreatefunc.error, returncreatefunc.error) {
-	//		t.Errorf("%v: unexpected error; expected %+v, got %+v", err, err2)
-	//	}
-
 }
+
+//func TestNewFakeClientFunc(t *testing.T) {
+//
+//	newcreatefunc := fake.NewFakeClientFunc(fake.FakeClientConfiguration{
+//		BindReaction: &fake.BindReaction{
+//			Response: bindResponse(),
+//		},
+//	})
+///
+//	returncreatefunc := fake.ReturnFakeClientFunc(&fake.FakeClient{
+//		BindReaction: &fake.BindReaction{
+//			Response: bindResponse(),
+//		},
+//	})
+//	client, err := newFakeClientfunc.Bind(&v2.BindRequest{})
+//	response2, err2 := testfakeclient.Bind(&v2.BindRequest{})
+
+//	if !reflect.DeepEqual(&newcreatefunc.httpClient, &returncreatefunc.httpClient) {
+//		t.Errorf("%v: unexpected response; expected %+v, got %+v", newcreatefunc, returncreatefunc)
+//	}
+
+//	if !reflect.DeepEqual(newcreatefunc.error, returncreatefunc.error) {
+//		t.Errorf("%v: unexpected error; expected %+v, got %+v", err, err2)
+//	}
+
+//}
