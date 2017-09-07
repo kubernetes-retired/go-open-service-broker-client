@@ -508,53 +508,39 @@ func TestFakeAppGUIDRequiredError(t *testing.T) {
 }
 
 func TestnewFakeClient(t *testing.T) {
-	cases := []struct {
-		name     string
-		config   fake.FakeClientConfiguration
-		response *v2.BindResponse
-		err      error
-	}{
-		{
-			name: "unexpected action",
-			err:  fake.UnexpectedActionError(),
+	newfakeClient := fake.NewFakeClient(fake.FakeClientConfiguration{
+		BindReaction: &fake.BindReaction{
+			Response: bindResponse(),
 		},
-		{
-			name: "BindReaction config",
-			config: fake.FakeClientConfiguration{
-				BindReaction: &fake.BindReaction{
-					Response: bindResponse(),
-				},
-			},
-			response: bindResponse(),
-		},
-		{
-			name: "error",
-			config: fake.FakeClientConfiguration{
-				BindReaction: nil,
-			},
-			err: errors.New("oops"),
-		},
+	})
+
+	testfakeclient := fake.FakeClient{BindReaction: &fake.BindReaction{
+		Response: bindResponse(),
+	},
 	}
 
-	for _, tc := range cases {
-		fakeClient := fake.NewFakeClient(tc.config)
+	response, err := newfakeClient.Bind(&v2.BindRequest{})
+	response2, err2 := testfakeclient.Bind(&v2.BindRequest{})
 
-		response, err := fakeClient.Bind(&v2.BindRequest{})
+	//	returnedFakeClient := fake.ReturnFakeClientFunc(fakeClient)
 
-		if !reflect.DeepEqual(tc.response, response) {
-			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
-		}
+	//for _, tc := range cases {
+	//		fakeClient := fake.NewFakeClient(tc.config)
 
-		if !reflect.DeepEqual(tc.err, err) {
-			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
-		}
-
-		//		actions := fakeClient.Actions()
-		//		if e, a := 1, len(actions); e != a {
-		//			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
-		//		}
-		//		if e, a := fake.Bind, actions[0].Type; e != a {
-		//			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
-		//		}
+	if !reflect.DeepEqual(response, response2) {
+		t.Errorf("%v: unexpected response; expected %+v, got %+v", response, response2)
 	}
+
+	if !reflect.DeepEqual(err, err2) {
+		t.Errorf("%v: unexpected error; expected %+v, got %+v", err, err2)
+	}
+
+	//		actions := fakeClient.Actions()
+	//		if e, a := 1, len(actions); e != a {
+	//			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+	//		}
+	//		if e, a := fake.Bind, actions[0].Type; e != a {
+	//			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+	//		}
+	//	}
 }
