@@ -8,9 +8,10 @@ import (
 
 func defaultLastOperationRequest() *LastOperationRequest {
 	return &LastOperationRequest{
-		InstanceID: testInstanceID,
-		ServiceID:  strPtr(testServiceID),
-		PlanID:     strPtr(testPlanID),
+		InstanceID:   testInstanceID,
+		ServiceID:    strPtr(testServiceID),
+		PlanID:       strPtr(testPlanID),
+		OperationKey: &testOperation,
 	}
 }
 
@@ -168,6 +169,7 @@ func TestPollLastOperation(t *testing.T) {
 			tc.httpChecks.params = map[string]string{}
 			tc.httpChecks.params[serviceIDKey] = testServiceID
 			tc.httpChecks.params[planIDKey] = testPlanID
+			tc.httpChecks.params[operationKey] = "test-operation-key"
 		}
 
 		version := Version2_11()

@@ -61,6 +61,7 @@ type Action struct {
 type ActionType string
 
 // These are the set of actions that can be taken on a FakeClient.
+
 const (
 	GetCatalog          ActionType = "GetCatalog"
 	ProvisionInstance   ActionType = "ProvisionInstance"
@@ -90,6 +91,7 @@ type FakeClient struct {
 
 var _ v2.Client = &FakeClient{}
 
+
 // Actions is a method defined on FakeClient that returns the actions taken on
 // it.
 func (c *FakeClient) Actions() []Action {
@@ -98,6 +100,7 @@ func (c *FakeClient) Actions() []Action {
 
 	return c.actions
 }
+
 
 // GetCatalog implements the Client.GetCatalog method for the FakeClient.
 func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
@@ -112,6 +115,7 @@ func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
 
 	return nil, UnexpectedActionError()
 }
+
 
 // ProvisionInstance implements the Client.ProvisionRequest method for the
 // FakeClient.
@@ -201,7 +205,7 @@ func (c *FakeClient) Unbind(r *v2.UnbindRequest) (*v2.UnbindResponse, error) {
 	return nil, UnexpectedActionError()
 }
 
-// UnexpectedActionError returns an error message when an action is not found
+
 // in the FakeClient's action array.
 func UnexpectedActionError() error {
 	return errors.New("Unexpected action")
