@@ -155,6 +155,15 @@ type Client interface {
 	// error. Unbind does a DELETE on the Broker's endpoint for the requested
 	// instance and binding IDs (/v2/service_instances/instance-id/service_bindings/binding-id).
 	Unbind(r *UnbindRequest) (*UnbindResponse, error)
+	// GetBinding is an ALPHA API method and may change. Alpha features must
+	// be enabled and the client must be using the latest API Version in
+	// order to use this method.
+	//
+	// GetBinding returns configuration and credential information
+	// about an existing binding. GetBindings calls GET on the Broker's
+	// binding endpoint
+	// (/v2/service_instances/instance-id/service_bindings/binding-id)
+	GetBinding(r *GetBindingRequest) (*GetBindingResponse, error)
 }
 
 // CreateFunc allows control over which implementation of a Client is

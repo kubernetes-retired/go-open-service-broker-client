@@ -36,6 +36,7 @@ func NewFakeClient(config FakeClientConfiguration) *FakeClient {
 		PollLastOperationReaction: config.PollLastOperationReaction,
 		BindReaction:              config.BindReaction,
 		UnbindReaction:            config.UnbindReaction,
+		GetBindingReaction:        config.GetBindingReaction,
 	}
 }
 
@@ -48,6 +49,7 @@ type FakeClientConfiguration struct {
 	PollLastOperationReaction *PollLastOperationReaction
 	BindReaction              *BindReaction
 	UnbindReaction            *UnbindReaction
+	GetBindingReaction        *GetBindingReaction
 }
 
 // Action is a record of a method call on the FakeClient.
@@ -69,6 +71,7 @@ const (
 	PollLastOperation   ActionType = "PollLastOperation"
 	Bind                ActionType = "Bind"
 	Unbind              ActionType = "Unbind"
+	GetBinding          ActionType = "GetBinding"
 )
 
 // FakeClient is a fake implementation of the v2.Client interface. It records
@@ -83,6 +86,7 @@ type FakeClient struct {
 	PollLastOperationReaction *PollLastOperationReaction
 	BindReaction              *BindReaction
 	UnbindReaction            *UnbindReaction
+	GetBindingReaction        *GetBindingReaction
 
 	sync.Mutex
 	actions []Action
@@ -201,6 +205,20 @@ func (c *FakeClient) Unbind(r *v2.UnbindRequest) (*v2.UnbindResponse, error) {
 	return nil, UnexpectedActionError()
 }
 
+// GetBinding implements the Client.GetBinding method for the FakeClient.
+func (c *FakeClient) GetBinding(*v2.GetBindingRequest) (*v2.GetBindingResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
+	c.actions = append(c.actions, Action{Type: GetBinding})
+
+	if c.GetBindingReaction != nil {
+		return c.GetBindingReaction.Response, c.GetBindingReaction.Error
+	}
+
+	return nil, UnexpectedActionError()
+}
+
 // UnexpectedActionError returns an error message when an action is not found
 // in the FakeClient's action array.
 func UnexpectedActionError() error {
@@ -247,6 +265,12 @@ type BindReaction struct {
 // UnbindReaction is sent as the response Unbind requests.
 type UnbindReaction struct {
 	Response *v2.UnbindResponse
+	Error    error
+}
+
+// GetBindingReaction is sent as the response to GetBinding requests.
+type GetBindingReaction struct {
+	Response *v2.GetBindingResponse
 	Error    error
 }
 

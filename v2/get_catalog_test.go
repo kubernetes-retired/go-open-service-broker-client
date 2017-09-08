@@ -14,6 +14,7 @@ const okCatalogBytes = `{
     "tags": ["tag1", "tag2"],
     "requires": ["route_forwarding"],
     "bindable": true,
+    "binding_retrievable": true,
     "metadata": {
     	"a": "b",
     	"c": "d"
@@ -51,6 +52,7 @@ func okCatalogResponse() *CatalogResponse {
 					"route_forwarding",
 				},
 				Bindable:      true,
+				BindingRetrievable: true,
 				PlanUpdatable: truePtr(),
 				Plans: []Plan{
 					{
@@ -121,6 +123,7 @@ const alphaParameterSchemaCatalogBytes = `{
     "tags": ["tag1", "tag2"],
     "requires": ["route_forwarding"],
     "bindable": true,
+    "binding_retrievable": true,
     "metadata": {
     	"a": "b",
     	"c": "d"

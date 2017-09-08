@@ -238,6 +238,28 @@ func isValidJSON(s string) error {
 	return json.Unmarshal([]byte(s), &js)
 }
 
+// validateAlphaAPIMethodsAllowed returns an error if alpha API methods are not
+// allowed for this client.
+func (c *client) validateAlphaAPIMethodsAllowed() error {
+	if !c.EnableAlphaFeatures {
+		return AlphaAPIMethodsNotAllowedError{
+			reason: fmt.Sprintf("alpha features must be enabled"),
+		}
+	}
+
+	if !c.APIVersion.AtLeast(LatestAPIVersion()) {
+		return AlphaAPIMethodsNotAllowedError{
+			reason: fmt.Sprintf(
+				"must have latest API Version. Current: %s, Expected: %s",
+				c.APIVersion.label,
+				LatestAPIVersion().label,
+			),
+		}
+	}
+
+	return nil
+}
+
 // internal message body types
 
 type asyncSuccessResponseBody struct {
