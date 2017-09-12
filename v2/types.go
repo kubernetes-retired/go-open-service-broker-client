@@ -343,7 +343,12 @@ type BindRequest struct {
 	BindingID string `json:"binding_id"`
 	// InstanceID is the ID of the instance to bind to.
 	InstanceID string `json:"instance_id"`
-
+	// AcceptsIncomplete indicates whether the client can accept asynchronous
+	// binding. If the broker cannot fulfill a request synchronously and
+	// AcceptsIncomplete is set to false, the broker will reject the request.
+	// A broker may choose to response to a request with AcceptsIncomplete set
+	// to true either synchronously or asynchronously.
+	AcceptsIncomplete bool `json:"accepts_incomplete"`
 	// ServiceID is the ID of the service the instance was provisioned from.
 	ServiceID string `json:"service_id"`
 	// PlanID is the ID of the plan the instance was provisioned from.
@@ -373,6 +378,9 @@ type BindResource struct {
 
 // BindResponse represents a broker's response to a BindRequest.
 type BindResponse struct {
+	// Async indicates whether the broker is handling the bind request
+	// asynchronously.
+	Async bool `json:"async"`
 	// Credentials is a free-form hash of credentials that can be used by
 	// applications or users to access the service.
 	Credentials map[string]interface{} `json:"credentials,omitempty"`
@@ -389,6 +397,9 @@ type BindResponse struct {
 	// CF-specific.  May only be supplied by a service that declares a
 	// requirement for the 'volume_mount' permission.
 	VolumeMounts []interface{} `json:"volume_mounts,omitempty"`
+	// OperationKey is an extra identifier supplied by the broker to identify
+	// asynchronous operations.
+	OperationKey *OperationKey `json:"operationKey,omitempty"`
 }
 
 // UnbindRequest represents a request to unbind a particular binding.
@@ -397,6 +408,12 @@ type UnbindRequest struct {
 	InstanceID string `json:"instance_id"`
 	// BindingID is the ID of the binding to delete.
 	BindingID string `json:"binding_id"`
+	// AcceptsIncomplete indicates whether the client can accept asynchronous
+	// unbinding. If the broker cannot fulfill a request synchronously and
+	// AcceptsIncomplete is set to false, the broker will reject the request.
+	// A broker may choose to response to a request with AcceptsIncomplete set
+	// to true either synchronously or asynchronously.
+	AcceptsIncomplete bool `json:"accepts_incomplete"`
 	// ServiceID is the ID of the service the instance was provisioned from.
 	ServiceID string `json:"service_id"`
 	// PlanID is the ID of the plan the instance was provisioned from.
@@ -407,7 +424,12 @@ type UnbindRequest struct {
 
 // UnbindResponse represents a broker's response to an UnbindRequest.
 type UnbindResponse struct {
-	// Currently, unbind responses have no fields.
+	// Async indicates whether the broker is handling the unbind request
+	// asynchronously.
+	Async bool `json:"async"`
+	// OperationKey is an extra identifier supplied by the broker to identify
+	// asynchronous operations.
+	OperationKey *OperationKey `json:"operationKey,omitempty"`
 }
 
 // GetBindingRequest represents a request to do a GET on a particular binding.

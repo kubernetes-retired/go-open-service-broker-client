@@ -15,10 +15,27 @@ func defaultUnbindRequest() *UnbindRequest {
 	}
 }
 
+func defaultAsyncUnbindRequest() *UnbindRequest {
+	r := defaultUnbindRequest()
+	r.AcceptsIncomplete = true
+	return r
+}
+
 const successUnbindResponseBody = `{}`
+
+const successAsyncUnbindResponseBody = `{
+  "operation": "test-operation-key"
+}`
 
 func successUnbindResponse() *UnbindResponse {
 	return &UnbindResponse{}
+}
+
+func successUnbindResponseAsync() *UnbindResponse {
+	return &UnbindResponse{
+		Async:        true,
+		OperationKey: &testOperation,
+	}
 }
 
 func TestUnbind(t *testing.T) {
@@ -52,11 +69,33 @@ func TestUnbind(t *testing.T) {
 			expectedResponse: successUnbindResponse(),
 		},
 		{
+			name:    "success - asynchronous",
+			request: defaultAsyncUnbindRequest(),
+			httpChecks: httpChecks{
+				params: map[string]string{
+					asyncQueryParamKey: "true",
+				},
+			},
+			httpReaction: httpReaction{
+				status: http.StatusAccepted,
+				body:   successAsyncUnbindResponseBody,
+			},
+			expectedResponse: successUnbindResponseAsync(),
+		},
+		{
 			name: "http error",
 			httpReaction: httpReaction{
 				err: fmt.Errorf("http error"),
 			},
 			expectedErrMessage: "http error",
+		},
+		{
+			name: "202 with no async support",
+			httpReaction: httpReaction{
+				status: http.StatusAccepted,
+				body:   successAsyncUnbindResponseBody,
+			},
+			expectedErrMessage: "Status: 202; ErrorMessage: <nil>; Description: <nil>; ResponseError: <nil>",
 		},
 		{
 			name: "200 with malformed response",

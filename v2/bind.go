@@ -3,6 +3,8 @@ package v2
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/golang/glog"
 )
 
 // internal message body types
@@ -13,6 +15,14 @@ type bindRequestBody struct {
 	Parameters   map[string]interface{} `json:"parameters,omitempty"`
 	BindResource map[string]interface{} `json:"bind_resource,omitempty"`
 	Context      map[string]interface{} `json:"context,omitempty"`
+}
+
+type bindSuccessResponseBody struct {
+	Credentials map[string]interface{} `json:"credentials"`
+	SyslogDrainURL *string `json:"syslog_drain_url"`
+	RouteServiceURL *string `json:"route_service_url"`
+	VolumeMounts []interface{} `json:"volume_mounts"`
+	Operation    *string `json:"operation"`
 }
 
 const (
@@ -26,6 +36,11 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 	}
 
 	fullURL := fmt.Sprintf(bindingURLFmt, c.URL, r.InstanceID, r.BindingID)
+
+	params := map[string]string{}
+	if r.AcceptsIncomplete {
+		params[asyncQueryParamKey] = "true"
+	}
 
 	requestBody := &bindRequestBody{
 		ServiceID:  r.ServiceID,
@@ -47,7 +62,7 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 		}
 	}
 
-	response, err := c.prepareAndDo(http.MethodPut, fullURL, nil /* params */, requestBody, r.OriginatingIdentity)
+	response, err := c.prepareAndDo(http.MethodPut, fullURL, params, requestBody, r.OriginatingIdentity)
 	if err != nil {
 		return nil, err
 	}
@@ -57,6 +72,38 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 		userResponse := &BindResponse{}
 		if err := c.unmarshalResponse(response, userResponse); err != nil {
 			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
+		}
+
+		return userResponse, nil
+	case http.StatusAccepted:
+		if !r.AcceptsIncomplete {
+			return nil, c.handleFailureResponse(response)
+		}
+
+		responseBodyObj := &bindSuccessResponseBody{}
+		if err := c.unmarshalResponse(response, responseBodyObj); err != nil {
+			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
+		}
+
+		var opPtr *OperationKey
+		if responseBodyObj.Operation != nil {
+			opStr := *responseBodyObj.Operation
+			op := OperationKey(opStr)
+			opPtr = &op
+		}
+
+		userResponse := &BindResponse{
+			Credentials: responseBodyObj.Credentials,
+			SyslogDrainURL: responseBodyObj.SyslogDrainURL,
+			RouteServiceURL: responseBodyObj.RouteServiceURL,
+			VolumeMounts: responseBodyObj.VolumeMounts,
+			OperationKey: opPtr,
+		}
+		if response.StatusCode == http.StatusAccepted {
+			if c.Verbose {
+				glog.Infof("broker %q: received asynchronous response", c.Name)
+			}
+			userResponse.Async = true
 		}
 
 		return userResponse, nil
