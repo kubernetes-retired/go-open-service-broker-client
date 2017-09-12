@@ -341,6 +341,58 @@ func TestPollLastOperation(t *testing.T) {
 	}
 }
 
+func TestPollBindingLastOperation(t *testing.T) {
+	cases := []struct {
+		name     string
+		reaction *fake.PollBindingLastOperationReaction
+		response *v2.LastOperationResponse
+		err      error
+	}{
+		{
+			name: "unexpected action",
+			err:  fake.UnexpectedActionError(),
+		},
+		{
+			name: "response",
+			reaction: &fake.PollBindingLastOperationReaction{
+				Response: lastOperationResponse(),
+			},
+			response: lastOperationResponse(),
+		},
+		{
+			name: "error",
+			reaction: &fake.PollBindingLastOperationReaction{
+				Error: errors.New("oops"),
+			},
+			err: errors.New("oops"),
+		},
+	}
+
+	for _, tc := range cases {
+		fakeClient := &fake.FakeClient{
+			PollBindingLastOperationReaction: tc.reaction,
+		}
+
+		response, err := fakeClient.PollBindingLastOperation(&v2.BindingLastOperationRequest{})
+
+		if !reflect.DeepEqual(tc.response, response) {
+			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
+		}
+
+		if !reflect.DeepEqual(tc.err, err) {
+			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
+		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.PollBindingLastOperation, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+		}
+	}
+}
+
 func bindResponse() *v2.BindResponse {
 	return &v2.BindResponse{
 		Credentials: map[string]interface{}{
