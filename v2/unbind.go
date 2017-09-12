@@ -3,7 +3,13 @@ package v2
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/golang/glog"
 )
+
+type unbindSuccessResponseBody struct {
+	Operation    *string `json:"operation"`
+}
 
 func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 	if err := validateUnbindRequest(r); err != nil {
@@ -14,6 +20,9 @@ func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 	params := map[string]string{}
 	params[serviceIDKey] = r.ServiceID
 	params[planIDKey] = r.PlanID
+	if r.AcceptsIncomplete {
+		params[asyncQueryParamKey] = "true"
+	}
 
 	response, err := c.prepareAndDo(http.MethodDelete, fullURL, params, nil, r.OriginatingIdentity)
 	if err != nil {
@@ -22,9 +31,26 @@ func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 
 	switch response.StatusCode {
 	case http.StatusOK, http.StatusGone:
-		userResponse := &UnbindResponse{}
-		if err := c.unmarshalResponse(response, userResponse); err != nil {
+		responseBodyObj := &unbindSuccessResponseBody{}
+		if err := c.unmarshalResponse(response, responseBodyObj); err != nil {
 			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
+		}
+
+		var opPtr *OperationKey
+		if responseBodyObj.Operation != nil {
+			opStr := *responseBodyObj.Operation
+			op := OperationKey(opStr)
+			opPtr = &op
+		}
+
+		userResponse := &UnbindResponse{
+			OperationKey: opPtr,
+		}
+		if response.StatusCode == http.StatusAccepted {
+			if c.Verbose {
+				glog.Infof("broker %q: received asynchronous response", c.Name)
+			}
+			userResponse.Async = true
 		}
 
 		return userResponse, nil

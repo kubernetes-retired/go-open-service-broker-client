@@ -29,25 +29,27 @@ func ReturnFakeClientFunc(c *FakeClient) v2.CreateFunc {
 // FakeClientConfiguration.
 func NewFakeClient(config FakeClientConfiguration) *FakeClient {
 	return &FakeClient{
-		CatalogReaction:           config.CatalogReaction,
-		ProvisionReaction:         config.ProvisionReaction,
-		UpdateInstanceReaction:    config.UpdateInstanceReaction,
-		DeprovisionReaction:       config.DeprovisionReaction,
-		PollLastOperationReaction: config.PollLastOperationReaction,
-		BindReaction:              config.BindReaction,
-		UnbindReaction:            config.UnbindReaction,
+		CatalogReaction:                   config.CatalogReaction,
+		ProvisionReaction:                 config.ProvisionReaction,
+		UpdateInstanceReaction:            config.UpdateInstanceReaction,
+		DeprovisionReaction:               config.DeprovisionReaction,
+		PollLastOperationReaction:         config.PollLastOperationReaction,
+		PollBindingLastOperationReaction:  config.PollBindingLastOperationReaction,
+		BindReaction:                      config.BindReaction,
+		UnbindReaction:                    config.UnbindReaction,
 	}
 }
 
 // FakeClientConfiguration models the configuration of a FakeClient.
 type FakeClientConfiguration struct {
-	CatalogReaction           *CatalogReaction
-	ProvisionReaction         *ProvisionReaction
-	UpdateInstanceReaction    *UpdateInstanceReaction
-	DeprovisionReaction       *DeprovisionReaction
-	PollLastOperationReaction *PollLastOperationReaction
-	BindReaction              *BindReaction
-	UnbindReaction            *UnbindReaction
+	CatalogReaction                  *CatalogReaction
+	ProvisionReaction                *ProvisionReaction
+	UpdateInstanceReaction           *UpdateInstanceReaction
+	DeprovisionReaction              *DeprovisionReaction
+	PollLastOperationReaction        *PollLastOperationReaction
+	PollBindingLastOperationReaction *PollBindingLastOperationReaction
+	BindReaction                     *BindReaction
+	UnbindReaction                   *UnbindReaction
 }
 
 // Action is a record of a method call on the FakeClient.
@@ -62,13 +64,14 @@ type ActionType string
 
 // These are the set of actions that can be taken on a FakeClient.
 const (
-	GetCatalog          ActionType = "GetCatalog"
-	ProvisionInstance   ActionType = "ProvisionInstance"
-	UpdateInstance      ActionType = "UpdateInstance"
-	DeprovisionInstance ActionType = "DeprovisionInstance"
-	PollLastOperation   ActionType = "PollLastOperation"
-	Bind                ActionType = "Bind"
-	Unbind              ActionType = "Unbind"
+	GetCatalog               ActionType = "GetCatalog"
+	ProvisionInstance        ActionType = "ProvisionInstance"
+	UpdateInstance           ActionType = "UpdateInstance"
+	DeprovisionInstance      ActionType = "DeprovisionInstance"
+	PollLastOperation        ActionType = "PollLastOperation"
+	PollBindingLastOperation ActionType = "PollBindingLastOperation"
+	Bind                     ActionType = "Bind"
+	Unbind                   ActionType = "Unbind"
 )
 
 // FakeClient is a fake implementation of the v2.Client interface. It records
@@ -76,13 +79,14 @@ const (
 // actions. If an action for which there is no reaction specified occurs, it
 // returns an error.  FakeClient is threadsafe.
 type FakeClient struct {
-	CatalogReaction           *CatalogReaction
-	ProvisionReaction         *ProvisionReaction
-	UpdateInstanceReaction    *UpdateInstanceReaction
-	DeprovisionReaction       *DeprovisionReaction
-	PollLastOperationReaction *PollLastOperationReaction
-	BindReaction              *BindReaction
-	UnbindReaction            *UnbindReaction
+	CatalogReaction                  *CatalogReaction
+	ProvisionReaction                *ProvisionReaction
+	UpdateInstanceReaction           *UpdateInstanceReaction
+	DeprovisionReaction              *DeprovisionReaction
+	PollLastOperationReaction        *PollLastOperationReaction
+	PollBindingLastOperationReaction *PollBindingLastOperationReaction
+	BindReaction                     *BindReaction
+	UnbindReaction                   *UnbindReaction
 
 	sync.Mutex
 	actions []Action
@@ -173,6 +177,21 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 	return nil, UnexpectedActionError()
 }
 
+// PollBindingLastOperation implements the Client.PollBindingLastOperation
+// method on the FakeClient.
+func (c *FakeClient) PollBindingLastOperation(r *v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
+	c.actions = append(c.actions, Action{PollBindingLastOperation, r})
+
+	if c.PollBindingLastOperationReaction != nil {
+		return c.PollBindingLastOperationReaction.Response, c.PollBindingLastOperationReaction.Error
+	}
+
+	return nil, UnexpectedActionError()
+}
+
 // Bind implements the Client.Bind method on the FakeClient.
 func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 	c.Mutex.Lock()
@@ -234,6 +253,13 @@ type DeprovisionReaction struct {
 // PollLastOperationReaction is sent as the response to PollLastOperation
 // requests.
 type PollLastOperationReaction struct {
+	Response *v2.LastOperationResponse
+	Error    error
+}
+
+// PollLastOperationReaction is sent as the response to PollLastOperation
+// requests.
+type PollBindingLastOperationReaction struct {
 	Response *v2.LastOperationResponse
 	Error    error
 }
