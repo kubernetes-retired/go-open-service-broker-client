@@ -292,6 +292,28 @@ type LastOperationRequest struct {
 	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
 
+// BindingLastOperationRequest represents a request to a broker to give the
+// state of the action on a binding it is completing asynchronously.
+type BindingLastOperationRequest struct {
+	// InstanceID is the instance of the service to query the last operation
+	// for.
+	InstanceID string `json:"instance_id"`
+	// BindingID is the binding to query the last operation for.
+	BindingID string `json:"binding_id"`
+	// ServiceID is the ID of the service the instance is provisioned from.
+	// Optional, but recommended.
+	ServiceID *string `json:"service_id,omitempty"`
+	// PlanID is the ID of the plan the instance is provisioned from.
+	// Optional, but recommended.
+	PlanID *string `json:"plan_id,omitempty"`
+	// OperationKey is the operation key provided by the broker in the
+	// response to the initial request.  Optional, but must be sent if
+	// supplied in the response to the original request.
+	OperationKey *OperationKey `json:"operation,omitempty"`
+	// OriginatingIdentity is the identity on the platform of the user making this request.
+	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
+}
+
 // LastOperationResponse represents the broker response with the state of a
 // discrete action that the broker is completing asynchronously.
 type LastOperationResponse struct {

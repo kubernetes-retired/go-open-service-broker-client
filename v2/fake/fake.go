@@ -34,6 +34,7 @@ func NewFakeClient(config FakeClientConfiguration) *FakeClient {
 		UpdateInstanceReaction:    config.UpdateInstanceReaction,
 		DeprovisionReaction:       config.DeprovisionReaction,
 		PollLastOperationReaction: config.PollLastOperationReaction,
+		PollBindingLastOperationReaction:  config.PollBindingLastOperationReaction,
 		BindReaction:              config.BindReaction,
 		UnbindReaction:            config.UnbindReaction,
 		GetBindingReaction:        config.GetBindingReaction,
@@ -47,6 +48,7 @@ type FakeClientConfiguration struct {
 	UpdateInstanceReaction    *UpdateInstanceReaction
 	DeprovisionReaction       *DeprovisionReaction
 	PollLastOperationReaction *PollLastOperationReaction
+	PollBindingLastOperationReaction *PollBindingLastOperationReaction
 	BindReaction              *BindReaction
 	UnbindReaction            *UnbindReaction
 	GetBindingReaction        *GetBindingReaction
@@ -69,6 +71,7 @@ const (
 	UpdateInstance      ActionType = "UpdateInstance"
 	DeprovisionInstance ActionType = "DeprovisionInstance"
 	PollLastOperation   ActionType = "PollLastOperation"
+	PollBindingLastOperation ActionType = "PollBindingLastOperation"
 	Bind                ActionType = "Bind"
 	Unbind              ActionType = "Unbind"
 	GetBinding          ActionType = "GetBinding"
@@ -84,6 +87,7 @@ type FakeClient struct {
 	UpdateInstanceReaction    *UpdateInstanceReaction
 	DeprovisionReaction       *DeprovisionReaction
 	PollLastOperationReaction *PollLastOperationReaction
+	PollBindingLastOperationReaction *PollBindingLastOperationReaction
 	BindReaction              *BindReaction
 	UnbindReaction            *UnbindReaction
 	GetBindingReaction        *GetBindingReaction
@@ -177,6 +181,21 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 	return nil, UnexpectedActionError()
 }
 
+// PollBindingLastOperation implements the Client.PollBindingLastOperation
+// method on the FakeClient.
+func (c *FakeClient) PollBindingLastOperation(r *v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
+	c.actions = append(c.actions, Action{PollBindingLastOperation, r})
+
+	if c.PollBindingLastOperationReaction != nil {
+		return c.PollBindingLastOperationReaction.Response, c.PollBindingLastOperationReaction.Error
+	}
+
+	return nil, UnexpectedActionError()
+}
+
 // Bind implements the Client.Bind method on the FakeClient.
 func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 	c.Mutex.Lock()
@@ -252,6 +271,13 @@ type DeprovisionReaction struct {
 // PollLastOperationReaction is sent as the response to PollLastOperation
 // requests.
 type PollLastOperationReaction struct {
+	Response *v2.LastOperationResponse
+	Error    error
+}
+
+// PollLastOperationReaction is sent as the response to PollLastOperation
+// requests.
+type PollBindingLastOperationReaction struct {
 	Response *v2.LastOperationResponse
 	Error    error
 }
