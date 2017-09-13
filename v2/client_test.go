@@ -116,7 +116,7 @@ func doHTTP(t *testing.T, name string, checks httpChecks, reaction httpReaction)
 		if request.Body != nil {
 			var err error
 			bodyBytes, err = ioutil.ReadAll(request.Body)
-			if err != nil 
+			if err != nil {
 				t.Errorf("%v: error reading request body bytes: %v", name, err)
 				return nil, errWalkingGhost
 			}
