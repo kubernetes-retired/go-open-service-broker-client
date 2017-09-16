@@ -53,7 +53,18 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 	}
 
 	switch response.StatusCode {
-	case http.StatusCreated, http.StatusOK, http.StatusAccepted:
+	case http.StatusCreated, http.StatusOK:
+		userResponse := &ProvisionResponse{}
+		if err := c.unmarshalResponse(response, userResponse); err != nil {
+			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
+		}
+
+		return userResponse, nil
+	case http.StatusAccepted:
+		if !r.AcceptsIncomplete {
+			return nil, c.handleFailureResponse(response)
+		}
+
 		responseBodyObj := &provisionSuccessResponseBody{}
 		if err := c.unmarshalResponse(response, responseBodyObj); err != nil {
 			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
@@ -67,14 +78,13 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 		}
 
 		userResponse := &ProvisionResponse{
+			Async:        true,
 			DashboardURL: responseBodyObj.DashboardURL,
 			OperationKey: opPtr,
 		}
-		if response.StatusCode == http.StatusAccepted {
-			if c.Verbose {
-				glog.Infof("broker %q: received asynchronous response", c.Name)
-			}
-			userResponse.Async = true
+
+		if c.Verbose {
+			glog.Infof("broker %q: received asynchronous response", c.Name)
 		}
 
 		return userResponse, nil

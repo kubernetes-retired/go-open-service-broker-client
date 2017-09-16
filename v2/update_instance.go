@@ -46,6 +46,10 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 
 		return &UpdateInstanceResponse{}, nil
 	case http.StatusAccepted:
+		if !r.AcceptsIncomplete {
+			return nil, c.handleFailureResponse(response)
+		}
+
 		responseBodyObj := &asyncSuccessResponseBody{}
 		if err := c.unmarshalResponse(response, responseBodyObj); err != nil {
 			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}

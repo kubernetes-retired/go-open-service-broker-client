@@ -29,6 +29,10 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 	case http.StatusOK, http.StatusGone:
 		return &DeprovisionResponse{}, nil
 	case http.StatusAccepted:
+		if !r.AcceptsIncomplete {
+			return nil, c.handleFailureResponse(response)
+		}
+
 		responseBodyObj := &asyncSuccessResponseBody{}
 		if err := c.unmarshalResponse(response, responseBodyObj); err != nil {
 			return nil, err

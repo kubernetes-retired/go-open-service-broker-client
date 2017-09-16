@@ -121,6 +121,14 @@ func TestProvisionInstance(t *testing.T) {
 			expectedErrMessage: "http error",
 		},
 		{
+			name: "202 with no async support",
+			httpReaction: httpReaction{
+				status: http.StatusAccepted,
+				body:   successAsyncProvisionResponseBody,
+			},
+			expectedErrMessage: "Status: 202; ErrorMessage: <nil>; Description: <nil>; ResponseError: <nil>",
+		},
+		{
 			name: "200 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
