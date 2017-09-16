@@ -70,6 +70,7 @@ func TestUnbind(t *testing.T) {
 		},
 		{
 			name:    "success - asynchronous",
+			enableAlpha: true,
 			request: defaultAsyncUnbindRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
@@ -154,6 +155,23 @@ func TestUnbind(t *testing.T) {
 			},
 			expectedResponse: successUnbindResponse(),
 		},
+		{
+			name:        "async with alpha features disabled",
+			enableAlpha: false,
+			request: defaultAsyncUnbindRequest(),
+			expectedErr: AsyncBindNotAllowedError{
+				reason: testAlphaFeaturesRequiredError().Error(),
+			},
+		},
+		{
+			name:        "async with unsupported API version",
+			enableAlpha: true,
+			request: defaultAsyncUnbindRequest(),
+			APIVersion:  Version2_11(),
+			expectedErr: AsyncBindNotAllowedError{
+				reason: testAlphaAPIMethodsNotAllowedError().Error(),
+			},
+		},
 	}
 
 	for _, tc := range cases {
@@ -173,11 +191,11 @@ func TestUnbind(t *testing.T) {
 			tc.httpChecks.params[planIDKey] = testPlanID
 		}
 
-		if tc.version.label == "" {
-			tc.version = Version2_11()
+		if tc.APIVersion.label == "" {
+			tc.APIVersion = Version2_12()
 		}
 
-		klient := newTestClient(t, tc.name, tc.version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, tc.APIVersion, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.Unbind(tc.request)
 

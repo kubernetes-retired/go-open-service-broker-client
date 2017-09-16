@@ -137,6 +137,7 @@ func TestBind(t *testing.T) {
 		},
 		{
 			name:    "success - asynchronous",
+			enableAlpha: true,
 			request: defaultAsyncBindRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
@@ -246,6 +247,23 @@ func TestBind(t *testing.T) {
 				body:   successBindResponseBody,
 			},
 			expectedResponse: successBindResponse(),
+		},
+		{
+			name:        "async with alpha features disabled",
+			enableAlpha: false,
+			request: defaultAsyncBindRequest(),
+			expectedErr: AsyncBindNotAllowedError{
+				reason: testAlphaFeaturesRequiredError().Error(),
+			},
+		},
+		{
+			name:        "async with unsupported API version",
+			enableAlpha: true,
+			request: defaultAsyncBindRequest(),
+			APIVersion:  Version2_11(),
+			expectedErr: AsyncBindNotAllowedError{
+				reason: testAlphaAPIMethodsNotAllowedError().Error(),
+			},
 		},
 	}
 

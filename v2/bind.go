@@ -31,6 +31,14 @@ const (
 )
 
 func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
+	if r.AcceptsIncomplete {
+		if err := c.validateAsyncBindAllowed(); err != nil {
+			return nil, AsyncBindNotAllowedError{
+				reason: err.Error(),
+			}
+		}
+	}
+
 	if err := validateBindRequest(r); err != nil {
 		return nil, err
 	}
