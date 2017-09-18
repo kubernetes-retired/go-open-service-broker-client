@@ -185,3 +185,10 @@ func IsAsyncBindNotAllowedError(err error) bool {
 	_, ok := err.(AsyncBindNotAllowedError)
 	return ok
 }
+
+// PollBindingLastOperationNotAllowedError is an error type signifying that
+// polling the last operation endpoint for bindings is not allowed for this
+// client.
+// func PollBindingLastOperationNotAllowedError struct {
+//	reason string
+//}

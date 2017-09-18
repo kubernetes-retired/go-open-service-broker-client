@@ -261,22 +261,6 @@ func (c *client) validateAlphaAPIMethodsAllowed() error {
 	return nil
 }
 
-// validateAsyncBindAllowed returns an error if asynchronous bind/unbind
-// operations are not allowed for this client.
-func (c *client) validateAsyncBindAllowed() error {
-		if !c.AlphaAPIMethodsAllowed() {
-			return AlphaAPIMethodsNotAllowedError{
-				Version: c.APIVersion,
-			}
-		}
-
-		if !c.EnableAlphaFeatures {
-			return AlphaFeaturesRequiredError{}
-		}
-
-		return nil
-}
-
 // internal message body types
 
 type asyncSuccessResponseBody struct {

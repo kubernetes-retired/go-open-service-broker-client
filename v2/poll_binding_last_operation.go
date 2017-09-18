@@ -6,14 +6,10 @@ import (
 )
 
 func (c *client) PollBindingLastOperation(r *BindingLastOperationRequest) (*LastOperationResponse, error) {
-	if !c.AlphaAPIMethodsAllowed() {
-		return nil, AlphaAPIMethodsNotAllowedError{
-			Version: c.APIVersion,
+	if err := c.validateAlphaAPIMethodsAllowed(); err != nil {
+		return nil, AsyncBindNotAllowedError{ // TODO Custom error
+			reason: err.Error(),
 		}
-	}
-
-	if !c.EnableAlphaFeatures {
-		return nil, AlphaFeaturesRequiredError{}
 	}
 
 	if err := validateBindingLastOperationRequest(r); err != nil {

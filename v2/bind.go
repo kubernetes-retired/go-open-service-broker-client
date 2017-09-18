@@ -32,7 +32,7 @@ const (
 
 func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 	if r.AcceptsIncomplete {
-		if err := c.validateAsyncBindAllowed(); err != nil {
+		if err := c.validateAlphaAPIMethodsAllowed(); err != nil {
 			return nil, AsyncBindNotAllowedError{
 				reason: err.Error(),
 			}
