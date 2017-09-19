@@ -10,11 +10,6 @@ import (
 	"testing"
 )
 
-// func init() {
-// 	flag.Set("alsologtostderr", "true")
-// 	flag.Set("v", "5")
-// }
-
 const malformedResponse = `{`
 
 const conventionalFailureResponseBody = `{
