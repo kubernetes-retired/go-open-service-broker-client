@@ -144,9 +144,11 @@ type ProvisionRequest struct {
 	// Service Broker API specification recommends using a GUID for this
 	// field.
 	InstanceID string `json:"instance_id"`
-	// AcceptsIncomple indicates whether the client can accept asynchronous
-	// provisioning.  If the broker does not support asynchronous provisioning
-	// of a service, it will reject a request with this field set to true.
+	// AcceptsIncomplete indicates whether the client can accept asynchronous
+	// provisioning. If the broker cannot fulfill a request synchronously and
+	// AcceptsIncomplete is set to false, the broker will reject the request.
+	// A broker may choose to response to a request with AcceptsIncomplete set
+	// to true either synchronously or asynchronously.
 	AcceptsIncomplete bool `json:"accepts_incomplete"`
 	// ServiceID is the ID of the service to provision a new instance of.
 	ServiceID string `json:"service_id"`
@@ -193,9 +195,11 @@ type OperationKey string
 type UpdateInstanceRequest struct {
 	// InstanceID is the ID of the instance to update.
 	InstanceID string `json:"instance_id"`
-	// AcceptsIncomple indicates whether the client can accept asynchronous
-	// provisioning.  If the broker does not support asynchronous provisioning
-	// of a service, it will reject a request with this field set to true.
+	// AcceptsIncomplete indicates whether the client can accept asynchronous
+	// updating of an instance. If the broker cannot fulfill a request
+	// synchronously and AcceptsIncomplete is set to false, the broker will reject
+	// the request. A broker may choose to response to a request with
+	// AcceptsIncomplete set to true either synchronously or asynchronously.
 	AcceptsIncomplete bool `json:"accepts_incomplete"`
 	// ServiceID is the ID of the service the instance is provisioned from.
 	ServiceID string `json:"service_id"`
@@ -238,9 +242,11 @@ type UpdateInstanceResponse struct {
 type DeprovisionRequest struct {
 	// InstanceID is the ID of the instance to deprovision.
 	InstanceID string `json:"instance_id"`
-	// AcceptsIncomple indicates whether the client can accept asynchronous
-	// provisioning.  If the broker does not support asynchronous provisioning
-	// of a service, it will reject a request with this field set to true.
+	// AcceptsIncomplete indicates whether the client can accept asynchronous
+	// deprovisioning. If the broker cannot fulfill a request synchronously and
+	// AcceptsIncomplete is set to false, the broker will reject the request.
+	// A broker may choose to response to a request with AcceptsIncomplete set
+	// to true either synchronously or asynchronously.
 	AcceptsIncomplete bool `json:"accepts_incomplete"`
 	// ServiceID is the ID of the service the instance is provisioned from.
 	ServiceID string `json:"service_id"`
