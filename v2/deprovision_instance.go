@@ -30,6 +30,8 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 		return &DeprovisionResponse{}, nil
 	case http.StatusAccepted:
 		if !r.AcceptsIncomplete {
+			// If the client did not signify that it could handle asynchronous
+			// operations, a '202 Accepted' response should be treated as an error.
 			return nil, c.handleFailureResponse(response)
 		}
 
