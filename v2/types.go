@@ -182,8 +182,6 @@ type ProvisionResponse struct {
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
 	OperationKey *OperationKey `json:"operationKey,omitempty"`
-	// OriginatingIdentity is the identity on the platform of the user making this request.
-	OriginatingIdentity AlphaOriginatingIdentity
 }
 
 // OperationKey is an extra identifier from the broker in order to provide extra
