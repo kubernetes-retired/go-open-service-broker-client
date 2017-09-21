@@ -23,7 +23,7 @@ const (
 	testOriginatingIdentityHeaderValue = "fakeplatform eyJ1c2VyIjoibmFtZSJ9"
 )
 
-var testOriginatingIdentity *AlphaOriginatingIdentity = &AlphaOriginatingIdentity{
+var testOriginatingIdentity = &AlphaOriginatingIdentity{
 	Platform: testOriginatingIdentityPlatform,
 	Value:    testOriginatingIdentityValue,
 }
