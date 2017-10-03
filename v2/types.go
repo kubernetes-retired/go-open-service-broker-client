@@ -76,48 +76,46 @@ type Plan struct {
 	// facing content and display instructions.  Metadata may contain
 	// platform-conventional values.  Optional.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	// AlphaParameterSchemas is ALPHA and may change or disappear at any time.
-	// AlphaParameterSchemas will only be provided if alpha features are
-	// enabled.
+	// ParameterSchemas requires a client version >=2.13.
 	//
-	// AlphaParameterSchemas is a set of optional JSONSchemas that describe
+	// ParameterSchemas is a set of optional JSONSchemas that describe
 	// the expected parameters for creation and update of instances and
 	// creation of bindings.
-	AlphaParameterSchemas *AlphaParameterSchemas `json:"schemas,omitempty"`
+	ParameterSchemas *ParameterSchemas `json:"schemas,omitempty"`
 }
 
-// AlphaParameterSchemas is ALPHA and may change or disappear at any time.
+// ParameterSchemas requires a client version >=2.13.
 //
-// AlphaParameterSchemas is a set of optional JSONSchemas that describe
+// ParameterSchemas is a set of optional JSONSchemas that describe
 // the expected parameters for creation and update of instances and
 // creation of bindings.
-type AlphaParameterSchemas struct {
-	ServiceInstances *AlphaServiceInstanceSchema `json:"service_instance,omitempty"`
-	ServiceBindings  *AlphaServiceBindingSchema  `json:"service_binding,omitempty"`
+type ParameterSchemas struct {
+	ServiceInstances *ServiceInstanceSchema `json:"service_instance,omitempty"`
+	ServiceBindings  *ServiceBindingSchema  `json:"service_binding,omitempty"`
 }
 
-// AlphaServiceInstanceSchema is ALPHA and may change or disappear at any time.
+// ServiceInstanceSchema requires a client version >=2.13.
 //
-// AlphaServiceInstanceSchema represents a plan's schemas for creation and
+// ServiceInstanceSchema represents a plan's schemas for creation and
 // update of an API resource.
-type AlphaServiceInstanceSchema struct {
-	Create *AlphaInputParameters `json:"create,omitempty"`
-	Update *AlphaInputParameters `json:"update,omitempty"`
+type ServiceInstanceSchema struct {
+	Create *InputParameters `json:"create,omitempty"`
+	Update *InputParameters `json:"update,omitempty"`
 }
 
-// AlphaServiceBindingSchema is ALPHA and may change or disappear at any time.
+// ServiceBindingSchema requires a client version >=2.13.
 //
-// AlphaServiceBindingSchema represents a plan's schemas for the parameters
+// ServiceBindingSchema represents a plan's schemas for the parameters
 // accepted for binding creation.
-type AlphaServiceBindingSchema struct {
-	Create *AlphaInputParameters `json:"create,omitempty"`
+type ServiceBindingSchema struct {
+	Create *InputParameters `json:"create,omitempty"`
 }
 
-// AlphaInputParameters is ALPHA and may change or disappear at any time.
+// InputParameters requires a client version >=2.13.
 //
-// AlphaInputParameters represents a schema for input parameters for creation or
+// InputParameters represents a schema for input parameters for creation or
 // update of an API resource.
-type AlphaInputParameters struct {
+type InputParameters struct {
 	Parameters interface{} `json:"parameters,omitempty"`
 }
 
