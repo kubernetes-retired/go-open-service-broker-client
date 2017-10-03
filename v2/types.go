@@ -76,7 +76,7 @@ type Plan struct {
 	// facing content and display instructions.  Metadata may contain
 	// platform-conventional values.  Optional.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	// ParameterSchemas requires a client version >=2.13.
+	// ParameterSchemas requires a client API version >=2.13.
 	//
 	// ParameterSchemas is a set of optional JSONSchemas that describe
 	// the expected parameters for creation and update of instances and
@@ -84,7 +84,7 @@ type Plan struct {
 	ParameterSchemas *ParameterSchemas `json:"schemas,omitempty"`
 }
 
-// ParameterSchemas requires a client version >=2.13.
+// ParameterSchemas requires a client API version >=2.13.
 //
 // ParameterSchemas is a set of optional JSONSchemas that describe
 // the expected parameters for creation and update of instances and
@@ -94,7 +94,7 @@ type ParameterSchemas struct {
 	ServiceBindings  *ServiceBindingSchema  `json:"service_binding,omitempty"`
 }
 
-// ServiceInstanceSchema requires a client version >=2.13.
+// ServiceInstanceSchema requires a client API version >=2.13.
 //
 // ServiceInstanceSchema represents a plan's schemas for creation and
 // update of an API resource.
@@ -103,7 +103,7 @@ type ServiceInstanceSchema struct {
 	Update *InputParameters `json:"update,omitempty"`
 }
 
-// ServiceBindingSchema requires a client version >=2.13.
+// ServiceBindingSchema requires a client API version >=2.13.
 //
 // ServiceBindingSchema represents a plan's schemas for the parameters
 // accepted for binding creation.
@@ -111,7 +111,7 @@ type ServiceBindingSchema struct {
 	Create *InputParameters `json:"create,omitempty"`
 }
 
-// InputParameters requires a client version >=2.13.
+// InputParameters requires a client API version >=2.13.
 //
 // InputParameters represents a schema for input parameters for creation or
 // update of an API resource.
@@ -119,7 +119,7 @@ type InputParameters struct {
 	Parameters interface{} `json:"parameters,omitempty"`
 }
 
-// OriginatingIdentity requires a client version >=2.13.
+// OriginatingIdentity requires a client API version >=2.13.
 //
 // OriginatingIdentity is used to pass to the broker service an identity from
 // the platform
@@ -161,9 +161,10 @@ type ProvisionRequest struct {
 	// Parameters is a set of configuration options for the service instance.
 	// Optional.
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
+	// Context requires a client API version >= 2.12.
+	//
 	// Context is platform-specific contextual information under which the
-	// service instance is to be provisioned.  Context was added in version
-	// 2.12 of the OSB API and is only sent for versions 2.12 or later.
+	// service instance is to be provisioned.
 	Context map[string]interface{} `json:"context,omitempty"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
 	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
