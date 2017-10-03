@@ -150,7 +150,7 @@ func TestBind(t *testing.T) {
 			expectedErr: testHTTPStatusCodeError(),
 		},
 		{
-			name: "context included if API version >= 2.13",
+			name:    "context included if API version >= 2.13",
 			version: Version2_13(),
 			request: contextBindRequest(),
 			httpChecks: httpChecks{
@@ -163,7 +163,7 @@ func TestBind(t *testing.T) {
 			expectedResponse: successBindResponse(),
 		},
 		{
-			name: "context not included if API version < 2.13",
+			name:    "context not included if API version < 2.13",
 			version: Version2_12(),
 			request: contextBindRequest(),
 			httpChecks: httpChecks{

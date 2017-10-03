@@ -249,8 +249,8 @@ func TestGetCatalog(t *testing.T) {
 			expectedErr: testHTTPStatusCodeError(),
 		},
 		{
-			name:        "schemas included if API version >= 2.13",
-			version:      Version2_13(),
+			name:    "schemas included if API version >= 2.13",
+			version: Version2_13(),
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   alphaParameterSchemaCatalogBytes,
@@ -258,8 +258,8 @@ func TestGetCatalog(t *testing.T) {
 			expectedResponse: alphaParameterCatalogResponse(),
 		},
 		{
-			name: "schemas not included if API version < 2.13",
-			version:      Version2_12(),
+			name:    "schemas not included if API version < 2.13",
+			version: Version2_12(),
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   alphaParameterSchemaCatalogBytes,
