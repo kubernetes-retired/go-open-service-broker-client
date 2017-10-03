@@ -121,11 +121,11 @@ type AlphaInputParameters struct {
 	Parameters interface{} `json:"parameters,omitempty"`
 }
 
-// AlphaOriginatingIdentity is ALPHA and may change or disappear at any time.
+// OriginatingIdentity requires a client version >=2.13.
 //
-// AlphaOriginatingIdentity is used to pass to the broker service an identity from
+// OriginatingIdentity is used to pass to the broker service an identity from
 // the platform
-type AlphaOriginatingIdentity struct {
+type OriginatingIdentity struct {
 	// The name of the platform to which the user belongs
 	Platform string
 	// A serialized JSON object that describes the user in a way that makes
@@ -168,7 +168,7 @@ type ProvisionRequest struct {
 	// 2.12 of the OSB API and is only sent for versions 2.12 or later.
 	Context map[string]interface{} `json:"context,omitempty"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
-	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
+	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
 
 // ProvisionResponse is sent in response to a provision call
@@ -210,7 +210,7 @@ type UpdateInstanceRequest struct {
 	// for an instance.
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
-	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
+	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 
 	// The OSB API also has a field called `previous_values` that contains:
 	// OrgID
@@ -251,7 +251,7 @@ type DeprovisionRequest struct {
 	// PlanID is the ID of the plan the instance is provisioned from.
 	PlanID string `json:"plan_id"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
-	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
+	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
 
 // DeprovisionResponse represents a broker's response to a deprovision request.
@@ -281,7 +281,7 @@ type LastOperationRequest struct {
 	// supplied in the response to the original request.
 	OperationKey *OperationKey `json:"operation,omitempty"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
-	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
+	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
 
 // LastOperationResponse represents the broker response with the state of a
@@ -326,7 +326,7 @@ type BindRequest struct {
 	// Parameters is configuration parameters for the binding.  Optional.
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
-	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
+	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
 
 // BindResource contains data for platform resources associated with a
@@ -367,7 +367,7 @@ type UnbindRequest struct {
 	// PlanID is the ID of the plan the instance was provisioned from.
 	PlanID string `json:"plan_id"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
-	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
+	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
 
 // UnbindResponse represents a broker's response to an UnbindRequest.

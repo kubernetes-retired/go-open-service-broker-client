@@ -60,13 +60,11 @@ func successProvisionResponseAsync() *ProvisionResponse {
 const contextProvisionRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id","organization_guid":"test-organization-guid","space_guid":"test-space-guid","context":{"foo":"bar"}}`
 
 func TestProvisionInstance(t *testing.T) {
-	v2_12 := Version2_12()
-
 	cases := []struct {
 		name                string
-		version             *APIVersion
+		version             APIVersion
 		enableAlpha         bool
-		originatingIdentity *AlphaOriginatingIdentity
+		originatingIdentity *OriginatingIdentity
 		request             *ProvisionRequest
 		httpChecks          httpChecks
 		httpReaction        httpReaction
@@ -154,7 +152,7 @@ func TestProvisionInstance(t *testing.T) {
 		},
 		{
 			name:    "context - 2.12",
-			version: &v2_12,
+			version: Version2_12(),
 			request: func() *ProvisionRequest {
 				r := defaultProvisionRequest()
 				r.Context = map[string]interface{}{
@@ -191,7 +189,7 @@ func TestProvisionInstance(t *testing.T) {
 		},
 		{
 			name:                "originating identity included",
-			enableAlpha:         true,
+			version:             Version2_13(),
 			originatingIdentity: testOriginatingIdentity,
 			httpChecks:          httpChecks{headers: map[string]string{OriginatingIdentityHeader: testOriginatingIdentityHeaderValue}},
 			httpReaction: httpReaction{
@@ -202,7 +200,7 @@ func TestProvisionInstance(t *testing.T) {
 		},
 		{
 			name:                "originating identity excluded",
-			enableAlpha:         true,
+			version:             Version2_13(),
 			originatingIdentity: nil,
 			httpChecks:          httpChecks{headers: map[string]string{OriginatingIdentityHeader: ""}},
 			httpReaction: httpReaction{
@@ -212,8 +210,8 @@ func TestProvisionInstance(t *testing.T) {
 			expectedResponse: successProvisionResponse(),
 		},
 		{
-			name:                "originating identity not sent unless alpha enabled",
-			enableAlpha:         false,
+			name:                "originating identity not sent unless API version >= 2.13",
+			version:             Version2_12(),
 			originatingIdentity: testOriginatingIdentity,
 			httpChecks:          httpChecks{headers: map[string]string{OriginatingIdentityHeader: ""}},
 			httpReaction: httpReaction{
@@ -239,13 +237,11 @@ func TestProvisionInstance(t *testing.T) {
 			tc.httpChecks.body = successProvisionRequestBody
 		}
 
-		defaultVersion := Version2_11()
-		version := &defaultVersion
-		if tc.version != nil {
-			version = tc.version
+		if tc.version.label == "" {
+			tc.version = Version2_11()
 		}
 
-		klient := newTestClient(t, tc.name, *version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, tc.version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.ProvisionInstance(tc.request)
 
