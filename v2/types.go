@@ -324,6 +324,11 @@ type BindRequest struct {
 	BindResource *BindResource `json:"bind_resource,omitempty"`
 	// Parameters is configuration parameters for the binding.  Optional.
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
+	// Context requires a client API version >= 2.13.
+	//
+	// Context is platform-specific contextual information under which the
+	// service binding is to be created.
+	Context map[string]interface{} `json:"context,omitempty"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
 	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
