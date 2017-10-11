@@ -12,6 +12,7 @@ type bindRequestBody struct {
 	PlanID       string                 `json:"plan_id"`
 	Parameters   map[string]interface{} `json:"parameters,omitempty"`
 	BindResource map[string]interface{} `json:"bind_resource,omitempty"`
+	Context      map[string]interface{} `json:"context,omitempty"`
 }
 
 const (
@@ -30,6 +31,10 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 		ServiceID:  r.ServiceID,
 		PlanID:     r.PlanID,
 		Parameters: r.Parameters,
+	}
+
+	if c.APIVersion.AtLeast(Version2_13()) {
+		requestBody.Context = r.Context
 	}
 
 	if r.BindResource != nil {

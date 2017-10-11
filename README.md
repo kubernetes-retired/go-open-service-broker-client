@@ -38,6 +38,7 @@ func GetBrokerCatalog(URL string) (*osb.CatalogResponse, error) {
 This client library supports the following versions of the
 [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker):
 
+- [v2.13](https://github.com/openservicebrokerapi/servicebroker/tree/v2.13)
 - [v2.12](https://github.com/openservicebrokerapi/servicebroker/tree/v2.12)
 - [v2.11](https://github.com/openservicebrokerapi/servicebroker/tree/v2.11)
 

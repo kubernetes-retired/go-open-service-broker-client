@@ -120,7 +120,7 @@ const (
 // message body, and executes the request, returning an http.Response or an
 // error.  Errors returned from this function represent http-layer errors and
 // not errors in the Open Service Broker API.
-func (c *client) prepareAndDo(method, URL string, params map[string]string, body interface{}, originatingIdentity *AlphaOriginatingIdentity) (*http.Response, error) {
+func (c *client) prepareAndDo(method, URL string, params map[string]string, body interface{}, originatingIdentity *OriginatingIdentity) (*http.Response, error) {
 	var bodyReader io.Reader
 
 	if body != nil {
@@ -152,7 +152,7 @@ func (c *client) prepareAndDo(method, URL string, params map[string]string, body
 		}
 	}
 
-	if c.EnableAlphaFeatures && originatingIdentity != nil {
+	if c.APIVersion.AtLeast(Version2_13()) && originatingIdentity != nil {
 		headerValue, err := buildOriginatingIdentityHeaderValue(originatingIdentity)
 		if err != nil {
 			return nil, err
@@ -215,7 +215,7 @@ func (c *client) handleFailureResponse(response *http.Response) error {
 	}
 }
 
-func buildOriginatingIdentityHeaderValue(i *AlphaOriginatingIdentity) (string, error) {
+func buildOriginatingIdentityHeaderValue(i *OriginatingIdentity) (string, error) {
 	if i == nil {
 		return "", nil
 	}

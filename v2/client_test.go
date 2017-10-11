@@ -23,7 +23,7 @@ const (
 	testOriginatingIdentityHeaderValue = "fakeplatform eyJ1c2VyIjoibmFtZSJ9"
 )
 
-var testOriginatingIdentity = &AlphaOriginatingIdentity{
+var testOriginatingIdentity = &OriginatingIdentity{
 	Platform: testOriginatingIdentityPlatform,
 	Value:    testOriginatingIdentityValue,
 }
@@ -181,7 +181,7 @@ func TestBuildOriginatingIdentityHeaderValue(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		originatingIdentity := &AlphaOriginatingIdentity{
+		originatingIdentity := &OriginatingIdentity{
 			Platform: tc.platform,
 			Value:    tc.value,
 		}
