@@ -70,6 +70,7 @@ func TestUnbind(t *testing.T) {
 		},
 		{
 			name:    "success - asynchronous",
+			version: LatestAPIVersion(),
 			enableAlpha: true,
 			request: defaultAsyncUnbindRequest(),
 			httpChecks: httpChecks{
@@ -157,16 +158,17 @@ func TestUnbind(t *testing.T) {
 		},
 		{
 			name:        "async with alpha features disabled",
+			version: LatestAPIVersion(),
 			enableAlpha: false,
 			request: defaultAsyncUnbindRequest(),
 			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: alpha features must be enabled", //TODO make custom?
 		},
 		{
 			name:        "async with unsupported API version",
+			version:  Version2_12(),
 			enableAlpha: true,
 			request: defaultAsyncUnbindRequest(),
-			APIVersion:  Version2_11(),
-			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.11, Expected: 2.12", //TODO make custom
+			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.12, Expected: 2.13", //TODO make custom
 		},
 	}
 
@@ -187,11 +189,11 @@ func TestUnbind(t *testing.T) {
 			tc.httpChecks.params[planIDKey] = testPlanID
 		}
 
-		if tc.APIVersion.label == "" {
-			tc.APIVersion = Version2_12()
+		if tc.version.label == "" {
+			tc.version = Version2_11()
 		}
 
-		klient := newTestClient(t, tc.name, tc.APIVersion, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
+		klient := newTestClient(t, tc.name, tc.version, tc.enableAlpha, tc.httpChecks, tc.httpReaction)
 
 		response, err := klient.Unbind(tc.request)
 

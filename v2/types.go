@@ -311,7 +311,7 @@ type BindingLastOperationRequest struct {
 	// supplied in the response to the original request.
 	OperationKey *OperationKey `json:"operation,omitempty"`
 	// OriginatingIdentity is the identity on the platform of the user making this request.
-	OriginatingIdentity *AlphaOriginatingIdentity `json:"originatingIdentity,omitempty"`
+	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
 
 // LastOperationResponse represents the broker response with the state of a

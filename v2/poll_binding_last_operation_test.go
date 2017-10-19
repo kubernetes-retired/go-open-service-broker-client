@@ -21,7 +21,7 @@ func TestPollBindingLastOperation(t *testing.T) {
 	cases := []struct {
 		name                string
 		enableAlpha         bool
-		originatingIdentity *AlphaOriginatingIdentity
+		originatingIdentity *OriginatingIdentity
 		request             *BindingLastOperationRequest
 		APIVersion          APIVersion
 		httpChecks          httpChecks
@@ -126,13 +126,13 @@ func TestPollBindingLastOperation(t *testing.T) {
 		{
 			name:        "alpha features disabled",
 			enableAlpha: false,
-			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: alpha features must be enabled", //TODO it's a lie
+			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: alpha features must be enabled",
 		},
 		{
 			name:        "unsupported API version",
 			enableAlpha: true,
-			APIVersion:  Version2_11(),
-			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.11, Expected: 2.12", // TODO it's a lie
+			APIVersion:  Version2_12(),
+			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.12, Expected: 2.13",
 		},
 	}
 
