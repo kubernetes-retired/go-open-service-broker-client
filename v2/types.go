@@ -399,8 +399,22 @@ type GetBindingRequest struct {
 // GetBindingResponse is sent as the response to doing a GET on a particular
 // binding.
 type GetBindingResponse struct {
-	BindResponse
-
+	// Credentials is a free-form hash of credentials that can be used by
+	// applications or users to access the service.
+	Credentials map[string]interface{} `json:"credentials,omitempty"`
+	// SyslogDrainURl is a URL to which logs must be streamed.  CF-specific.
+	// May only be supplied by a service that declares a requirement for the
+	// 'syslog_drain' permission.
+	SyslogDrainURL *string `json:"syslog_drain_url,omitempty"`
+	// RouteServiceURL is a URL to which the platform must proxy requests to
+	// the application the binding is for.  CF-specific.  May only be supplied
+	// by a service that declares a requirement for the 'route_service'
+	// permission.
+	RouteServiceURL *string `json:"route_service_url,omitempty"`
+	// VolumeMounts is an array of configuration string for mounting volumes.
+	// CF-specific.  May only be supplied by a service that declares a
+	// requirement for the 'volume_mount' permission.
+	VolumeMounts []interface{} `json:"volume_mounts,omitempty"`
 	// Parameters is configuration parameters for the binding.
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
 }
