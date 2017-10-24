@@ -8,7 +8,7 @@ import (
 )
 
 type unbindSuccessResponseBody struct {
-	Operation    *string `json:"operation"`
+	Operation *string `json:"operation"`
 }
 
 func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {

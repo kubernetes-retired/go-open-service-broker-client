@@ -18,11 +18,11 @@ type bindRequestBody struct {
 }
 
 type bindSuccessResponseBody struct {
-	Credentials map[string]interface{} `json:"credentials"`
-	SyslogDrainURL *string `json:"syslog_drain_url"`
-	RouteServiceURL *string `json:"route_service_url"`
-	VolumeMounts []interface{} `json:"volume_mounts"`
-	Operation    *string `json:"operation"`
+	Credentials     map[string]interface{} `json:"credentials"`
+	SyslogDrainURL  *string                `json:"syslog_drain_url"`
+	RouteServiceURL *string                `json:"route_service_url"`
+	VolumeMounts    []interface{}          `json:"volume_mounts"`
+	Operation       *string                `json:"operation"`
 }
 
 const (
@@ -101,11 +101,11 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 		}
 
 		userResponse := &BindResponse{
-			Credentials: responseBodyObj.Credentials,
-			SyslogDrainURL: responseBodyObj.SyslogDrainURL,
+			Credentials:     responseBodyObj.Credentials,
+			SyslogDrainURL:  responseBodyObj.SyslogDrainURL,
 			RouteServiceURL: responseBodyObj.RouteServiceURL,
-			VolumeMounts: responseBodyObj.VolumeMounts,
-			OperationKey: opPtr,
+			VolumeMounts:    responseBodyObj.VolumeMounts,
+			OperationKey:    opPtr,
 		}
 		if response.StatusCode == http.StatusAccepted {
 			if c.Verbose {
