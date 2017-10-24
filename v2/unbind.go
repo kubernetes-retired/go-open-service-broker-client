@@ -14,7 +14,7 @@ type unbindSuccessResponseBody struct {
 func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 	if r.AcceptsIncomplete {
 		if err := c.validateAlphaAPIMethodsAllowed(); err != nil {
-			return nil, AsyncBindNotAllowedError{
+			return nil, AsyncBindingOperationsNotAllowedError{
 				reason: err.Error(),
 			}
 		}

@@ -161,14 +161,14 @@ func TestUnbind(t *testing.T) {
 			version: LatestAPIVersion(),
 			enableAlpha: false,
 			request: defaultAsyncUnbindRequest(),
-			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: alpha features must be enabled", //TODO make custom?
+			expectedErrMessage: "Asynchronous binding operations are not allowed: alpha API methods not allowed: alpha features must be enabled",
 		},
 		{
 			name:        "async with unsupported API version",
 			version:  Version2_12(),
 			enableAlpha: true,
 			request: defaultAsyncUnbindRequest(),
-			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.12, Expected: 2.13", //TODO make custom
+			expectedErrMessage: "Asynchronous binding operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.12, Expected: 2.13",
 		},
 	}
 

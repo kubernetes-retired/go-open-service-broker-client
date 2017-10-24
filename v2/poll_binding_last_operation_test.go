@@ -126,13 +126,13 @@ func TestPollBindingLastOperation(t *testing.T) {
 		{
 			name:        "alpha features disabled",
 			enableAlpha: false,
-			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: alpha features must be enabled",
+			expectedErrMessage: "Asynchronous binding operations are not allowed: alpha API methods not allowed: alpha features must be enabled",
 		},
 		{
 			name:        "unsupported API version",
 			enableAlpha: true,
 			APIVersion:  Version2_12(),
-			expectedErrMessage: "Asynchronous bind/unbind operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.12, Expected: 2.13",
+			expectedErrMessage: "Asynchronous binding operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.12, Expected: 2.13",
 		},
 	}
 
