@@ -457,6 +457,66 @@ func TestUnbind(t *testing.T) {
 	}
 }
 
+func getBindingResponse() *v2.GetBindingResponse {
+	response := &v2.GetBindingResponse{}
+	response.Credentials = map[string]interface{}{
+		"foo": "bar",
+	}
+	return response
+}
+
+func TestGetBinding(t *testing.T) {
+	cases := []struct {
+		name     string
+		reaction *fake.GetBindingReaction
+		response *v2.GetBindingResponse
+		err      error
+	}{
+		{
+			name: "unexpected action",
+			err:  fake.UnexpectedActionError(),
+		},
+		{
+			name: "response",
+			reaction: &fake.GetBindingReaction{
+				Response: getBindingResponse(),
+			},
+			response: getBindingResponse(),
+		},
+		{
+			name: "error",
+			reaction: &fake.GetBindingReaction{
+				Error: errors.New("oops"),
+			},
+			err: errors.New("oops"),
+		},
+	}
+
+	for _, tc := range cases {
+		fakeClient := &fake.FakeClient{
+			GetBindingReaction: tc.reaction,
+		}
+
+		response, err := fakeClient.GetBinding(&v2.GetBindingRequest{})
+
+		if !reflect.DeepEqual(tc.response, response) {
+			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
+		}
+
+		if !reflect.DeepEqual(tc.err, err) {
+			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
+		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.GetBinding, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+		}
+	}
+}
+
 func TestFakeAsyncRequiredError(t *testing.T) {
 	cases := []struct {
 		name     string

@@ -27,6 +27,15 @@ type Service struct {
 	// Bindable represents whether a service is bindable.  May be overridden
 	// on a per-plan basis by the Plan.Bindable field.
 	Bindable bool `json:"bindable"`
+	// BindingRetrievable is ALPHA and may change or disappear at any time.
+	// BindingRetrievable will only be provided if alpha features are
+	// enabled.
+	//
+	// BindingRetrievable represents whether fetching a service binding via
+	// a GET on the binding resource's endpoint
+	// (/v2/service_instances/instance-id/service_bindings/binding-id) is
+	// supported for all plans.
+	BindingRetrievable bool `json:"binding_retrievable,omitempty"`
 	// PlanUpdatable represents whether instances of this service may be
 	// updated to a different plan.  The serialized form 'plan_updateable' is
 	// a mistake that has become written into the API for backward
@@ -377,4 +386,35 @@ type UnbindRequest struct {
 // UnbindResponse represents a broker's response to an UnbindRequest.
 type UnbindResponse struct {
 	// Currently, unbind responses have no fields.
+}
+
+// GetBindingRequest represents a request to do a GET on a particular binding.
+type GetBindingRequest struct {
+	// InstanceID is the ID of the instance the binding is for.
+	InstanceID string `json:"instance_id"`
+	// BindingID is the ID of the binding to delete.
+	BindingID string `json:"binding_id"`
+}
+
+// GetBindingResponse is sent as the response to doing a GET on a particular
+// binding.
+type GetBindingResponse struct {
+	// Credentials is a free-form hash of credentials that can be used by
+	// applications or users to access the service.
+	Credentials map[string]interface{} `json:"credentials,omitempty"`
+	// SyslogDrainURl is a URL to which logs must be streamed.  CF-specific.
+	// May only be supplied by a service that declares a requirement for the
+	// 'syslog_drain' permission.
+	SyslogDrainURL *string `json:"syslog_drain_url,omitempty"`
+	// RouteServiceURL is a URL to which the platform must proxy requests to
+	// the application the binding is for.  CF-specific.  May only be supplied
+	// by a service that declares a requirement for the 'route_service'
+	// permission.
+	RouteServiceURL *string `json:"route_service_url,omitempty"`
+	// VolumeMounts is an array of configuration string for mounting volumes.
+	// CF-specific.  May only be supplied by a service that declares a
+	// requirement for the 'volume_mount' permission.
+	VolumeMounts []interface{} `json:"volume_mounts,omitempty"`
+	// Parameters is configuration parameters for the binding.
+	Parameters map[string]interface{} `json:"parameters,omitempty"`
 }
