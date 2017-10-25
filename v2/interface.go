@@ -145,6 +145,10 @@ type Client interface {
 	// asynchronous deprovision, callers should test the value of the returned
 	// error with IsGoneError.
 	PollLastOperation(r *LastOperationRequest) (*LastOperationResponse, error)
+	// PollBindingLastOperation is an ALPHA API method and may change.
+	// Alpha features must be enabled and the client must be using the
+	// latest API Version in order to use this method.
+	//
 	// PollBindingLastOperation sends a request to query the last operation
 	// for a service binding to the broker and returns information about the
 	// operation or an error.  PollBindingLastOperation does a GET on the broker's

@@ -343,6 +343,10 @@ type BindRequest struct {
 	BindingID string `json:"binding_id"`
 	// InstanceID is the ID of the instance to bind to.
 	InstanceID string `json:"instance_id"`
+	// AcceptsIncomplete is an ALPHA API attribute and may change. Alpha
+	// features must be enabled and the client must be using the
+	// latest API Version in order to use this.
+	//
 	// AcceptsIncomplete indicates whether the client can accept asynchronous
 	// binding. If the broker cannot fulfill a request synchronously and
 	// AcceptsIncomplete is set to false, the broker will reject the request.
@@ -378,6 +382,10 @@ type BindResource struct {
 
 // BindResponse represents a broker's response to a BindRequest.
 type BindResponse struct {
+	// Async is an ALPHA API attribute and may change. Alpha
+	// features must be enabled and the client must be using the
+	// latest API Version in order to use this.
+	//
 	// Async indicates whether the broker is handling the bind request
 	// asynchronously.
 	Async bool `json:"async"`
@@ -397,6 +405,10 @@ type BindResponse struct {
 	// CF-specific.  May only be supplied by a service that declares a
 	// requirement for the 'volume_mount' permission.
 	VolumeMounts []interface{} `json:"volume_mounts,omitempty"`
+	// OperationKey is an ALPHA API attribute and may change. Alpha
+	// features must be enabled and the client must be using the
+	// latest API Version in order to use this.
+	//
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
 	OperationKey *OperationKey `json:"operationKey,omitempty"`
@@ -408,6 +420,10 @@ type UnbindRequest struct {
 	InstanceID string `json:"instance_id"`
 	// BindingID is the ID of the binding to delete.
 	BindingID string `json:"binding_id"`
+	// AcceptsIncomplete is an ALPHA API attribute and may change. Alpha
+	// features must be enabled and the client must be using the
+	// latest API Version in order to use this.
+	//
 	// AcceptsIncomplete indicates whether the client can accept asynchronous
 	// unbinding. If the broker cannot fulfill a request synchronously and
 	// AcceptsIncomplete is set to false, the broker will reject the request.
@@ -424,9 +440,17 @@ type UnbindRequest struct {
 
 // UnbindResponse represents a broker's response to an UnbindRequest.
 type UnbindResponse struct {
+	// Async is an ALPHA API attribute and may change. Alpha
+	// features must be enabled and the client must be using the
+	// latest API Version in order to use this.
+	//
 	// Async indicates whether the broker is handling the unbind request
 	// asynchronously.
 	Async bool `json:"async"`
+	// OperationKey is an ALPHA API attribute and may change. Alpha
+	// features must be enabled and the client must be using the
+	// latest API Version in order to use this.
+	//
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
 	OperationKey *OperationKey `json:"operationKey,omitempty"`
