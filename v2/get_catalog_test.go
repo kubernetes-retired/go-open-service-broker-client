@@ -51,9 +51,9 @@ func okCatalogResponse() *CatalogResponse {
 				Requires: []string{
 					"route_forwarding",
 				},
-				Bindable:      true,
+				Bindable:           true,
 				BindingRetrievable: true,
-				PlanUpdatable: truePtr(),
+				PlanUpdatable:      truePtr(),
 				Plans: []Plan{
 					{
 						ID:          "d3031751-XXXX-XXXX-XXXX-a42377d3320e",

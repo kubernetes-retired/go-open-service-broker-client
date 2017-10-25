@@ -168,3 +168,20 @@ func (e GetBindingNotAllowedError) Error() string {
 		e.reason,
 	)
 }
+
+// AsyncBindingOperationsNotAllowedError is an error type signifying that asynchronous
+// binding operations (bind/unbind/poll) are not allowed for this client.
+type AsyncBindingOperationsNotAllowedError struct {
+	reason string
+}
+
+func (e AsyncBindingOperationsNotAllowedError) Error() string {
+	return fmt.Sprintf("Asynchronous binding operations are not allowed: %s", e.reason)
+}
+
+// AsyncBindingOperationsNotAllowedError returns whether the error represents asynchronous
+// binding operations (bind/unbind/poll) not being allowed for this client.
+func IsAsyncBindingOperationsNotAllowedError(err error) bool {
+	_, ok := err.(AsyncBindingOperationsNotAllowedError)
+	return ok
+}

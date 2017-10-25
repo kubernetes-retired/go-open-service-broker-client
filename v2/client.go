@@ -25,11 +25,12 @@ const (
 	// identity.
 	OriginatingIdentityHeader = "X-Broker-API-Originating-Identity"
 
-	catalogURL            = "%s/v2/catalog"
-	serviceInstanceURLFmt = "%s/v2/service_instances/%s"
-	lastOperationURLFmt   = "%s/v2/service_instances/%s/last_operation"
-	bindingURLFmt         = "%s/v2/service_instances/%s/service_bindings/%s"
-	asyncQueryParamKey    = "accepts_incomplete"
+	catalogURL                 = "%s/v2/catalog"
+	serviceInstanceURLFmt      = "%s/v2/service_instances/%s"
+	lastOperationURLFmt        = "%s/v2/service_instances/%s/last_operation"
+	bindingLastOperationURLFmt = "%s/v2/service_instances/%s/service_bindings/%s/last_operation"
+	bindingURLFmt              = "%s/v2/service_instances/%s/service_bindings/%s"
+	asyncQueryParamKey         = "accepts_incomplete"
 )
 
 // NewClient is a CreateFunc for creating a new functional Client and
