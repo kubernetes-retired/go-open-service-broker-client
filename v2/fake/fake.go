@@ -34,6 +34,7 @@ func NewFakeClient(config FakeClientConfiguration) *FakeClient {
 		UpdateInstanceReaction:           config.UpdateInstanceReaction,
 		DeprovisionReaction:              config.DeprovisionReaction,
 		PollLastOperationReaction:        config.PollLastOperationReaction,
+		PollLastOperationReactions:       config.PollLastOperationReactions,
 		PollBindingLastOperationReaction: config.PollBindingLastOperationReaction,
 		BindReaction:                     config.BindReaction,
 		UnbindReaction:                   config.UnbindReaction,
@@ -48,6 +49,7 @@ type FakeClientConfiguration struct {
 	UpdateInstanceReaction           *UpdateInstanceReaction
 	DeprovisionReaction              *DeprovisionReaction
 	PollLastOperationReaction        *PollLastOperationReaction
+	PollLastOperationReactions       map[ActionType]*PollLastOperationReaction
 	PollBindingLastOperationReaction *PollBindingLastOperationReaction
 	BindReaction                     *BindReaction
 	UnbindReaction                   *UnbindReaction
@@ -87,6 +89,7 @@ type FakeClient struct {
 	UpdateInstanceReaction           *UpdateInstanceReaction
 	DeprovisionReaction              *DeprovisionReaction
 	PollLastOperationReaction        *PollLastOperationReaction
+	PollLastOperationReactions       map[ActionType]*PollLastOperationReaction
 	PollBindingLastOperationReaction *PollBindingLastOperationReaction
 	BindReaction                     *BindReaction
 	UnbindReaction                   *UnbindReaction
@@ -172,9 +175,16 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
 
+	var lastActionType ActionType
+	if len(c.actions) > 0 {
+		lastActionType = c.actions[len(c.actions)-1].Type
+	}
+
 	c.actions = append(c.actions, Action{PollLastOperation, r})
 
-	if c.PollLastOperationReaction != nil {
+	if c.PollLastOperationReactions[lastActionType] != nil {
+		return c.PollLastOperationReactions[lastActionType].Response, c.PollLastOperationReactions[lastActionType].Error
+	} else if c.PollLastOperationReaction != nil {
 		return c.PollLastOperationReaction.Response, c.PollLastOperationReaction.Error
 	}
 

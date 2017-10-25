@@ -341,6 +341,89 @@ func TestPollLastOperation(t *testing.T) {
 	}
 }
 
+func TestPollLastOperations(t *testing.T) {
+	cases := []struct {
+		name      string
+		reaction  *fake.PollLastOperationReaction
+		reactions map[fake.ActionType]*fake.PollLastOperationReaction
+		response  *v2.LastOperationResponse
+		err       error
+	}{
+		{
+			name: "unexpected action",
+			err:  fake.UnexpectedActionError(),
+		},
+		{
+			name: "deprovision instance last action",
+			reactions: map[fake.ActionType]*fake.PollLastOperationReaction{
+				fake.DeprovisionInstance: {
+					Response: lastOperationResponse(),
+				},
+			},
+			response: lastOperationResponse(),
+		},
+		{
+			name: "select correct last action error",
+			reactions: map[fake.ActionType]*fake.PollLastOperationReaction{
+				fake.DeprovisionInstance: {
+					Error: errors.New("oops"),
+				},
+				fake.ProvisionInstance: {
+					Error: errors.New("nope"),
+				},
+			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "default to reaction",
+			reaction: &fake.PollLastOperationReaction{
+				Response: lastOperationResponse(),
+			},
+			reactions: map[fake.ActionType]*fake.PollLastOperationReaction{
+				fake.ProvisionInstance: {
+					Error: errors.New("oops"),
+				},
+			},
+			response: lastOperationResponse(),
+		},
+		{
+			name: "error",
+			reactions: map[fake.ActionType]*fake.PollLastOperationReaction{
+				fake.DeprovisionInstance: {
+					Error: errors.New("oops"),
+				},
+			},
+			err: errors.New("oops"),
+		},
+	}
+
+	for _, tc := range cases {
+		fakeClient := &fake.FakeClient{
+			PollLastOperationReaction:  tc.reaction,
+			PollLastOperationReactions: tc.reactions,
+		}
+
+		fakeClient.DeprovisionInstance(&v2.DeprovisionRequest{})
+		response, err := fakeClient.PollLastOperation(&v2.LastOperationRequest{})
+
+		if !reflect.DeepEqual(tc.response, response) {
+			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
+		}
+
+		if !reflect.DeepEqual(tc.err, err) {
+			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
+		}
+
+		actions := fakeClient.Actions()
+		if e, a := 2, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		}
+		if e, a := fake.PollLastOperation, actions[1].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+		}
+	}
+}
+
 func TestPollBindingLastOperation(t *testing.T) {
 	cases := []struct {
 		name     string
