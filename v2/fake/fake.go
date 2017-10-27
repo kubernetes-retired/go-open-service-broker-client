@@ -34,6 +34,7 @@ func NewFakeClient(config FakeClientConfiguration) *FakeClient {
 		UpdateInstanceReaction:           config.UpdateInstanceReaction,
 		DeprovisionReaction:              config.DeprovisionReaction,
 		PollLastOperationReaction:        config.PollLastOperationReaction,
+		PollLastOperationReactions:       config.PollLastOperationReactions,
 		PollBindingLastOperationReaction: config.PollBindingLastOperationReaction,
 		BindReaction:                     config.BindReaction,
 		UnbindReaction:                   config.UnbindReaction,
@@ -48,6 +49,7 @@ type FakeClientConfiguration struct {
 	UpdateInstanceReaction           *UpdateInstanceReaction
 	DeprovisionReaction              *DeprovisionReaction
 	PollLastOperationReaction        *PollLastOperationReaction
+	PollLastOperationReactions       map[v2.OperationKey]*PollLastOperationReaction
 	PollBindingLastOperationReaction *PollBindingLastOperationReaction
 	BindReaction                     *BindReaction
 	UnbindReaction                   *UnbindReaction
@@ -87,6 +89,7 @@ type FakeClient struct {
 	UpdateInstanceReaction           *UpdateInstanceReaction
 	DeprovisionReaction              *DeprovisionReaction
 	PollLastOperationReaction        *PollLastOperationReaction
+	PollLastOperationReactions       map[v2.OperationKey]*PollLastOperationReaction
 	PollBindingLastOperationReaction *PollBindingLastOperationReaction
 	BindReaction                     *BindReaction
 	UnbindReaction                   *UnbindReaction
@@ -174,7 +177,9 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 
 	c.actions = append(c.actions, Action{PollLastOperation, r})
 
-	if c.PollLastOperationReaction != nil {
+	if r.OperationKey != nil && c.PollLastOperationReactions[*r.OperationKey] != nil {
+		return c.PollLastOperationReactions[*r.OperationKey].Response, c.PollLastOperationReactions[*r.OperationKey].Error
+	} else if c.PollLastOperationReaction != nil {
 		return c.PollLastOperationReaction.Response, c.PollLastOperationReaction.Error
 	}
 
