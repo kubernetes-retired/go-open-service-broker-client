@@ -101,10 +101,10 @@ func TestGetCatalog(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 1, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.GetCatalog, actions[0].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -159,10 +159,10 @@ func TestProvisionInstance(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 1, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.ProvisionInstance, actions[0].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -217,10 +217,10 @@ func TestUpdateInstance(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 1, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.UpdateInstance, actions[0].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -275,10 +275,10 @@ func TestDeprovisionInstance(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 1, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.DeprovisionInstance, actions[0].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -333,10 +333,10 @@ func TestPollLastOperation(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 1, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.PollLastOperation, actions[0].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -345,19 +345,19 @@ func TestPollLastOperations(t *testing.T) {
 	okKey := v2.OperationKey("LastOperationOk")
 	oopsKey := v2.OperationKey("LastOperationOops")
 	cases := []struct {
-		name      string
+		name         string
 		operationKey *v2.OperationKey
-		reaction  *fake.PollLastOperationReaction
-		reactions map[v2.OperationKey]*fake.PollLastOperationReaction
-		response  *v2.LastOperationResponse
-		err       error
+		reaction     *fake.PollLastOperationReaction
+		reactions    map[v2.OperationKey]*fake.PollLastOperationReaction
+		response     *v2.LastOperationResponse
+		err          error
 	}{
 		{
 			name: "unexpected action",
 			err:  fake.UnexpectedActionError(),
 		},
 		{
-			name: "deprovision instance last action",
+			name:         "deprovision instance last action",
 			operationKey: &okKey,
 			reactions: map[v2.OperationKey]*fake.PollLastOperationReaction{
 				"LastOperationOk": {
@@ -367,7 +367,7 @@ func TestPollLastOperations(t *testing.T) {
 			response: lastOperationResponse(),
 		},
 		{
-			name: "select correct last action error",
+			name:         "select correct last action error",
 			operationKey: &oopsKey,
 			reactions: map[v2.OperationKey]*fake.PollLastOperationReaction{
 				oopsKey: {
@@ -392,7 +392,7 @@ func TestPollLastOperations(t *testing.T) {
 			response: lastOperationResponse(),
 		},
 		{
-			name: "error",
+			name:         "error",
 			operationKey: &oopsKey,
 			reactions: map[v2.OperationKey]*fake.PollLastOperationReaction{
 				oopsKey: {
@@ -410,7 +410,7 @@ func TestPollLastOperations(t *testing.T) {
 		}
 
 		fakeClient.DeprovisionInstance(&v2.DeprovisionRequest{})
-		response, err := fakeClient.PollLastOperation(&v2.LastOperationRequest{OperationKey:tc.operationKey})
+		response, err := fakeClient.PollLastOperation(&v2.LastOperationRequest{OperationKey: tc.operationKey})
 
 		if !reflect.DeepEqual(tc.response, response) {
 			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
@@ -422,10 +422,10 @@ func TestPollLastOperations(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 2, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.PollLastOperation, actions[1].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -474,10 +474,10 @@ func TestPollBindingLastOperation(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 1, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.PollBindingLastOperation, actions[0].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -534,10 +534,10 @@ func TestBind(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 1, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.Bind, actions[0].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -590,10 +590,10 @@ func TestUnbind(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 1, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.Unbind, actions[0].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -650,10 +650,10 @@ func TestGetBinding(t *testing.T) {
 
 		actions := fakeClient.Actions()
 		if e, a := 1, len(actions); e != a {
-			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.GetBinding, actions[0].Type; e != a {
-			t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
 }
@@ -727,19 +727,19 @@ func TestNewFakeClient(t *testing.T) {
 	//		fakeClient := fake.NewFakeClient(tc.config)
 
 	if !reflect.DeepEqual(response, response2) {
-		t.Errorf("%v: unexpected response; expected %+v, got %+v", response, response2)
+		t.Errorf("unexpected response; expected %+v, got %+v", response, response2)
 	}
 
 	if !reflect.DeepEqual(err, err2) {
-		t.Errorf("%v: unexpected error; expected %+v, got %+v", err, err2)
+		t.Errorf("unexpected error; expected %+v, got %+v", err, err2)
 	}
 
 	actions := newfakeClient.Actions()
 	if e, a := 1, len(actions); e != a {
-		t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
+		t.Errorf("unexpected actions; expected %v, got %v; actions = %+v", e, a, actions)
 	}
 	if e, a := fake.Bind, actions[0].Type; e != a {
-		t.Errorf("%v: unexpected action type; expected %v, got %v", e, a)
+		t.Errorf("unexpected action type; expected %v, got %v", e, a)
 	}
 
 }
