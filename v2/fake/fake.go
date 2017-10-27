@@ -49,7 +49,7 @@ type FakeClientConfiguration struct {
 	UpdateInstanceReaction           *UpdateInstanceReaction
 	DeprovisionReaction              *DeprovisionReaction
 	PollLastOperationReaction        *PollLastOperationReaction
-	PollLastOperationReactions       map[ActionType]*PollLastOperationReaction
+	PollLastOperationReactions       map[v2.OperationKey]*PollLastOperationReaction
 	PollBindingLastOperationReaction *PollBindingLastOperationReaction
 	BindReaction                     *BindReaction
 	UnbindReaction                   *UnbindReaction
@@ -89,7 +89,7 @@ type FakeClient struct {
 	UpdateInstanceReaction           *UpdateInstanceReaction
 	DeprovisionReaction              *DeprovisionReaction
 	PollLastOperationReaction        *PollLastOperationReaction
-	PollLastOperationReactions       map[ActionType]*PollLastOperationReaction
+	PollLastOperationReactions       map[v2.OperationKey]*PollLastOperationReaction
 	PollBindingLastOperationReaction *PollBindingLastOperationReaction
 	BindReaction                     *BindReaction
 	UnbindReaction                   *UnbindReaction
@@ -175,15 +175,10 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
 
-	var lastActionType ActionType
-	if len(c.actions) > 0 {
-		lastActionType = c.actions[len(c.actions)-1].Type
-	}
-
 	c.actions = append(c.actions, Action{PollLastOperation, r})
 
-	if c.PollLastOperationReactions[lastActionType] != nil {
-		return c.PollLastOperationReactions[lastActionType].Response, c.PollLastOperationReactions[lastActionType].Error
+	if r.OperationKey != nil && c.PollLastOperationReactions[*r.OperationKey] != nil {
+		return c.PollLastOperationReactions[*r.OperationKey].Response, c.PollLastOperationReactions[*r.OperationKey].Error
 	} else if c.PollLastOperationReaction != nil {
 		return c.PollLastOperationReaction.Response, c.PollLastOperationReaction.Error
 	}

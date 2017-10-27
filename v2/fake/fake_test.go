@@ -342,10 +342,13 @@ func TestPollLastOperation(t *testing.T) {
 }
 
 func TestPollLastOperations(t *testing.T) {
+	okKey := v2.OperationKey("LastOperationOk")
+	oopsKey := v2.OperationKey("LastOperationOops")
 	cases := []struct {
 		name      string
+		operationKey *v2.OperationKey
 		reaction  *fake.PollLastOperationReaction
-		reactions map[fake.ActionType]*fake.PollLastOperationReaction
+		reactions map[v2.OperationKey]*fake.PollLastOperationReaction
 		response  *v2.LastOperationResponse
 		err       error
 	}{
@@ -355,8 +358,9 @@ func TestPollLastOperations(t *testing.T) {
 		},
 		{
 			name: "deprovision instance last action",
-			reactions: map[fake.ActionType]*fake.PollLastOperationReaction{
-				fake.DeprovisionInstance: {
+			operationKey: &okKey,
+			reactions: map[v2.OperationKey]*fake.PollLastOperationReaction{
+				"LastOperationOk": {
 					Response: lastOperationResponse(),
 				},
 			},
@@ -364,11 +368,12 @@ func TestPollLastOperations(t *testing.T) {
 		},
 		{
 			name: "select correct last action error",
-			reactions: map[fake.ActionType]*fake.PollLastOperationReaction{
-				fake.DeprovisionInstance: {
+			operationKey: &oopsKey,
+			reactions: map[v2.OperationKey]*fake.PollLastOperationReaction{
+				oopsKey: {
 					Error: errors.New("oops"),
 				},
-				fake.ProvisionInstance: {
+				"LastOperationNope": {
 					Error: errors.New("nope"),
 				},
 			},
@@ -379,8 +384,8 @@ func TestPollLastOperations(t *testing.T) {
 			reaction: &fake.PollLastOperationReaction{
 				Response: lastOperationResponse(),
 			},
-			reactions: map[fake.ActionType]*fake.PollLastOperationReaction{
-				fake.ProvisionInstance: {
+			reactions: map[v2.OperationKey]*fake.PollLastOperationReaction{
+				oopsKey: {
 					Error: errors.New("oops"),
 				},
 			},
@@ -388,8 +393,9 @@ func TestPollLastOperations(t *testing.T) {
 		},
 		{
 			name: "error",
-			reactions: map[fake.ActionType]*fake.PollLastOperationReaction{
-				fake.DeprovisionInstance: {
+			operationKey: &oopsKey,
+			reactions: map[v2.OperationKey]*fake.PollLastOperationReaction{
+				oopsKey: {
 					Error: errors.New("oops"),
 				},
 			},
@@ -404,7 +410,7 @@ func TestPollLastOperations(t *testing.T) {
 		}
 
 		fakeClient.DeprovisionInstance(&v2.DeprovisionRequest{})
-		response, err := fakeClient.PollLastOperation(&v2.LastOperationRequest{})
+		response, err := fakeClient.PollLastOperation(&v2.LastOperationRequest{OperationKey:tc.operationKey})
 
 		if !reflect.DeepEqual(tc.response, response) {
 			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
