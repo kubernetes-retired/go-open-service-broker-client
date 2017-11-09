@@ -374,9 +374,8 @@ type PollBindingLastOperationReactionInterface interface {
 }
 
 type PollBindingLastOperationReaction struct {
-	Response     *v2.LastOperationResponse
-	Error        error
-	FuncReaction func(*v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error)
+	Response *v2.LastOperationResponse
+	Error    error
 }
 
 func (r *PollBindingLastOperationReaction) react(_ *v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error) {
@@ -398,9 +397,8 @@ type BindReactionInterface interface {
 }
 
 type BindReaction struct {
-	Response     *v2.BindResponse
-	Error        error
-	FuncReaction func(*v2.BindRequest) (*v2.BindResponse, error)
+	Response *v2.BindResponse
+	Error    error
 }
 
 func (r *BindReaction) react(_ *v2.BindRequest) (*v2.BindResponse, error) {
@@ -422,9 +420,8 @@ type UnbindReactionInterface interface {
 }
 
 type UnbindReaction struct {
-	Response     *v2.UnbindResponse
-	Error        error
-	FuncReaction func(*v2.UnbindRequest) (*v2.UnbindResponse, error)
+	Response *v2.UnbindResponse
+	Error    error
 }
 
 func (r *UnbindReaction) react(_ *v2.UnbindRequest) (*v2.UnbindResponse, error) {
@@ -446,9 +443,8 @@ type GetBindingReactionInterface interface {
 }
 
 type GetBindingReaction struct {
-	Response     *v2.GetBindingResponse
-	Error        error
-	FuncReaction func() (*v2.GetBindingResponse, error)
+	Response *v2.GetBindingResponse
+	Error    error
 }
 
 func (r *GetBindingReaction) react() (*v2.GetBindingResponse, error) {
