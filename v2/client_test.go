@@ -213,3 +213,83 @@ func TestBuildOriginatingIdentityHeaderValue(t *testing.T) {
 		}
 	}
 }
+
+const justDescriptionErr = `{
+  "description": "test description"
+}`
+
+const justErrorErr = `{
+  "error": "test error"
+}`
+
+const fullErr = `{
+  "description": "test description",
+  "error": "test error"
+}`
+
+const invalidErrorErr = `{
+  "error": {
+    "foo": "bar"
+  }
+}`
+
+const invalidErrorValidDescriptionErr = `{
+  "description": "test description",
+  "error": {
+    "foo": "bar"
+  }
+}`
+
+const invalidJSONErr = `{`
+
+func TestHandleFailureResponse(t *testing.T) {
+	cases := []struct {
+		name               string
+		errBody            string
+		expectedErrMessage string
+	}{
+		{
+			name:               "error with just description",
+			errBody:            justDescriptionErr,
+			expectedErrMessage: "Status: 500; ErrorMessage: <nil>; Description: test description; ResponseError: <nil>",
+		},
+		{
+			name:               "error with just error message",
+			errBody:            justErrorErr,
+			expectedErrMessage: "Status: 500; ErrorMessage: test error; Description: <nil>; ResponseError: <nil>",
+		},
+		{
+			name:               "error with error message and description",
+			errBody:            fullErr,
+			expectedErrMessage: "Status: 500; ErrorMessage: test error; Description: test description; ResponseError: <nil>",
+		},
+		{
+			name:               "error with invalid error message",
+			errBody:            invalidErrorErr,
+			expectedErrMessage: "Status: 500; ErrorMessage: <nil>; Description: <nil>; ResponseError: <nil>",
+		},
+		{
+			name:               "error with invalid error message and valid description",
+			errBody:            invalidErrorValidDescriptionErr,
+			expectedErrMessage: "Status: 500; ErrorMessage: <nil>; Description: test description; ResponseError: <nil>",
+		},
+		{
+			name:               "invalid error",
+			errBody:            invalidJSONErr,
+			expectedErrMessage: "Status: 500; ErrorMessage: <nil>; Description: <nil>; ResponseError: unexpected end of JSON input",
+		},
+	}
+	for _, tc := range cases {
+		klient := newTestClient(t, tc.name, Version2_11(), false, httpChecks{}, httpReaction{})
+
+		testResponse := &http.Response{
+			StatusCode: 500,
+			Body:       closer(tc.errBody),
+		}
+		err := klient.handleFailureResponse(testResponse)
+
+		if e, a := tc.expectedErrMessage, err.Error(); e != a {
+			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
+		}
+	}
+}
