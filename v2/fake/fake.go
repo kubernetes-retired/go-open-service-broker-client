@@ -44,16 +44,16 @@ func NewFakeClient(config FakeClientConfiguration) *FakeClient {
 
 // FakeClientConfiguration models the configuration of a FakeClient.
 type FakeClientConfiguration struct {
-	CatalogReaction                  *CatalogReaction
-	ProvisionReaction                *ProvisionReaction
-	UpdateInstanceReaction           *UpdateInstanceReaction
-	DeprovisionReaction              *DeprovisionReaction
-	PollLastOperationReaction        *PollLastOperationReaction
+	CatalogReaction                  CatalogReactionInterface
+	ProvisionReaction                ProvisionReactionInterface
+	UpdateInstanceReaction           UpdateInstanceReactionInterface
+	DeprovisionReaction              DeprovisionReactionInterface
+	PollLastOperationReaction        PollLastOperationReactionInterface
 	PollLastOperationReactions       map[v2.OperationKey]*PollLastOperationReaction
-	PollBindingLastOperationReaction *PollBindingLastOperationReaction
-	BindReaction                     *BindReaction
-	UnbindReaction                   *UnbindReaction
-	GetBindingReaction               *GetBindingReaction
+	PollBindingLastOperationReaction PollBindingLastOperationReactionInterface
+	BindReaction                     BindReactionInterface
+	UnbindReaction                   UnbindReactionInterface
+	GetBindingReaction               GetBindingReactionInterface
 }
 
 // Action is a record of a method call on the FakeClient.
@@ -84,16 +84,16 @@ const (
 // actions. If an action for which there is no reaction specified occurs, it
 // returns an error.  FakeClient is threadsafe.
 type FakeClient struct {
-	CatalogReaction                  *CatalogReaction
-	ProvisionReaction                *ProvisionReaction
-	UpdateInstanceReaction           *UpdateInstanceReaction
-	DeprovisionReaction              *DeprovisionReaction
-	PollLastOperationReaction        *PollLastOperationReaction
+	CatalogReaction                  CatalogReactionInterface
+	ProvisionReaction                ProvisionReactionInterface
+	UpdateInstanceReaction           UpdateInstanceReactionInterface
+	DeprovisionReaction              DeprovisionReactionInterface
+	PollLastOperationReaction        PollLastOperationReactionInterface
 	PollLastOperationReactions       map[v2.OperationKey]*PollLastOperationReaction
-	PollBindingLastOperationReaction *PollBindingLastOperationReaction
-	BindReaction                     *BindReaction
-	UnbindReaction                   *UnbindReaction
-	GetBindingReaction               *GetBindingReaction
+	PollBindingLastOperationReaction PollBindingLastOperationReactionInterface
+	BindReaction                     BindReactionInterface
+	UnbindReaction                   UnbindReactionInterface
+	GetBindingReaction               GetBindingReactionInterface
 
 	sync.Mutex
 	actions []Action
@@ -110,7 +110,7 @@ func (c *FakeClient) Actions() []Action {
 	return c.actions
 }
 
-// GetCatalog implements the Client.GetCatalog method for the FakeClient.
+// GetCatalog defines the reaction to the Client.GetCatalog method for the FakeClient.
 func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -118,13 +118,13 @@ func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
 	c.actions = append(c.actions, Action{Type: GetCatalog})
 
 	if c.CatalogReaction != nil {
-		return c.CatalogReaction.Response, c.CatalogReaction.Error
+		return c.CatalogReaction.react()
 	}
 
 	return nil, UnexpectedActionError()
 }
 
-// ProvisionInstance implements the Client.ProvisionRequest method for the
+// ProvisionInstance defines the reaction to the Client.ProvisionRequest method for the
 // FakeClient.
 func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
 	c.Mutex.Lock()
@@ -133,13 +133,13 @@ func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionRes
 	c.actions = append(c.actions, Action{ProvisionInstance, r})
 
 	if c.ProvisionReaction != nil {
-		return c.ProvisionReaction.Response, c.ProvisionReaction.Error
+		return c.ProvisionReaction.react(r)
 	}
 
 	return nil, UnexpectedActionError()
 }
 
-// UpdateInstance implements the Client.UpdateInstance method for the
+// UpdateInstance defines the reaction to the Client.UpdateInstance method for the
 // FakeClient.
 func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error) {
 	c.Mutex.Lock()
@@ -148,13 +148,13 @@ func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInst
 	c.actions = append(c.actions, Action{UpdateInstance, r})
 
 	if c.UpdateInstanceReaction != nil {
-		return c.UpdateInstanceReaction.Response, c.UpdateInstanceReaction.Error
+		return c.UpdateInstanceReaction.react(r)
 	}
 
 	return nil, UnexpectedActionError()
 }
 
-// DeprovisionInstance implements the Client.DeprovisionInstance method on the
+// DeprovisionInstance defines the reaction to the Client.DeprovisionInstance method on the
 // FakeClient.
 func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
 	c.Mutex.Lock()
@@ -163,13 +163,13 @@ func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.Deprovis
 	c.actions = append(c.actions, Action{DeprovisionInstance, r})
 
 	if c.DeprovisionReaction != nil {
-		return c.DeprovisionReaction.Response, c.DeprovisionReaction.Error
+		return c.DeprovisionReaction.react(r)
 	}
 
 	return nil, UnexpectedActionError()
 }
 
-// PollLastOperation implements the Client.PollLastOperation method on the
+// PollLastOperation defines the reaction to the Client.PollLastOperation method on the
 // FakeClient.
 func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
 	c.Mutex.Lock()
@@ -180,13 +180,13 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 	if r.OperationKey != nil && c.PollLastOperationReactions[*r.OperationKey] != nil {
 		return c.PollLastOperationReactions[*r.OperationKey].Response, c.PollLastOperationReactions[*r.OperationKey].Error
 	} else if c.PollLastOperationReaction != nil {
-		return c.PollLastOperationReaction.Response, c.PollLastOperationReaction.Error
+		return c.PollLastOperationReaction.react(r)
 	}
 
 	return nil, UnexpectedActionError()
 }
 
-// PollBindingLastOperation implements the Client.PollBindingLastOperation
+// PollBindingLastOperation defines the reaction to the Client.PollBindingLastOperation
 // method on the FakeClient.
 func (c *FakeClient) PollBindingLastOperation(r *v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error) {
 	c.Mutex.Lock()
@@ -195,13 +195,13 @@ func (c *FakeClient) PollBindingLastOperation(r *v2.BindingLastOperationRequest)
 	c.actions = append(c.actions, Action{PollBindingLastOperation, r})
 
 	if c.PollBindingLastOperationReaction != nil {
-		return c.PollBindingLastOperationReaction.Response, c.PollBindingLastOperationReaction.Error
+		return c.PollBindingLastOperationReaction.react(r)
 	}
 
 	return nil, UnexpectedActionError()
 }
 
-// Bind implements the Client.Bind method on the FakeClient.
+// Bind defines the reaction to the Client.Bind method on the FakeClient.
 func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -209,13 +209,13 @@ func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 	c.actions = append(c.actions, Action{Bind, r})
 
 	if c.BindReaction != nil {
-		return c.BindReaction.Response, c.BindReaction.Error
+		return c.BindReaction.react(r)
 	}
 
 	return nil, UnexpectedActionError()
 }
 
-// Unbind implements the Client.Unbind method on the FakeClient.
+// Unbind defines the reaction to the Client.Unbind method on the FakeClient.
 func (c *FakeClient) Unbind(r *v2.UnbindRequest) (*v2.UnbindResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -223,13 +223,13 @@ func (c *FakeClient) Unbind(r *v2.UnbindRequest) (*v2.UnbindResponse, error) {
 	c.actions = append(c.actions, Action{Unbind, r})
 
 	if c.UnbindReaction != nil {
-		return c.UnbindReaction.Response, c.UnbindReaction.Error
+		return c.UnbindReaction.react(r)
 	}
 
 	return nil, UnexpectedActionError()
 }
 
-// GetBinding implements the Client.GetBinding method for the FakeClient.
+// GetBinding defines the reaction to the Client.GetBinding method for the FakeClient.
 func (c *FakeClient) GetBinding(*v2.GetBindingRequest) (*v2.GetBindingResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -237,7 +237,7 @@ func (c *FakeClient) GetBinding(*v2.GetBindingRequest) (*v2.GetBindingResponse, 
 	c.actions = append(c.actions, Action{Type: GetBinding})
 
 	if c.GetBindingReaction != nil {
-		return c.GetBindingReaction.Response, c.GetBindingReaction.Error
+		return c.GetBindingReaction.react()
 	}
 
 	return nil, UnexpectedActionError()
@@ -249,60 +249,219 @@ func UnexpectedActionError() error {
 	return errors.New("Unexpected action")
 }
 
-// CatalogReaction is sent as the response to GetCatalog requests.
+// CatalogReactionInterface is sent as the response to GetCatalog requests.
+type CatalogReactionInterface interface {
+	react() (*v2.CatalogResponse, error)
+}
+
 type CatalogReaction struct {
 	Response *v2.CatalogResponse
 	Error    error
 }
 
-// ProvisionReaction is sent as the response ProvisionInstance requests.
+func (r *CatalogReaction) react() (*v2.CatalogResponse, error) {
+	if r == nil {
+		return nil, UnexpectedActionError()
+	}
+	return r.Response, r.Error
+}
+
+type DynamicCatalogReaction func() (*v2.CatalogResponse, error)
+
+func (r DynamicCatalogReaction) react() (*v2.CatalogResponse, error) {
+	return r()
+}
+
+// ProvisionReactionInterface is sent as the response ProvisionInstance requests.
+type ProvisionReactionInterface interface {
+	react(*v2.ProvisionRequest) (*v2.ProvisionResponse, error)
+}
+
 type ProvisionReaction struct {
 	Response *v2.ProvisionResponse
 	Error    error
 }
 
-// UpdateInstanceReaction is sent as the response UpdateInstance requests.
+func (r *ProvisionReaction) react(_ *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
+	if r == nil {
+		return nil, UnexpectedActionError()
+	}
+	return r.Response, r.Error
+}
+
+type DynamicProvisionReaction func(*v2.ProvisionRequest) (*v2.ProvisionResponse, error)
+
+func (r DynamicProvisionReaction) react(req *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
+	return r(req)
+}
+
+// UpdateInstanceReactionInterface is sent as the response UpdateInstance requests.
+type UpdateInstanceReactionInterface interface {
+	react(*v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error)
+}
+
 type UpdateInstanceReaction struct {
 	Response *v2.UpdateInstanceResponse
 	Error    error
 }
 
-// DeprovisionReaction is sent as the response DeprovisionInstance requests.
+func (r *UpdateInstanceReaction) react(_ *v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error) {
+	if r == nil {
+		return nil, UnexpectedActionError()
+	}
+	return r.Response, r.Error
+}
+
+type DynamicUpdateInstanceReaction func(*v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error)
+
+func (r DynamicUpdateInstanceReaction) react(req *v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error) {
+	return r(req)
+}
+
+// DeprovisionReactionInterface is sent as the response DeprovisionInstance requests.
+type DeprovisionReactionInterface interface {
+	react(*v2.DeprovisionRequest) (*v2.DeprovisionResponse, error)
+}
+
 type DeprovisionReaction struct {
-	Response *v2.DeprovisionResponse
-	Error    error
+	Response     *v2.DeprovisionResponse
+	Error        error
+	FuncReaction func(*v2.DeprovisionRequest) (*v2.DeprovisionResponse, error)
 }
 
-// PollLastOperationReaction is sent as the response to PollLastOperation
+func (r *DeprovisionReaction) react(_ *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
+	if r == nil {
+		return nil, UnexpectedActionError()
+	}
+	return r.Response, r.Error
+}
+
+type DynamicDeprovisionReaction func(*v2.DeprovisionRequest) (*v2.DeprovisionResponse, error)
+
+func (r DynamicDeprovisionReaction) react(req *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
+	return r(req)
+}
+
+// PollLastOperationReactionInterface is sent as the response to PollLastOperation
 // requests.
+type PollLastOperationReactionInterface interface {
+	react(*v2.LastOperationRequest) (*v2.LastOperationResponse, error)
+}
+
 type PollLastOperationReaction struct {
-	Response *v2.LastOperationResponse
-	Error    error
+	Response     *v2.LastOperationResponse
+	Error        error
+	FuncReaction func(*v2.LastOperationRequest) (*v2.LastOperationResponse, error)
 }
 
-// PollLastOperationReaction is sent as the response to PollLastOperation
+func (r *PollLastOperationReaction) react(_ *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
+	if r == nil {
+		return nil, UnexpectedActionError()
+	}
+	return r.Response, r.Error
+}
+
+type DynamicPollLastOperationReaction func(*v2.LastOperationRequest) (*v2.LastOperationResponse, error)
+
+func (r DynamicPollLastOperationReaction) react(req *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
+	return r(req)
+}
+
+// PollBindingLastOperationReactionInterface is sent as the response to PollLastOperation
 // requests.
+type PollBindingLastOperationReactionInterface interface {
+	react(*v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error)
+}
+
 type PollBindingLastOperationReaction struct {
-	Response *v2.LastOperationResponse
-	Error    error
+	Response     *v2.LastOperationResponse
+	Error        error
+	FuncReaction func(*v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error)
 }
 
-// BindReaction is sent as the response Bind requests.
+func (r *PollBindingLastOperationReaction) react(_ *v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error) {
+	if r == nil {
+		return nil, UnexpectedActionError()
+	}
+	return r.Response, r.Error
+}
+
+type DynamicPollBindingLastOperationReaction func(*v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error)
+
+func (r DynamicPollBindingLastOperationReaction) react(req *v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error) {
+	return r(req)
+}
+
+// BindReactionInterface is sent as the response Bind requests.
+type BindReactionInterface interface {
+	react(*v2.BindRequest) (*v2.BindResponse, error)
+}
+
 type BindReaction struct {
-	Response *v2.BindResponse
-	Error    error
+	Response     *v2.BindResponse
+	Error        error
+	FuncReaction func(*v2.BindRequest) (*v2.BindResponse, error)
 }
 
-// UnbindReaction is sent as the response Unbind requests.
+func (r *BindReaction) react(_ *v2.BindRequest) (*v2.BindResponse, error) {
+	if r == nil {
+		return nil, UnexpectedActionError()
+	}
+	return r.Response, r.Error
+}
+
+type DynamicBindReaction func(*v2.BindRequest) (*v2.BindResponse, error)
+
+func (r DynamicBindReaction) react(req *v2.BindRequest) (*v2.BindResponse, error) {
+	return r(req)
+}
+
+// UnbindReactionInterface is sent as the response Unbind requests.
+type UnbindReactionInterface interface {
+	react(*v2.UnbindRequest) (*v2.UnbindResponse, error)
+}
+
 type UnbindReaction struct {
-	Response *v2.UnbindResponse
-	Error    error
+	Response     *v2.UnbindResponse
+	Error        error
+	FuncReaction func(*v2.UnbindRequest) (*v2.UnbindResponse, error)
 }
 
-// GetBindingReaction is sent as the response to GetBinding requests.
+func (r *UnbindReaction) react(_ *v2.UnbindRequest) (*v2.UnbindResponse, error) {
+	if r == nil {
+		return nil, UnexpectedActionError()
+	}
+	return r.Response, r.Error
+}
+
+type DynamicUnbindReaction func(*v2.UnbindRequest) (*v2.UnbindResponse, error)
+
+func (r DynamicUnbindReaction) react(req *v2.UnbindRequest) (*v2.UnbindResponse, error) {
+	return r(req)
+}
+
+// GetBindingReactionInterface is sent as the response to GetBinding requests.
+type GetBindingReactionInterface interface {
+	react() (*v2.GetBindingResponse, error)
+}
+
 type GetBindingReaction struct {
-	Response *v2.GetBindingResponse
-	Error    error
+	Response     *v2.GetBindingResponse
+	Error        error
+	FuncReaction func() (*v2.GetBindingResponse, error)
+}
+
+func (r *GetBindingReaction) react() (*v2.GetBindingResponse, error) {
+	if r == nil {
+		return nil, UnexpectedActionError()
+	}
+	return r.Response, r.Error
+}
+
+type DynamicGetBindingReaction func() (*v2.GetBindingResponse, error)
+
+func (r DynamicGetBindingReaction) react() (*v2.GetBindingResponse, error) {
+	return r()
 }
 
 func strPtr(s string) *string {

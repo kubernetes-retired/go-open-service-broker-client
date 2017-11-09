@@ -58,7 +58,7 @@ func truePtr() *bool {
 func TestGetCatalog(t *testing.T) {
 	cases := []struct {
 		name     string
-		reaction *fake.CatalogReaction
+		reaction fake.CatalogReactionInterface
 		response *v2.CatalogResponse
 		err      error
 	}{
@@ -78,6 +78,20 @@ func TestGetCatalog(t *testing.T) {
 			reaction: &fake.CatalogReaction{
 				Error: errors.New("oops"),
 			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicCatalogReaction(func() (*v2.CatalogResponse, error) {
+				return catalogResponse(), nil
+			}),
+			response: catalogResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicCatalogReaction(func() (*v2.CatalogResponse, error) {
+				return nil, errors.New("oops")
+			}),
 			err: errors.New("oops"),
 		},
 	}
@@ -118,7 +132,7 @@ func provisionResponse() *v2.ProvisionResponse {
 func TestProvisionInstance(t *testing.T) {
 	cases := []struct {
 		name     string
-		reaction *fake.ProvisionReaction
+		reaction fake.ProvisionReactionInterface
 		response *v2.ProvisionResponse
 		err      error
 	}{
@@ -138,6 +152,20 @@ func TestProvisionInstance(t *testing.T) {
 			reaction: &fake.ProvisionReaction{
 				Error: errors.New("oops"),
 			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicProvisionReaction(func(_ *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
+				return provisionResponse(), nil
+			}),
+			response: provisionResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicProvisionReaction(func(_ *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
+				return nil, errors.New("oops")
+			}),
 			err: errors.New("oops"),
 		},
 	}
@@ -176,7 +204,7 @@ func updateInstanceResponse() *v2.UpdateInstanceResponse {
 func TestUpdateInstance(t *testing.T) {
 	cases := []struct {
 		name     string
-		reaction *fake.UpdateInstanceReaction
+		reaction fake.UpdateInstanceReactionInterface
 		response *v2.UpdateInstanceResponse
 		err      error
 	}{
@@ -196,6 +224,20 @@ func TestUpdateInstance(t *testing.T) {
 			reaction: &fake.UpdateInstanceReaction{
 				Error: errors.New("oops"),
 			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicUpdateInstanceReaction(func(_ *v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error) {
+				return updateInstanceResponse(), nil
+			}),
+			response: updateInstanceResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicUpdateInstanceReaction(func(_ *v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error) {
+				return nil, errors.New("oops")
+			}),
 			err: errors.New("oops"),
 		},
 	}
@@ -234,7 +276,7 @@ func deprovisionResponse() *v2.DeprovisionResponse {
 func TestDeprovisionInstance(t *testing.T) {
 	cases := []struct {
 		name     string
-		reaction *fake.DeprovisionReaction
+		reaction fake.DeprovisionReactionInterface
 		response *v2.DeprovisionResponse
 		err      error
 	}{
@@ -254,6 +296,20 @@ func TestDeprovisionInstance(t *testing.T) {
 			reaction: &fake.DeprovisionReaction{
 				Error: errors.New("oops"),
 			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicDeprovisionReaction(func(_ *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
+				return deprovisionResponse(), nil
+			}),
+			response: deprovisionResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicDeprovisionReaction(func(_ *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
+				return nil, errors.New("oops")
+			}),
 			err: errors.New("oops"),
 		},
 	}
@@ -292,7 +348,7 @@ func lastOperationResponse() *v2.LastOperationResponse {
 func TestPollLastOperation(t *testing.T) {
 	cases := []struct {
 		name     string
-		reaction *fake.PollLastOperationReaction
+		reaction fake.PollLastOperationReactionInterface
 		response *v2.LastOperationResponse
 		err      error
 	}{
@@ -312,6 +368,20 @@ func TestPollLastOperation(t *testing.T) {
 			reaction: &fake.PollLastOperationReaction{
 				Error: errors.New("oops"),
 			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicPollLastOperationReaction(func(_ *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
+				return lastOperationResponse(), nil
+			}),
+			response: lastOperationResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicPollLastOperationReaction(func(_ *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
+				return nil, errors.New("oops")
+			}),
 			err: errors.New("oops"),
 		},
 	}
@@ -347,7 +417,7 @@ func TestPollLastOperations(t *testing.T) {
 	cases := []struct {
 		name         string
 		operationKey *v2.OperationKey
-		reaction     *fake.PollLastOperationReaction
+		reaction     fake.PollLastOperationReactionInterface
 		reactions    map[v2.OperationKey]*fake.PollLastOperationReaction
 		response     *v2.LastOperationResponse
 		err          error
@@ -433,7 +503,7 @@ func TestPollLastOperations(t *testing.T) {
 func TestPollBindingLastOperation(t *testing.T) {
 	cases := []struct {
 		name     string
-		reaction *fake.PollBindingLastOperationReaction
+		reaction fake.PollBindingLastOperationReactionInterface
 		response *v2.LastOperationResponse
 		err      error
 	}{
@@ -453,6 +523,20 @@ func TestPollBindingLastOperation(t *testing.T) {
 			reaction: &fake.PollBindingLastOperationReaction{
 				Error: errors.New("oops"),
 			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicPollBindingLastOperationReaction(func(_ *v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error) {
+				return lastOperationResponse(), nil
+			}),
+			response: lastOperationResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicPollBindingLastOperationReaction(func(_ *v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error) {
+				return nil, errors.New("oops")
+			}),
 			err: errors.New("oops"),
 		},
 	}
@@ -493,7 +577,7 @@ func bindResponse() *v2.BindResponse {
 func TestBind(t *testing.T) {
 	cases := []struct {
 		name     string
-		reaction *fake.BindReaction
+		reaction fake.BindReactionInterface
 		response *v2.BindResponse
 		err      error
 	}{
@@ -513,6 +597,20 @@ func TestBind(t *testing.T) {
 			reaction: &fake.BindReaction{
 				Error: errors.New("oops"),
 			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicBindReaction(func(_ *v2.BindRequest) (*v2.BindResponse, error) {
+				return bindResponse(), nil
+			}),
+			response: bindResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicBindReaction(func(_ *v2.BindRequest) (*v2.BindResponse, error) {
+				return nil, errors.New("oops")
+			}),
 			err: errors.New("oops"),
 		},
 	}
@@ -549,7 +647,7 @@ func unbindResponse() *v2.UnbindResponse {
 func TestUnbind(t *testing.T) {
 	cases := []struct {
 		name     string
-		reaction *fake.UnbindReaction
+		reaction fake.UnbindReactionInterface
 		response *v2.UnbindResponse
 		err      error
 	}{
@@ -569,6 +667,20 @@ func TestUnbind(t *testing.T) {
 			reaction: &fake.UnbindReaction{
 				Error: errors.New("oops"),
 			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicUnbindReaction(func(_ *v2.UnbindRequest) (*v2.UnbindResponse, error) {
+				return unbindResponse(), nil
+			}),
+			response: unbindResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicUnbindReaction(func(_ *v2.UnbindRequest) (*v2.UnbindResponse, error) {
+				return nil, errors.New("oops")
+			}),
 			err: errors.New("oops"),
 		},
 	}
@@ -609,7 +721,7 @@ func getBindingResponse() *v2.GetBindingResponse {
 func TestGetBinding(t *testing.T) {
 	cases := []struct {
 		name     string
-		reaction *fake.GetBindingReaction
+		reaction fake.GetBindingReactionInterface
 		response *v2.GetBindingResponse
 		err      error
 	}{
@@ -629,6 +741,20 @@ func TestGetBinding(t *testing.T) {
 			reaction: &fake.GetBindingReaction{
 				Error: errors.New("oops"),
 			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicGetBindingReaction(func() (*v2.GetBindingResponse, error) {
+				return getBindingResponse(), nil
+			}),
+			response: getBindingResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicGetBindingReaction(func() (*v2.GetBindingResponse, error) {
+				return nil, errors.New("oops")
+			}),
 			err: errors.New("oops"),
 		},
 	}
