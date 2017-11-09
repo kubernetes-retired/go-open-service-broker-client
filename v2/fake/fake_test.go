@@ -94,6 +94,14 @@ func TestGetCatalog(t *testing.T) {
 			}),
 			err: errors.New("oops"),
 		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.CatalogReactionInterface {
+				var nilStaticReaction *fake.CatalogReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -168,6 +176,14 @@ func TestProvisionInstance(t *testing.T) {
 			}),
 			err: errors.New("oops"),
 		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.ProvisionReactionInterface {
+				var nilStaticReaction *fake.ProvisionReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -239,6 +255,14 @@ func TestUpdateInstance(t *testing.T) {
 				return nil, errors.New("oops")
 			}),
 			err: errors.New("oops"),
+		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.UpdateInstanceReactionInterface {
+				var nilStaticReaction *fake.UpdateInstanceReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
 		},
 	}
 
@@ -312,6 +336,14 @@ func TestDeprovisionInstance(t *testing.T) {
 			}),
 			err: errors.New("oops"),
 		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.DeprovisionReactionInterface {
+				var nilStaticReaction *fake.DeprovisionReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -383,6 +415,14 @@ func TestPollLastOperation(t *testing.T) {
 				return nil, errors.New("oops")
 			}),
 			err: errors.New("oops"),
+		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.PollLastOperationReactionInterface {
+				var nilStaticReaction *fake.PollLastOperationReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
 		},
 	}
 
@@ -539,6 +579,14 @@ func TestPollBindingLastOperation(t *testing.T) {
 			}),
 			err: errors.New("oops"),
 		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.PollBindingLastOperationReactionInterface {
+				var nilStaticReaction *fake.PollBindingLastOperationReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -613,6 +661,14 @@ func TestBind(t *testing.T) {
 			}),
 			err: errors.New("oops"),
 		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.BindReactionInterface {
+				var nilStaticReaction *fake.BindReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
+		},
 	}
 
 	for _, tc := range cases {
@@ -682,6 +738,14 @@ func TestUnbind(t *testing.T) {
 				return nil, errors.New("oops")
 			}),
 			err: errors.New("oops"),
+		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.UnbindReactionInterface {
+				var nilStaticReaction *fake.UnbindReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
 		},
 	}
 
@@ -756,6 +820,14 @@ func TestGetBinding(t *testing.T) {
 				return nil, errors.New("oops")
 			}),
 			err: errors.New("oops"),
+		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.GetBindingReactionInterface {
+				var nilStaticReaction *fake.GetBindingReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
 		},
 	}
 
