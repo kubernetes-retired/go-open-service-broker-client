@@ -110,7 +110,7 @@ func (c *FakeClient) Actions() []Action {
 	return c.actions
 }
 
-// GetCatalog defines the reaction to the Client.GetCatalog method for the FakeClient.
+// GetCatalog implements the Client.GetCatalog method for the FakeClient.
 func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -139,7 +139,7 @@ func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionRes
 	return nil, UnexpectedActionError()
 }
 
-// UpdateInstance defines the reaction to the Client.UpdateInstance method for the
+// UpdateInstance implements the Client.UpdateInstance method for the
 // FakeClient.
 func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error) {
 	c.Mutex.Lock()
@@ -154,7 +154,7 @@ func (c *FakeClient) UpdateInstance(r *v2.UpdateInstanceRequest) (*v2.UpdateInst
 	return nil, UnexpectedActionError()
 }
 
-// DeprovisionInstance defines the reaction to the Client.DeprovisionInstance method on the
+// DeprovisionInstance implements the Client.DeprovisionInstance method on the
 // FakeClient.
 func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
 	c.Mutex.Lock()
@@ -169,7 +169,7 @@ func (c *FakeClient) DeprovisionInstance(r *v2.DeprovisionRequest) (*v2.Deprovis
 	return nil, UnexpectedActionError()
 }
 
-// PollLastOperation defines the reaction to the Client.PollLastOperation method on the
+// PollLastOperation implements the Client.PollLastOperation method on the
 // FakeClient.
 func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
 	c.Mutex.Lock()
@@ -186,7 +186,7 @@ func (c *FakeClient) PollLastOperation(r *v2.LastOperationRequest) (*v2.LastOper
 	return nil, UnexpectedActionError()
 }
 
-// PollBindingLastOperation defines the reaction to the Client.PollBindingLastOperation
+// PollBindingLastOperation implements the Client.PollBindingLastOperation
 // method on the FakeClient.
 func (c *FakeClient) PollBindingLastOperation(r *v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error) {
 	c.Mutex.Lock()
@@ -201,7 +201,7 @@ func (c *FakeClient) PollBindingLastOperation(r *v2.BindingLastOperationRequest)
 	return nil, UnexpectedActionError()
 }
 
-// Bind defines the reaction to the Client.Bind method on the FakeClient.
+// Bind implements the Client.Bind method on the FakeClient.
 func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -215,7 +215,7 @@ func (c *FakeClient) Bind(r *v2.BindRequest) (*v2.BindResponse, error) {
 	return nil, UnexpectedActionError()
 }
 
-// Unbind defines the reaction to the Client.Unbind method on the FakeClient.
+// Unbind implements the Client.Unbind method on the FakeClient.
 func (c *FakeClient) Unbind(r *v2.UnbindRequest) (*v2.UnbindResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -229,7 +229,7 @@ func (c *FakeClient) Unbind(r *v2.UnbindRequest) (*v2.UnbindResponse, error) {
 	return nil, UnexpectedActionError()
 }
 
-// GetBinding defines the reaction to the Client.GetBinding method for the FakeClient.
+// GetBinding implements the Client.GetBinding method for the FakeClient.
 func (c *FakeClient) GetBinding(*v2.GetBindingRequest) (*v2.GetBindingResponse, error) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()
@@ -249,7 +249,7 @@ func UnexpectedActionError() error {
 	return errors.New("Unexpected action")
 }
 
-// CatalogReactionInterface is sent as the response to GetCatalog requests.
+// CatalogReactionInterface defines the reaction to GetCatalog requests.
 type CatalogReactionInterface interface {
 	react() (*v2.CatalogResponse, error)
 }
@@ -272,7 +272,7 @@ func (r DynamicCatalogReaction) react() (*v2.CatalogResponse, error) {
 	return r()
 }
 
-// ProvisionReactionInterface is sent as the response ProvisionInstance requests.
+// ProvisionReactionInterface defines the reaction to ProvisionInstance requests.
 type ProvisionReactionInterface interface {
 	react(*v2.ProvisionRequest) (*v2.ProvisionResponse, error)
 }
@@ -295,7 +295,7 @@ func (r DynamicProvisionReaction) react(req *v2.ProvisionRequest) (*v2.Provision
 	return r(req)
 }
 
-// UpdateInstanceReactionInterface is sent as the response UpdateInstance requests.
+// UpdateInstanceReactionInterface defines the reaction to UpdateInstance requests.
 type UpdateInstanceReactionInterface interface {
 	react(*v2.UpdateInstanceRequest) (*v2.UpdateInstanceResponse, error)
 }
@@ -318,7 +318,7 @@ func (r DynamicUpdateInstanceReaction) react(req *v2.UpdateInstanceRequest) (*v2
 	return r(req)
 }
 
-// DeprovisionReactionInterface is sent as the response DeprovisionInstance requests.
+// DeprovisionReactionInterface defines the reaction to DeprovisionInstance requests.
 type DeprovisionReactionInterface interface {
 	react(*v2.DeprovisionRequest) (*v2.DeprovisionResponse, error)
 }
@@ -342,7 +342,7 @@ func (r DynamicDeprovisionReaction) react(req *v2.DeprovisionRequest) (*v2.Depro
 	return r(req)
 }
 
-// PollLastOperationReactionInterface is sent as the response to PollLastOperation
+// PollLastOperationReactionInterface defines the reaction to PollLastOperation
 // requests.
 type PollLastOperationReactionInterface interface {
 	react(*v2.LastOperationRequest) (*v2.LastOperationResponse, error)
@@ -367,7 +367,7 @@ func (r DynamicPollLastOperationReaction) react(req *v2.LastOperationRequest) (*
 	return r(req)
 }
 
-// PollBindingLastOperationReactionInterface is sent as the response to PollLastOperation
+// PollBindingLastOperationReactionInterface defines the reaction to PollLastOperation
 // requests.
 type PollBindingLastOperationReactionInterface interface {
 	react(*v2.BindingLastOperationRequest) (*v2.LastOperationResponse, error)
@@ -391,7 +391,7 @@ func (r DynamicPollBindingLastOperationReaction) react(req *v2.BindingLastOperat
 	return r(req)
 }
 
-// BindReactionInterface is sent as the response Bind requests.
+// BindReactionInterface defines the reaction to Bind requests.
 type BindReactionInterface interface {
 	react(*v2.BindRequest) (*v2.BindResponse, error)
 }
@@ -414,7 +414,7 @@ func (r DynamicBindReaction) react(req *v2.BindRequest) (*v2.BindResponse, error
 	return r(req)
 }
 
-// UnbindReactionInterface is sent as the response Unbind requests.
+// UnbindReactionInterface defines the reaction to Unbind requests.
 type UnbindReactionInterface interface {
 	react(*v2.UnbindRequest) (*v2.UnbindResponse, error)
 }
@@ -437,7 +437,7 @@ func (r DynamicUnbindReaction) react(req *v2.UnbindRequest) (*v2.UnbindResponse,
 	return r(req)
 }
 
-// GetBindingReactionInterface is sent as the response to GetBinding requests.
+// GetBindingReactionInterface defines the reaction to GetBinding requests.
 type GetBindingReactionInterface interface {
 	react() (*v2.GetBindingResponse, error)
 }
