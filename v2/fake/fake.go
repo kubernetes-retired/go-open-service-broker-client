@@ -124,7 +124,7 @@ func (c *FakeClient) GetCatalog() (*v2.CatalogResponse, error) {
 	return nil, UnexpectedActionError()
 }
 
-// ProvisionInstance defines the reaction to the Client.ProvisionRequest method for the
+// ProvisionInstance implements the Client.ProvisionRequest method for the
 // FakeClient.
 func (c *FakeClient) ProvisionInstance(r *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
 	c.Mutex.Lock()
