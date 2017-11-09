@@ -324,9 +324,8 @@ type DeprovisionReactionInterface interface {
 }
 
 type DeprovisionReaction struct {
-	Response     *v2.DeprovisionResponse
-	Error        error
-	FuncReaction func(*v2.DeprovisionRequest) (*v2.DeprovisionResponse, error)
+	Response *v2.DeprovisionResponse
+	Error    error
 }
 
 func (r *DeprovisionReaction) react(_ *v2.DeprovisionRequest) (*v2.DeprovisionResponse, error) {
@@ -349,9 +348,8 @@ type PollLastOperationReactionInterface interface {
 }
 
 type PollLastOperationReaction struct {
-	Response     *v2.LastOperationResponse
-	Error        error
-	FuncReaction func(*v2.LastOperationRequest) (*v2.LastOperationResponse, error)
+	Response *v2.LastOperationResponse
+	Error    error
 }
 
 func (r *PollLastOperationReaction) react(_ *v2.LastOperationRequest) (*v2.LastOperationResponse, error) {
