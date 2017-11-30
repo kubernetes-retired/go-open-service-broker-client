@@ -177,7 +177,9 @@ func (c *client) prepareAndDo(method, URL string, params map[string]string, body
 }
 
 func (c *client) doRequest(request *http.Request) (*http.Response, error) {
-	return c.httpClient.Do(request)
+	response, error := c.httpClient.Do(request)
+	updateMetrics(c, response, error)
+	return response, error
 }
 
 // unmarshalResponse unmartials the response body of the given response into
@@ -193,11 +195,8 @@ func (c *client) unmarshalResponse(response *http.Response, obj interface{}) err
 	}
 
 	err = json.Unmarshal(body, obj)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 // handleFailureResponse returns an HTTPStatusCodeError for the given
