@@ -26,10 +26,31 @@ func (c *client) GetCatalog() (*CatalogResponse, error) {
 					catalogResponse.Services[ii].Plans[jj].ParameterSchemas = nil
 				}
 			}
+		} else if !c.EnableAlphaFeatures {
+			for ii := range catalogResponse.Services {
+				for jj := range catalogResponse.Services[ii].Plans {
+					parameterSchemas := catalogResponse.Services[ii].Plans[jj].ParameterSchemas
+					if parameterSchemas != nil {
+						if parameterSchemas.ServiceInstances != nil {
+							removeResponseSchema(parameterSchemas.ServiceInstances.Create)
+							removeResponseSchema(parameterSchemas.ServiceInstances.Update)
+						}
+						if parameterSchemas.ServiceBindings != nil {
+							removeResponseSchema(parameterSchemas.ServiceBindings.Create)
+						}
+					}
+				}
+			}
 		}
 
 		return catalogResponse, nil
 	default:
 		return nil, c.handleFailureResponse(response)
+	}
+}
+
+func removeResponseSchema(p *InputParameters) {
+	if p != nil {
+		p.Response = nil
 	}
 }

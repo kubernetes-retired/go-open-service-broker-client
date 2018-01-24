@@ -125,7 +125,11 @@ type ServiceBindingSchema struct {
 // InputParameters represents a schema for input parameters for creation or
 // update of an API resource.
 type InputParameters struct {
+	// The schema definition for the input parameters. Each input parameter
+	// is expressed as a property within a JSON object.
 	Parameters interface{} `json:"parameters,omitempty"`
+	// The schema definition for the output response.
+	Response interface{} `json:"response,omitempty"`
 }
 
 // OriginatingIdentity requires a client API version >=2.13.
