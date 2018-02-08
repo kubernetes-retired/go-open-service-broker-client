@@ -41,6 +41,8 @@ func successUpdateInstanceResponseAsync() *UpdateInstanceResponse {
 
 const contextUpdateInstanceRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id","context":{"foo":"bar"}}`
 
+const previousValuesUpdateInstanceRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id","previous_values":{"plan_id":"previous-plan-id"}}`
+
 func TestUpdateInstanceInstance(t *testing.T) {
 	cases := []struct {
 		name                string
@@ -168,6 +170,24 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			}(),
 			httpChecks: httpChecks{
 				body: successUpdateInstanceRequestBody,
+			},
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBody,
+			},
+			expectedResponse: successUpdateInstanceResponse(),
+		},
+		{
+			name: "previous values",
+			request: func() *UpdateInstanceRequest {
+				r := defaultUpdateInstanceRequest()
+				r.PreviousValues = &PreviousValues{
+					PlanID: "previous-plan-id",
+				}
+				return r
+			}(),
+			httpChecks: httpChecks{
+				body: previousValuesUpdateInstanceRequestBody,
 			},
 			httpReaction: httpReaction{
 				status: http.StatusOK,
