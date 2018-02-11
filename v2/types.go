@@ -217,7 +217,7 @@ type UpdateInstanceRequest struct {
 	// unset, indicates that the client does not wish to update the parameters
 	// for an instance.
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
-	// Previous values contains information about the service instance prior to the update
+	// Previous values contains information about the service instance prior to the update.
 	PreviousValues *PreviousValues `json:"previous_values,omitempty"`
 	// Context requires a client API version >= 2.12.
 	//
@@ -228,12 +228,12 @@ type UpdateInstanceRequest struct {
 	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
 }
 
-// PreviousValues represents information about the service instance prior to the update
+// PreviousValues represents information about the service instance prior to the update.
 type PreviousValues struct {
 	// ID of the plan prior to the update. If present, MUST be a non-empty string.
 	PlanID string `json:"plan_id,omitempty"`
 	// Deprecated; determined to be unnecessary as the value is immutable. ID of the service
-	// for the service instance. If present, MUST be a non-empty string
+	// for the service instance. If present, MUST be a non-empty string.
 	ServiceID string `json:"service_id,omitempty"`
 	// Deprecated; Organization for the service instance MUST be provided by platforms in the
 	// top-level field context. ID of the organization specified for the service instance.
