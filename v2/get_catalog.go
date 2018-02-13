@@ -23,20 +23,20 @@ func (c *client) GetCatalog() (*CatalogResponse, error) {
 		if !c.APIVersion.AtLeast(Version2_13()) {
 			for ii := range catalogResponse.Services {
 				for jj := range catalogResponse.Services[ii].Plans {
-					catalogResponse.Services[ii].Plans[jj].ParameterSchemas = nil
+					catalogResponse.Services[ii].Plans[jj].Schemas = nil
 				}
 			}
 		} else if !c.EnableAlphaFeatures {
 			for ii := range catalogResponse.Services {
 				for jj := range catalogResponse.Services[ii].Plans {
-					parameterSchemas := catalogResponse.Services[ii].Plans[jj].ParameterSchemas
-					if parameterSchemas != nil {
-						if parameterSchemas.ServiceInstances != nil {
-							removeResponseSchema(parameterSchemas.ServiceInstances.Create)
-							removeResponseSchema(parameterSchemas.ServiceInstances.Update)
+					schemas := catalogResponse.Services[ii].Plans[jj].Schemas
+					if schemas != nil {
+						if schemas.ServiceInstance != nil {
+							removeResponseSchema(schemas.ServiceInstance.Create)
+							removeResponseSchema(schemas.ServiceInstance.Update)
 						}
-						if parameterSchemas.ServiceBindings != nil {
-							removeResponseSchema(parameterSchemas.ServiceBindings.Create)
+						if schemas.ServiceBinding != nil {
+							removeResponseSchema(schemas.ServiceBinding.Create)
 						}
 					}
 				}
@@ -49,7 +49,7 @@ func (c *client) GetCatalog() (*CatalogResponse, error) {
 	}
 }
 
-func removeResponseSchema(p *InputParameters) {
+func removeResponseSchema(p *JSONSchemas) {
 	if p != nil {
 		p.Response = nil
 	}

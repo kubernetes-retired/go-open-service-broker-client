@@ -85,22 +85,22 @@ type Plan struct {
 	// facing content and display instructions.  Metadata may contain
 	// platform-conventional values.  Optional.
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	// ParameterSchemas requires a client API version >=2.13.
+	// Schemas requires a client API version >=2.13.
 	//
-	// ParameterSchemas is a set of optional JSONSchemas that describe
+	// Schemas is a set of optional JSONSchemas that describe
 	// the expected parameters for creation and update of instances and
 	// creation of bindings.
-	ParameterSchemas *ParameterSchemas `json:"schemas,omitempty"`
+	Schemas *Schemas `json:"schemas,omitempty"`
 }
 
-// ParameterSchemas requires a client API version >=2.13.
+// Schemas requires a client API version >=2.13.
 //
-// ParameterSchemas is a set of optional JSONSchemas that describe
+// Schemas is a set of optional JSONSchemas that describe
 // the expected parameters for creation and update of instances and
 // creation of bindings.
-type ParameterSchemas struct {
-	ServiceInstances *ServiceInstanceSchema `json:"service_instance,omitempty"`
-	ServiceBindings  *ServiceBindingSchema  `json:"service_binding,omitempty"`
+type Schemas struct {
+	ServiceInstance *ServiceInstanceSchema `json:"service_instance,omitempty"`
+	ServiceBinding  *ServiceBindingSchema  `json:"service_binding,omitempty"`
 }
 
 // ServiceInstanceSchema requires a client API version >=2.13.
@@ -108,8 +108,8 @@ type ParameterSchemas struct {
 // ServiceInstanceSchema represents a plan's schemas for creation and
 // update of an API resource.
 type ServiceInstanceSchema struct {
-	Create *InputParameters `json:"create,omitempty"`
-	Update *InputParameters `json:"update,omitempty"`
+	Create *JSONSchemas `json:"create,omitempty"`
+	Update *JSONSchemas `json:"update,omitempty"`
 }
 
 // ServiceBindingSchema requires a client API version >=2.13.
@@ -117,14 +117,14 @@ type ServiceInstanceSchema struct {
 // ServiceBindingSchema represents a plan's schemas for the parameters
 // accepted for binding creation.
 type ServiceBindingSchema struct {
-	Create *InputParameters `json:"create,omitempty"`
+	Create *JSONSchemas `json:"create,omitempty"`
 }
 
-// InputParameters requires a client API version >=2.13.
+// JSONSchemas requires a client API version >=2.13.
 //
-// InputParameters represents a schema for input parameters for creation or
+// JSONSchemas represents a schema for input parameters for creation or
 // update of an API resource.
-type InputParameters struct {
+type JSONSchemas struct {
 	// The schema definition for the input parameters. Each input parameter
 	// is expressed as a property within a JSON object.
 	Parameters interface{} `json:"parameters,omitempty"`

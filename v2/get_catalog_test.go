@@ -224,21 +224,21 @@ const alphaParameterAndResponseSchemaCatalogBytes = `{
 
 func alphaParameterCatalogResponse(includeResponseSchema bool) *CatalogResponse {
 	catalog := okCatalogResponse()
-	catalog.Services[0].Plans[0].ParameterSchemas = &ParameterSchemas{
-		ServiceInstances: &ServiceInstanceSchema{
-			Create: &InputParameters{
+	catalog.Services[0].Plans[0].Schemas = &Schemas{
+		ServiceInstance: &ServiceInstanceSchema{
+			Create: &JSONSchemas{
 				Parameters: map[string]interface{}{
 					"foo": "bar",
 				},
 			},
-			Update: &InputParameters{
+			Update: &JSONSchemas{
 				Parameters: map[string]interface{}{
 					"baz": "zap",
 				},
 			},
 		},
-		ServiceBindings: &ServiceBindingSchema{
-			Create: &InputParameters{
+		ServiceBinding: &ServiceBindingSchema{
+			Create: &JSONSchemas{
 				Parameters: map[string]interface{}{
 					"zoo": "blu",
 				},
@@ -247,7 +247,7 @@ func alphaParameterCatalogResponse(includeResponseSchema bool) *CatalogResponse 
 	}
 
 	if includeResponseSchema {
-		catalog.Services[0].Plans[0].ParameterSchemas.ServiceBindings.Create.Response = map[string]interface{}{
+		catalog.Services[0].Plans[0].Schemas.ServiceBinding.Create.Response = map[string]interface{}{
 			"qux": "qax",
 		}
 	}
