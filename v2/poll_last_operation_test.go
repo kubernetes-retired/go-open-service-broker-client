@@ -168,9 +168,9 @@ func TestPollLastOperation(t *testing.T) {
 
 		if len(tc.httpChecks.params) == 0 {
 			tc.httpChecks.params = map[string]string{}
-			tc.httpChecks.params[serviceIDKey] = testServiceID
-			tc.httpChecks.params[planIDKey] = testPlanID
-			tc.httpChecks.params[operationKey] = "test-operation-key"
+			tc.httpChecks.params[VarKeyServiceID] = testServiceID
+			tc.httpChecks.params[VarKeyPlanID] = testPlanID
+			tc.httpChecks.params[VarKeyOperation] = "test-operation-key"
 		}
 
 		if tc.version.label == "" {

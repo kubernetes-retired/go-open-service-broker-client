@@ -67,8 +67,8 @@ func TestDeprovisionInstance(t *testing.T) {
 			},
 			httpChecks: httpChecks{
 				params: map[string]string{
-					serviceIDKey: string(testServiceID),
-					planIDKey:    string(testPlanID),
+					VarKeyServiceID: string(testServiceID),
+					VarKeyPlanID:    string(testPlanID),
 				},
 			},
 			expectedResponse: successDeprovisionResponse(),
@@ -159,8 +159,8 @@ func TestDeprovisionInstance(t *testing.T) {
 			httpChecks: httpChecks{
 				headers: map[string]string{OriginatingIdentityHeader: testOriginatingIdentityHeaderValue},
 				params: map[string]string{
-					serviceIDKey: string(testServiceID),
-					planIDKey:    string(testPlanID),
+					VarKeyServiceID: string(testServiceID),
+					VarKeyPlanID:    string(testPlanID),
 				},
 			},
 			expectedResponse: successDeprovisionResponse(),
@@ -176,8 +176,8 @@ func TestDeprovisionInstance(t *testing.T) {
 			httpChecks: httpChecks{
 				headers: map[string]string{OriginatingIdentityHeader: ""},
 				params: map[string]string{
-					serviceIDKey: string(testServiceID),
-					planIDKey:    string(testPlanID),
+					VarKeyServiceID: string(testServiceID),
+					VarKeyPlanID:    string(testPlanID),
 				},
 			},
 			expectedResponse: successDeprovisionResponse(),
@@ -193,8 +193,8 @@ func TestDeprovisionInstance(t *testing.T) {
 			httpChecks: httpChecks{
 				headers: map[string]string{OriginatingIdentityHeader: ""},
 				params: map[string]string{
-					serviceIDKey: string(testServiceID),
-					planIDKey:    string(testPlanID),
+					VarKeyServiceID: string(testServiceID),
+					VarKeyPlanID:    string(testPlanID),
 				},
 			},
 			expectedResponse: successDeprovisionResponse(),

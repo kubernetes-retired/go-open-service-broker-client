@@ -26,8 +26,8 @@ func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 
 	fullURL := fmt.Sprintf(bindingURLFmt, c.URL, r.InstanceID, r.BindingID)
 	params := map[string]string{}
-	params[serviceIDKey] = r.ServiceID
-	params[planIDKey] = r.PlanID
+	params[VarKeyServiceID] = r.ServiceID
+	params[VarKeyPlanID] = r.PlanID
 	if r.AcceptsIncomplete {
 		params[AcceptsIncomplete] = "true"
 	}

@@ -185,8 +185,8 @@ func TestUnbind(t *testing.T) {
 
 		if len(tc.httpChecks.params) == 0 {
 			tc.httpChecks.params = map[string]string{}
-			tc.httpChecks.params[serviceIDKey] = testServiceID
-			tc.httpChecks.params[planIDKey] = testPlanID
+			tc.httpChecks.params[VarKeyServiceID] = testServiceID
+			tc.httpChecks.params[VarKeyPlanID] = testPlanID
 		}
 
 		if tc.version.label == "" {
