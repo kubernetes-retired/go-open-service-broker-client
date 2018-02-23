@@ -102,7 +102,7 @@ func TestProvisionInstance(t *testing.T) {
 			request: defaultAsyncProvisionRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
-					asyncQueryParamKey: "true",
+					AcceptsIncomplete: "true",
 				},
 			},
 			httpReaction: httpReaction{

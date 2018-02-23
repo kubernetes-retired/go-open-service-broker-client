@@ -75,7 +75,7 @@ func TestUnbind(t *testing.T) {
 			request:     defaultAsyncUnbindRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
-					asyncQueryParamKey: "true",
+					AcceptsIncomplete: "true",
 				},
 			},
 			httpReaction: httpReaction{

@@ -78,7 +78,7 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			request: defaultAsyncUpdateInstanceRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
-					asyncQueryParamKey: "true",
+					AcceptsIncomplete: "true",
 				},
 			},
 			httpReaction: httpReaction{
@@ -92,7 +92,7 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			request: defaultAsyncUpdateInstanceRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
-					asyncQueryParamKey: "true",
+					AcceptsIncomplete: "true",
 				},
 			},
 			httpReaction: httpReaction{

@@ -142,7 +142,7 @@ func TestBind(t *testing.T) {
 			request:     defaultAsyncBindRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
-					asyncQueryParamKey: "true",
+					AcceptsIncomplete: "true",
 				},
 			},
 			httpReaction: httpReaction{
