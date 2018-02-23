@@ -86,7 +86,7 @@ func TestDeprovisionInstance(t *testing.T) {
 			request: defaultAsyncDeprovisionRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
-					asyncQueryParamKey: "true",
+					AcceptsIncomplete: "true",
 				},
 			},
 			httpReaction: httpReaction{
@@ -100,7 +100,7 @@ func TestDeprovisionInstance(t *testing.T) {
 			request: defaultAsyncDeprovisionRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
-					asyncQueryParamKey: "true",
+					AcceptsIncomplete: "true",
 				},
 			},
 			httpReaction: httpReaction{
