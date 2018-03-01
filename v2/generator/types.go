@@ -2,18 +2,19 @@ package generator
 
 // generator holds the parameters for generated responses.
 type Generator struct {
-	Services []Services
+	Services []Service
 }
 
-type Services struct {
-	Plans []Plans
+type Service struct {
+	Plans []Plan
+	Tags  int
 }
 
-type Plans struct {
+type Plan struct {
 }
 
 // All dragon names from A Song of Ice and Fire series by George R.R. Martin
-var ServiceClassNames = []string{
+var ClassNames = []string{
 	"Archonei",
 	"Arrax",
 	"Balerion",
@@ -43,7 +44,7 @@ var ServiceClassNames = []string{
 }
 
 // All ship names from A Song of Ice and Fire series by George R.R. Martin
-var ServicePlanNames = []string{
+var PlanNames = []string{
 	"BlackWind",
 	"BraveJoffrey",
 	"Dagger",

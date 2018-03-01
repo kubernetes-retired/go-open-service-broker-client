@@ -3,12 +3,23 @@ package generator
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/golang/glog"
 )
 
 func TestGetCatalog(t *testing.T) {
-	g := Generator{Services: []Services{
-		Plans{}
-	}}
+	g := Generator{
+		Services: []Service{
+			{
+
+				Plans: []Plan{
+					{},
+					{},
+				},
+				Tags: 3,
+			},
+		},
+	}
 
 	catalog, err := g.GetCatalog()
 	if err != nil {
@@ -22,7 +33,11 @@ func TestGetCatalog(t *testing.T) {
 	if catalogJson != okCatalogBytes {
 		t.Errorf("Catalog does not match. \n%s\n!=\n%s", catalogJson, okCatalogBytes)
 	}
+}
 
+func TestGetPlans(t *testing.T) {
+	glog.Info(planNames(1, 5))
+	glog.Info(planNames(2, 5))
 }
 
 const okCatalogBytes = `{

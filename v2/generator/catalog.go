@@ -3,7 +3,10 @@ package generator
 import (
 	"fmt"
 
-	"github.com/golang/glog"
+	"math/rand"
+
+	"sort"
+
 	"github.com/pmorie/go-open-service-broker-client/v2"
 )
 
@@ -15,8 +18,17 @@ func (g *Generator) GetCatalog() (*v2.CatalogResponse, error) {
 
 	services := make([]v2.Service, len(g.Services))
 
-	for i, _ := range services {
-		populateService(i, &services[i])
+	for s, _ := range services {
+		services[s].Plans = make([]v2.Plan, len(g.Services[s].Plans))
+		service := &services[s]
+		service.Name = ClassNames[s]
+		service.ID = IDFrom(ClassNames[s])
+		service.Tags = tags(s, g.Services[s].Tags)
+		planNames := planNames(s, len(service.Plans))
+		for p, _ := range service.Plans {
+			service.Plans[p].Name = planNames[p]
+			service.Plans[p].ID = IDFrom(planNames[p])
+		}
 	}
 
 	return &v2.CatalogResponse{
@@ -24,13 +36,31 @@ func (g *Generator) GetCatalog() (*v2.CatalogResponse, error) {
 	}, nil
 }
 
-func populateService(i int, s *v2.Service) {
-	if len(ServiceClassNames) < i {
-		glog.Error("out of range for generated class name")
-		return
+func getSubsetWithoutDuplicates(count int, seed int64, list []string) []string {
+	rand.Seed(seed)
+
+	plans := map[string]int32{}
+
+	// Get count of plan names without duplicates
+	for len(plans) < count {
+		x := rand.Int31n(int32(len(list)))
+		plans[list[x]] = x
 	}
-	s.Name = ServiceClassNames[i]
-	s.ID = ServiceClassID(i)
+
+	keys := []string(nil)
+	for k := range plans {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func planNames(service, count int) []string {
+	return getSubsetWithoutDuplicates(count, int64(service), PlanNames)
+}
+
+func tags(service, count int) []string {
+	return getSubsetWithoutDuplicates(count, int64(service*1000), TagNames)
 }
 
 //
