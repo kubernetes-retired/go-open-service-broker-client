@@ -17,9 +17,15 @@ func testForDuplicates(list []string, t *testing.T) {
 }
 
 func TestClassUUID(t *testing.T) {
-	testForDuplicates(ClassNames, t)
+	g := &Generator{}
+	AssignPoolGoT(g)
+
+	testForDuplicates(g.ClassPool, t)
 }
 
 func TestPlanUUID(t *testing.T) {
-	testForDuplicates(PlanNames, t)
+	g := &Generator{}
+	AssignPoolGoT(g)
+
+	testForDuplicates(g.PlanPool, t)
 }
