@@ -50,6 +50,16 @@ Check out the
 
 Check out the detailed docs for the [v2 client here](docs/).
 
+## Current status
+
+This repository is used in:
+
+* The [Kubernetes `service-catalog`](https://github.com/kubernetes-incubator/service-catalog)
+incubator repo
+* The [`osb-broker-lib`](https://github.com/pmorie/osb-broker-lib) library for
+  creating service brokers
+* The [OSB Starter Pack](https://github.com/pmorie/osb-starter-pack) broker quickstart
+
 ## Goals
 
 Overall, to make an excellent golang client for the Open Service Broker API.
@@ -62,7 +72,7 @@ Specifically:
 - Allow advanced configuration of TLS configuration to a broker
 - Provide a fake client suitable for unit-type testing
 
-For the content of the project, goals are:
+Goals for the content of the project are:
 
 - Provide high-quality godoc comments
 - High degree of unit test coverage
@@ -73,23 +83,9 @@ For the content of the project, goals are:
 This project does not aim to provide:
 
 - A v1 client
-- A fake _service broker_ (I definitely want this, but I do not think it should live in this repo)
-- A conformance suite for service brokers (I definitely want this, but I do not think it should live in this repo)
-- Any 'custom' API features with are not either in a released version of the
+- A fake _service broker_; you may be interested in the [OSB starter
+  pack](https://github.com/pmorie/osb-starter-pack)
+- A conformance suite for service brokers; see
+  [`osb-checker`](https://github.com/openservicebrokerapi/osb-checker) for that
+- Any 'custom' API features that are not either in a released version of the
   Open Service Broker API spec or accepted into the spec but not yet released
-
-## Current status
-
-This repository is used in the 
-[Kubernetes `service-catalog`](https://github.com/kubernetes-incubator/service-catalog)
-incubator repo.
-
-## Why?
-
-This repository is a pet project of mine.  During the day, I work on the
-[Kubernetes](https://github.com/kubernetes/kubernetes)
-[Service Catalog](https://github.com/kubernetes-incubator/service-catalog) as
-well as the Open Service Broker API specification.  I have never written a
-client library for a REST API before, and this one was relevant, so here we
-are.
-
