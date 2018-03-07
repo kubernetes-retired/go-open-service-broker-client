@@ -189,7 +189,7 @@ type ProvisionResponse struct {
 	DashboardURL *string `json:"dashboard_url,omitempty"`
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
-	OperationKey *OperationKey `json:"operationKey,omitempty"`
+	OperationKey *OperationKey `json:"operation,omitempty"`
 }
 
 // OperationKey is an extra identifier from the broker in order to provide extra
@@ -253,7 +253,7 @@ type UpdateInstanceResponse struct {
 	Async bool `json:"async"`
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
-	OperationKey *OperationKey `json:"operationKey,omitempty"`
+	OperationKey *OperationKey `json:"operation,omitempty"`
 }
 
 // DeprovisionRequest represents a request to deprovision an instance of a
@@ -282,7 +282,7 @@ type DeprovisionResponse struct {
 	Async bool `json:"async"`
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
-	OperationKey *OperationKey `json:"operationKey,omitempty"`
+	OperationKey *OperationKey `json:"operation,omitempty"`
 }
 
 // LastOperationRequest represents a request to a broker to give the state of
@@ -424,7 +424,7 @@ type BindResponse struct {
 	//
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
-	OperationKey *OperationKey `json:"operationKey,omitempty"`
+	OperationKey *OperationKey `json:"operation,omitempty"`
 }
 
 // UnbindRequest represents a request to unbind a particular binding.
@@ -466,7 +466,7 @@ type UnbindResponse struct {
 	//
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
-	OperationKey *OperationKey `json:"operationKey,omitempty"`
+	OperationKey *OperationKey `json:"operation,omitempty"`
 }
 
 // GetBindingRequest represents a request to do a GET on a particular binding.
