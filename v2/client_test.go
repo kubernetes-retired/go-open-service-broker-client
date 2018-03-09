@@ -151,12 +151,12 @@ func doResponseChecks(t *testing.T, name string, response interface{}, err error
 		t.Errorf("%v: unexpected error message: expected %v, got %v", name, expectedErrMessage, err)
 		return
 	} else if err != nil && expectedErr != nil && !reflect.DeepEqual(expectedErr, err) {
-		t.Errorf("%v: unexpected error: expected %+v, got %v", name, expectedErr, err)
+		t.Errorf("%v: unexpected error:\n\nexpected: %+v\n\ngot:      %+v", name, expectedErr, err)
 		return
 	}
 
 	if e, a := expectedResponse, response; !reflect.DeepEqual(e, a) {
-		t.Errorf("%v: unexpected diff in response; expected %+v, got %+v", name, e, a)
+		t.Errorf("%v: unexpected diff in response;\n\nexpected: %+v\n\ngot:      %+v", name, e, a)
 		return
 	}
 }

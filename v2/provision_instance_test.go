@@ -59,6 +59,51 @@ func successProvisionResponseAsync() *ProvisionResponse {
 
 const contextProvisionRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id","organization_guid":"test-organization-guid","space_guid":"test-space-guid","context":{"foo":"bar"}}`
 
+const provisionResponseBodyWithExtensions = `{
+  "extension_apis":[{
+      "discovery_url": "http://example-openapi-doc.example.com/extensions",
+      "server_url": "http://myremoteserver.example.com",
+      "credentials": {
+        "basic": {
+          "username": "admin",
+          "password": "changeme"
+        },
+        "api_key": {
+          "api_key": "some_key_value"
+        },
+        "petstore_auth": {
+          "token": "some_token_value"
+        }
+      },
+      "adheres_to": "http://example-specification.example.com"
+  }]
+}`
+
+func successProvisionResponseWithExtensions() *ProvisionResponse {
+	response := &ProvisionResponse{}
+	response.ExtensionAPIs = []ExtensionAPI{
+		{
+			DiscoveryURL: "http://example-openapi-doc.example.com/extensions",
+			ServerURL:    "http://myremoteserver.example.com",
+			Credentials: map[string]interface{}{
+				"basic": map[string]interface{}{
+					"username": "admin",
+					"password": "changeme",
+				},
+				"api_key": map[string]interface{}{
+					"api_key": "some_key_value",
+				},
+				"petstore_auth": map[string]interface{}{
+					"token": "some_token_value",
+				},
+			},
+			AdheresTo: "http://example-specification.example.com",
+		},
+	}
+
+	return response
+}
+
 func TestProvisionInstance(t *testing.T) {
 	cases := []struct {
 		name                string
@@ -219,6 +264,35 @@ func TestProvisionInstance(t *testing.T) {
 				body:   successProvisionResponseBody,
 			},
 			expectedResponse: successProvisionResponse(),
+		},
+		{
+			name:        "success with extension APIs",
+			version:     Version2_13(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   provisionResponseBodyWithExtensions,
+			},
+			expectedResponse: successProvisionResponseWithExtensions(),
+		},
+		{
+			name:        "extension APIs shouldn't be returned for < 2.13",
+			version:     Version2_12(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   provisionResponseBodyWithExtensions,
+			},
+			expectedResponse: &ProvisionResponse{},
+		},
+		{
+			name:    "extension APIs shouldn't be returned when alpha features disabled",
+			version: Version2_13(),
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   provisionResponseBodyWithExtensions,
+			},
+			expectedResponse: &ProvisionResponse{},
 		},
 	}
 
