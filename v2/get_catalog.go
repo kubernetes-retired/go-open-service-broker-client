@@ -49,7 +49,7 @@ func (c *client) GetCatalog() (*CatalogResponse, error) {
 	}
 }
 
-func removeResponseSchema(p *JSONSchemas) {
+func removeResponseSchema(p *RequestResponseSchema) {
 	if p != nil {
 		p.Response = nil
 	}

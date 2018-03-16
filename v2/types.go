@@ -87,7 +87,7 @@ type Plan struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// Schemas requires a client API version >=2.13.
 	//
-	// Schemas is a set of optional JSONSchemas that describe
+	// Schemas is a set of optional RequestResponseSchema that describe
 	// the expected parameters for creation and update of instances and
 	// creation of bindings.
 	Schemas *Schemas `json:"schemas,omitempty"`
@@ -95,7 +95,7 @@ type Plan struct {
 
 // Schemas requires a client API version >=2.13.
 //
-// Schemas is a set of optional JSONSchemas that describe
+// Schemas is a set of optional RequestResponseSchema that describe
 // the expected parameters for creation and update of instances and
 // creation of bindings.
 type Schemas struct {
@@ -108,8 +108,8 @@ type Schemas struct {
 // ServiceInstanceSchema represents a plan's schemas for creation and
 // update of an API resource.
 type ServiceInstanceSchema struct {
-	Create *JSONSchemas `json:"create,omitempty"`
-	Update *JSONSchemas `json:"update,omitempty"`
+	Create *RequestResponseSchema `json:"create,omitempty"`
+	Update *RequestResponseSchema `json:"update,omitempty"`
 }
 
 // ServiceBindingSchema requires a client API version >=2.13.
@@ -117,14 +117,15 @@ type ServiceInstanceSchema struct {
 // ServiceBindingSchema represents a plan's schemas for the parameters
 // accepted for binding creation.
 type ServiceBindingSchema struct {
-	Create *JSONSchemas `json:"create,omitempty"`
+	Create *RequestResponseSchema `json:"create,omitempty"`
 }
 
-// JSONSchemas requires a client API version >=2.13.
+// RequestResponseSchema requires a client API version >=2.13.
 //
-// JSONSchemas represents a schema for input parameters for creation or
-// update of an API resource.
-type JSONSchemas struct {
+// RequestResponseSchema contains a schema for input parameters for creation or
+// update of an API resource, and a schema for the credentials returned by the
+// broker
+type RequestResponseSchema struct {
 	// The schema definition for the input parameters. Each input parameter
 	// is expressed as a property within a JSON object.
 	Parameters interface{} `json:"parameters,omitempty"`

@@ -226,19 +226,19 @@ func alphaParameterCatalogResponse(includeResponseSchema bool) *CatalogResponse 
 	catalog := okCatalogResponse()
 	catalog.Services[0].Plans[0].Schemas = &Schemas{
 		ServiceInstance: &ServiceInstanceSchema{
-			Create: &JSONSchemas{
+			Create: &RequestResponseSchema{
 				Parameters: map[string]interface{}{
 					"foo": "bar",
 				},
 			},
-			Update: &JSONSchemas{
+			Update: &RequestResponseSchema{
 				Parameters: map[string]interface{}{
 					"baz": "zap",
 				},
 			},
 		},
 		ServiceBinding: &ServiceBindingSchema{
-			Create: &JSONSchemas{
+			Create: &RequestResponseSchema{
 				Parameters: map[string]interface{}{
 					"zoo": "blu",
 				},
