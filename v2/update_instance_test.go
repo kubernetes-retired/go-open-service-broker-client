@@ -23,6 +23,7 @@ func defaultAsyncUpdateInstanceRequest() *UpdateInstanceRequest {
 const successUpdateInstanceRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id"}`
 
 const successUpdateInstanceResponseBody = `{}`
+const successUpdateInstanceResponseBodyWithNewDashboardURL = `{"dashboard_url":"http://updated.com"}`
 
 func successUpdateInstanceResponse() *UpdateInstanceResponse {
 	return &UpdateInstanceResponse{}
@@ -31,11 +32,29 @@ func successUpdateInstanceResponse() *UpdateInstanceResponse {
 const successAsyncUpdateInstanceResponseBody = `{
   "operation": "test-operation-key"
 }`
+const successAsyncUpdateInstanceResponseBodyWithNewDashboardURL = `{
+	"dashboard_url": "http://updated.com",
+	"operation": "test-operation-key"
+}`
+
+func successUpdateInstanceResponseWithDashboard() *UpdateInstanceResponse {
+	r := successUpdateInstanceResponse()
+	url := "http://updated.com"
+	r.DashboardURL = &url
+	return r
+}
 
 func successUpdateInstanceResponseAsync() *UpdateInstanceResponse {
 	r := successUpdateInstanceResponse()
 	r.Async = true
 	r.OperationKey = &testOperation
+	return r
+}
+
+func successUpdateInstanceResponeAsyncWithDashboard() *UpdateInstanceResponse {
+	r := successUpdateInstanceResponseAsync()
+	url := "http://updated.com"
+	r.DashboardURL = &url
 	return r
 }
 
@@ -74,6 +93,14 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			expectedResponse: successUpdateInstanceResponse(),
 		},
 		{
+			name: "success with updated dashboard url - ok",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
+			},
+			expectedResponse: successUpdateInstanceResponseWithDashboard(),
+		},
+		{
 			name:    "success - async",
 			request: defaultAsyncUpdateInstanceRequest(),
 			httpChecks: httpChecks{
@@ -86,6 +113,20 @@ func TestUpdateInstanceInstance(t *testing.T) {
 				body:   successAsyncUpdateInstanceResponseBody,
 			},
 			expectedResponse: successUpdateInstanceResponseAsync(),
+		},
+		{
+			name:    "success with updated dashboard url - async",
+			request: defaultAsyncUpdateInstanceRequest(),
+			httpChecks: httpChecks{
+				params: map[string]string{
+					AcceptsIncomplete: "true",
+				},
+			},
+			httpReaction: httpReaction{
+				status: http.StatusAccepted,
+				body:   successAsyncUpdateInstanceResponseBodyWithNewDashboardURL,
+			},
+			expectedResponse: successUpdateInstanceResponeAsyncWithDashboard(),
 		},
 		{
 			name:    "accepted with malformed response",

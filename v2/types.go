@@ -251,6 +251,9 @@ type UpdateInstanceResponse struct {
 	// Async indicates whether the broker is handling the update request
 	// asynchronously.
 	Async bool `json:"async"`
+	// DashboardURL is the URL of a web-based management user interface for
+	// the service instance.
+	DashboardURL *string `json:"dashboard_url,omitempty"`
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
 	OperationKey *OperationKey `json:"operation,omitempty"`
