@@ -251,6 +251,10 @@ type UpdateInstanceResponse struct {
 	// Async indicates whether the broker is handling the update request
 	// asynchronously.
 	Async bool `json:"async"`
+	// DashboardURL is an ALPHA API attribute and may change. Alpha
+	// features must be enabled and the client must be using the latest
+	// API Version in order to use this.
+	//
 	// DashboardURL is the URL of a web-based management user interface for
 	// the service instance.
 	DashboardURL *string `json:"dashboard_url,omitempty"`

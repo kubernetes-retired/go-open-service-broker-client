@@ -54,7 +54,7 @@ func successUpdateInstanceResponseAsync() *UpdateInstanceResponse {
 func successUpdateInstanceResponeAsyncWithDashboard() *UpdateInstanceResponse {
 	r := successUpdateInstanceResponseAsync()
 	url := "http://updated.com"
-	r.DashboardURL = &url
+	r.DashboardURL = strPtr(url)
 	return r
 }
 
@@ -93,14 +93,6 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			expectedResponse: successUpdateInstanceResponse(),
 		},
 		{
-			name: "success with updated dashboard url - ok",
-			httpReaction: httpReaction{
-				status: http.StatusOK,
-				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
-			},
-			expectedResponse: successUpdateInstanceResponseWithDashboard(),
-		},
-		{
 			name:    "success - async",
 			request: defaultAsyncUpdateInstanceRequest(),
 			httpChecks: httpChecks{
@@ -113,20 +105,6 @@ func TestUpdateInstanceInstance(t *testing.T) {
 				body:   successAsyncUpdateInstanceResponseBody,
 			},
 			expectedResponse: successUpdateInstanceResponseAsync(),
-		},
-		{
-			name:    "success with updated dashboard url - async",
-			request: defaultAsyncUpdateInstanceRequest(),
-			httpChecks: httpChecks{
-				params: map[string]string{
-					AcceptsIncomplete: "true",
-				},
-			},
-			httpReaction: httpReaction{
-				status: http.StatusAccepted,
-				body:   successAsyncUpdateInstanceResponseBodyWithNewDashboardURL,
-			},
-			expectedResponse: successUpdateInstanceResponeAsyncWithDashboard(),
 		},
 		{
 			name:    "accepted with malformed response",
@@ -266,6 +244,52 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successUpdateInstanceResponseBody,
+			},
+			expectedResponse: successUpdateInstanceResponse(),
+		},
+		{
+			name:        "success with updated dashboard url - ok if alpha API features are enabled",
+			version:     LatestAPIVersion(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
+			},
+			expectedResponse: successUpdateInstanceResponseWithDashboard(),
+		},
+		{
+			name:        "success with updated dashboard url - async if alpha API features are enabled",
+			version:     LatestAPIVersion(),
+			enableAlpha: true,
+			request:     defaultAsyncUpdateInstanceRequest(),
+			httpChecks: httpChecks{
+				params: map[string]string{
+					AcceptsIncomplete: "true",
+				},
+			},
+			httpReaction: httpReaction{
+				status: http.StatusAccepted,
+				body:   successAsyncUpdateInstanceResponseBodyWithNewDashboardURL,
+			},
+			expectedResponse: successUpdateInstanceResponeAsyncWithDashboard(),
+		},
+		{
+			name:        "dashboard url not sent unless alpha API features enabled",
+			version:     LatestAPIVersion(),
+			enableAlpha: false,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
+			},
+			expectedResponse: successUpdateInstanceResponse(),
+		},
+		{
+			name:        "dashboard url not sent unless latest version of the API is used",
+			version:     Version2_12(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
 			},
 			expectedResponse: successUpdateInstanceResponse(),
 		},

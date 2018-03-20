@@ -53,17 +53,12 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
 		}
 
-		var opPtr *OperationKey
-		if responseBodyObj.Operation != nil {
-			opStr := *responseBodyObj.Operation
-			op := OperationKey(opStr)
-			opPtr = &op
-		}
-
 		userResponse := &UpdateInstanceResponse{
 			Async:        false,
-			DashboardURL: responseBodyObj.DashboardURL,
-			OperationKey: opPtr,
+			OperationKey: nil,
+		}
+		if c.validateAlphaAPIMethodsAllowed() == nil {
+			userResponse.DashboardURL = responseBodyObj.DashboardURL
 		}
 
 		return userResponse, nil
@@ -88,8 +83,10 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 
 		userResponse := &UpdateInstanceResponse{
 			Async:        true,
-			DashboardURL: responseBodyObj.DashboardURL,
 			OperationKey: opPtr,
+		}
+		if c.validateAlphaAPIMethodsAllowed() == nil {
+			userResponse.DashboardURL = responseBodyObj.DashboardURL
 		}
 
 		// TODO: fix op key handling
