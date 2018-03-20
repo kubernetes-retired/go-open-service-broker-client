@@ -169,21 +169,21 @@ const alphaParameterSchemaCatalogBytes = `{
 
 func alphaParameterCatalogResponse() *CatalogResponse {
 	catalog := okCatalogResponse()
-	catalog.Services[0].Plans[0].ParameterSchemas = &ParameterSchemas{
-		ServiceInstances: &ServiceInstanceSchema{
-			Create: &InputParameters{
+	catalog.Services[0].Plans[0].Schemas = &Schemas{
+		ServiceInstance: &ServiceInstanceSchema{
+			Create: &InputParametersSchema{
 				Parameters: map[string]interface{}{
 					"foo": "bar",
 				},
 			},
-			Update: &InputParameters{
+			Update: &InputParametersSchema{
 				Parameters: map[string]interface{}{
 					"baz": "zap",
 				},
 			},
 		},
-		ServiceBindings: &ServiceBindingSchema{
-			Create: &InputParameters{
+		ServiceBinding: &ServiceBindingSchema{
+			Create: &InputParametersSchema{
 				Parameters: map[string]interface{}{
 					"zoo": "blu",
 				},
