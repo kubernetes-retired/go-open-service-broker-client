@@ -89,3 +89,7 @@ This project does not aim to provide:
   [`osb-checker`](https://github.com/openservicebrokerapi/osb-checker) for that
 - Any 'custom' API features that are not either in a released version of the
   Open Service Broker API spec or accepted into the spec but not yet released
+
+### Code of Conduct
+
+Participation in this repository is governed by the [CNCF Code of Conduct](./code-of-conduct.md).
