@@ -220,6 +220,14 @@ func TestProvisionInstance(t *testing.T) {
 	}
 }
 
+func TestProvisionRequestRequiredFields(t *testing.T) {
+	fakeClient := &fake.FakeClient{}
+	_, err := fakeClient.ProvisionInstance(&v2.ProvisionRequest{})
+	if err == nil {
+		t.Fatalf("request should have failed for missing required fields")
+	}
+}
+
 func updateInstanceResponse() *v2.UpdateInstanceResponse {
 	return &v2.UpdateInstanceResponse{
 		Async: true,
