@@ -1,9 +1,9 @@
 # `go-open-service-broker-client`
 
-[![Build Status](https://travis-ci.org/pmorie/go-open-service-broker-client.svg?branch=master)](https://travis-ci.org/pmorie/go-open-service-broker-client)
-[![Coverage Status](https://coveralls.io/repos/github/pmorie/go-open-service-broker-client/badge.svg)](https://coveralls.io/github/pmorie/go-open-service-broker-client)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pmorie/go-open-service-broker-client)](https://goreportcard.com/report/github.com/pmorie/go-open-service-broker-client)
-[![Godoc documentation](https://img.shields.io/badge/godoc-documentation-blue.svg)](https://godoc.org/github.com/pmorie/go-open-service-broker-client)
+[![Build Status](https://travis-ci.org/maplain/go-open-service-broker-client.svg?branch=master)](https://travis-ci.org/maplain/go-open-service-broker-client)
+[![Coverage Status](https://coveralls.io/repos/github/maplain/go-open-service-broker-client/badge.svg)](https://coveralls.io/github/maplain/go-open-service-broker-client)
+[![Go Report Card](https://goreportcard.com/badge/github.com/maplain/go-open-service-broker-client)](https://goreportcard.com/report/github.com/maplain/go-open-service-broker-client)
+[![Godoc documentation](https://img.shields.io/badge/godoc-documentation-blue.svg)](https://godoc.org/github.com/maplain/go-open-service-broker-client)
 
 A golang client for communicating with service brokers implementing the
 [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker).
@@ -17,7 +17,7 @@ between an application platform and the Open Service Broker API.
 
 ```go
 import (
-	osb "github.com/pmorie/go-open-service-broker-client/v2"
+	osb "github.com/maplain/go-open-service-broker-client/v2"
 )
 
 func GetBrokerCatalog(URL string) (*osb.CatalogResponse, error) {
@@ -56,9 +56,9 @@ This repository is used in:
 
 * The [Kubernetes `service-catalog`](https://github.com/kubernetes-incubator/service-catalog)
 incubator repo
-* The [`osb-broker-lib`](https://github.com/pmorie/osb-broker-lib) library for
+* The [`osb-broker-lib`](https://github.com/maplain/osb-broker-lib) library for
   creating service brokers
-* The [OSB Starter Pack](https://github.com/pmorie/osb-starter-pack) broker quickstart
+* The [OSB Starter Pack](https://github.com/maplain/osb-starter-pack) broker quickstart
 
 ## Goals
 
@@ -84,7 +84,7 @@ This project does not aim to provide:
 
 - A v1 client
 - A fake _service broker_; you may be interested in the [OSB starter
-  pack](https://github.com/pmorie/osb-starter-pack)
+  pack](https://github.com/maplain/osb-starter-pack)
 - A conformance suite for service brokers; see
   [`osb-checker`](https://github.com/openservicebrokerapi/osb-checker) for that
 - Any 'custom' API features that are not either in a released version of the

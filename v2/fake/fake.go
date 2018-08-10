@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/pmorie/go-open-service-broker-client/v2"
+	"github.com/maplain/go-open-service-broker-client/v2"
 )
 
 // NewFakeClientFunc returns a v2.CreateFunc that returns a FakeClient with

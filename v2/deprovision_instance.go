@@ -31,8 +31,10 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 	}()
 
 	switch response.StatusCode {
-	case http.StatusOK, http.StatusGone:
+	case http.StatusOK:
 		return &DeprovisionResponse{}, nil
+	case http.StatusGone:
+		return &DeprovisionResponse{}, c.handleFailureResponse(response)
 	case http.StatusAccepted:
 		if !r.AcceptsIncomplete {
 			// If the client did not signify that it could handle asynchronous

@@ -74,12 +74,14 @@ func TestDeprovisionInstance(t *testing.T) {
 			expectedResponse: successDeprovisionResponse(),
 		},
 		{
-			name: "success - gone",
+			name: "410 - gone, client error",
 			httpReaction: httpReaction{
 				status: http.StatusGone,
 				body:   successDeprovisionResponseBody,
 			},
-			expectedResponse: successDeprovisionResponse(),
+
+			expectedResponse:   successDeprovisionResponse(),
+			expectedErrMessage: "Status: 410; ErrorMessage: <nil>; Description: <nil>; ResponseError: <nil>",
 		},
 		{
 			name:    "success - async",

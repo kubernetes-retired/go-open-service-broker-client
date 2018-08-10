@@ -38,7 +38,7 @@ catalog.
 
 ```go
 import (
-	osb "github.com/pmorie/go-open-service-broker-client/v2"
+	osb "github.com/maplain/go-open-service-broker-client/v2"
 )
 
 func GetBrokerCatalog(URL string) (*osb.CatalogResponse, error) {
@@ -72,7 +72,7 @@ Key points:
 
 ```go
 import (
-	osb "github.com/pmorie/go-open-service-broker-client/v2"
+	osb "github.com/maplain/go-open-service-broker-client/v2"
 )
 
 func ProvisionService(client osb.Client, request osb.ProvisionRequest) (*osb.CatalogResponse, error) {
@@ -139,7 +139,7 @@ Key points:
 
 ```go
 import (
-	osb "github.com/pmorie/go-open-service-broker-client/v2"
+	osb "github.com/maplain/go-open-service-broker-client/v2"
 )
 
 func UpdateService(client osb.Client) {
@@ -200,7 +200,7 @@ Key points:
 
 ```go
 import (
-	osb "github.com/pmorie/go-open-service-broker-client/v2"
+	osb "github.com/maplain/go-open-service-broker-client/v2"
 )
 
 func DeprovisionService(client osb.Client) {
@@ -246,7 +246,7 @@ check on the status of the operation.
 
 ```go
 import (
-	osb "github.com/pmorie/go-open-service-broker-client/v2"
+	osb "github.com/maplain/go-open-service-broker-client/v2"
 )
 
 func PollServiceInstance(client osb.Client, deleting bool) error {
@@ -300,7 +300,7 @@ Key points:
 
 ```go
 import (
-	osb "github.com/pmorie/go-open-service-broker-client/v2"
+	osb "github.com/maplain/go-open-service-broker-client/v2"
 )
 
 func BindToInstance(client osb.Client) {
@@ -346,7 +346,7 @@ Key points:
 
 ```go
 import (
-	osb "github.com/pmorie/go-open-service-broker-client/v2"
+	osb "github.com/maplain/go-open-service-broker-client/v2"
 )
 
 func UnbindFromInstance(client osb.Client) {
