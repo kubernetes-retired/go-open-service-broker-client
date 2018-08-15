@@ -2,6 +2,7 @@ package v2
 
 import (
 	"crypto/tls"
+	"net/http"
 )
 
 // AuthConfig is a union-type representing the possible auth configurations a
@@ -81,6 +82,8 @@ func DefaultClientConfiguration() *ClientConfiguration {
 		EnableAlphaFeatures: false,
 	}
 }
+
+type MangleRequestFunc func(request *http.Request) *http.Request
 
 // Client defines the interface to the v2 Open Service Broker client.  The
 // logical lifecycle of client operations is:
@@ -184,6 +187,10 @@ type Client interface {
 	// binding endpoint
 	// (/v2/service_instances/instance-id/service_bindings/binding-id)
 	GetBinding(r *GetBindingRequest) (*GetBindingResponse, error)
+
+	// MangleRequest allows a user to inspect/modify a request object just before
+	// it is actually used.
+	SetMangleRequest(mangler MangleRequestFunc)
 }
 
 // CreateFunc allows control over which implementation of a Client is

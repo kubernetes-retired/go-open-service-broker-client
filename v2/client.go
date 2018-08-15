@@ -11,6 +11,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"strings"
 	"time"
 
@@ -96,6 +97,7 @@ type client struct {
 	Verbose             bool
 
 	httpClient    *http.Client
+	mangler       MangleRequestFunc
 	doRequestFunc doRequestFunc
 }
 
@@ -116,6 +118,10 @@ const (
 	contentType = "Content-Type"
 	jsonType    = "application/json"
 )
+
+func (c *client) SetMangleRequest(mangler MangleRequestFunc) {
+	c.mangler = mangler
+}
 
 // prepareAndDo prepares a request for the given method, URL, and
 // message body, and executes the request, returning an http.Response or an
@@ -171,6 +177,9 @@ func (c *client) prepareAndDo(method, URL string, params map[string]string, body
 
 	if c.Verbose {
 		glog.Infof("broker %q: doing request to %q", c.Name, URL)
+	}
+	if !reflect.ValueOf(c.mangler).IsNil() {
+		request = c.mangler(request)
 	}
 
 	return c.doRequestFunc(request)
