@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 func TestGetCatalog(t *testing.T) {
@@ -47,7 +47,7 @@ func TestGetCatalog(t *testing.T) {
 
 	catalogJson := string(catalogBytes)
 
-	glog.Info(catalogJson)
+	klog.Info(catalogJson)
 }
 
 func TestGetPlans(t *testing.T) {
@@ -55,6 +55,6 @@ func TestGetPlans(t *testing.T) {
 	g := Generator{
 		PlanPool: []string{"AAA", "BBB", "CCC", "DDD", "EEE"},
 	}
-	glog.Info(g.planNames(1, 5))
-	glog.Info(g.planNames(2, 5))
+	klog.Info(g.planNames(1, 5))
+	klog.Info(g.planNames(2, 5))
 }
