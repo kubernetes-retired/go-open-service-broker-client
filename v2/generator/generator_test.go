@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/golang/glog"
+	"k8s.io/klog"
 )
 
 func TestCreateGenerator(t *testing.T) {
@@ -34,5 +34,5 @@ func TestCreateGenerator(t *testing.T) {
 
 	catalogJson := string(catalogBytes)
 
-	glog.Info(catalogJson)
+	klog.Info(catalogJson)
 }
