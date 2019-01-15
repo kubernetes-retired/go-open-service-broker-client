@@ -872,6 +872,11 @@ func TestFakeAsyncRequiredError(t *testing.T) {
 			err:      fake.AppGUIDRequiredError(),
 			expected: false,
 		},
+		{
+			name:     "concurrency error",
+			err:      fake.ConcurrencyError(),
+			expected: false,
+		},
 	}
 
 	for _, tc := range cases {
@@ -897,10 +902,45 @@ func TestFakeAppGUIDRequiredError(t *testing.T) {
 			err:      fake.AppGUIDRequiredError(),
 			expected: true,
 		},
+		{
+			name:     "concurrency error",
+			err:      fake.ConcurrencyError(),
+			expected: false,
+		},
 	}
 
 	for _, tc := range cases {
 		if e, a := tc.expected, v2.IsAppGUIDRequiredError(tc.err); e != a {
+			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
+		}
+	}
+}
+
+func TestFakeConcurrencyError(t *testing.T) {
+	cases := []struct {
+		name     string
+		err      error
+		expected bool
+	}{
+		{
+			name:     "async required error",
+			err:      fake.AsyncRequiredError(),
+			expected: false,
+		},
+		{
+			name:     "app guid required error",
+			err:      fake.AppGUIDRequiredError(),
+			expected: false,
+		},
+		{
+			name:     "concurrency error",
+			err:      fake.ConcurrencyError(),
+			expected: true,
+		},
+	}
+
+	for _, tc := range cases {
+		if e, a := tc.expected, v2.IsConcurrencyError(tc.err); e != a {
 			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
 		}
 	}

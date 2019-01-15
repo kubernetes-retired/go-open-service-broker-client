@@ -161,6 +161,15 @@ func TestIsAsyncRequiredError(t *testing.T) {
 			expected: false,
 		},
 		{
+			name: "concurrency error",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(ConcurrencyErrorMessage),
+				Description:  strPtr(ConcurrencyErrorDescription),
+			},
+			expected: false,
+		},
+		{
 			name: "no error message",
 			err: HTTPStatusCodeError{
 				StatusCode:  http.StatusUnprocessableEntity,
@@ -222,6 +231,15 @@ func TestIsAppGUIDRequiredError(t *testing.T) {
 			expected: true,
 		},
 		{
+			name: "concurrency error",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(ConcurrencyErrorMessage),
+				Description:  strPtr(ConcurrencyErrorDescription),
+			},
+			expected: false,
+		},
+		{
 			name: "no error message",
 			err: HTTPStatusCodeError{
 				StatusCode:  http.StatusUnprocessableEntity,
@@ -241,6 +259,76 @@ func TestIsAppGUIDRequiredError(t *testing.T) {
 
 	for _, tc := range cases {
 		if e, a := tc.expected, IsAppGUIDRequiredError(tc.err); e != a {
+			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
+		}
+	}
+}
+
+func TestConcurrencyError(t *testing.T) {
+	cases := []struct {
+		name     string
+		err      error
+		expected bool
+	}{
+		{
+			name:     "non-http error",
+			err:      errors.New("some error"),
+			expected: false,
+		},
+		{
+			name: "other http error",
+			err: HTTPStatusCodeError{
+				StatusCode: http.StatusForbidden,
+			},
+			expected: false,
+		},
+		{
+			name: "async required error",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(AsyncErrorMessage),
+				Description:  strPtr(AsyncErrorDescription),
+			},
+			expected: false,
+		},
+		{
+			name: "app guid required error",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(AppGUIDRequiredErrorMessage),
+				Description:  strPtr(AppGUIDRequiredErrorDescription),
+			},
+			expected: false,
+		},
+		{
+			name: "concurrency error",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(ConcurrencyErrorMessage),
+				Description:  strPtr(ConcurrencyErrorDescription),
+			},
+			expected: true,
+		},
+		{
+			name: "no error message",
+			err: HTTPStatusCodeError{
+				StatusCode:  http.StatusUnprocessableEntity,
+				Description: strPtr(AppGUIDRequiredErrorDescription),
+			},
+			expected: false,
+		},
+		{
+			name: "no description",
+			err: HTTPStatusCodeError{
+				StatusCode:   http.StatusUnprocessableEntity,
+				ErrorMessage: strPtr(AppGUIDRequiredErrorMessage),
+			},
+			expected: false,
+		},
+	}
+
+	for _, tc := range cases {
+		if e, a := tc.expected, IsConcurrencyError(tc.err); e != a {
 			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
 		}
 	}
