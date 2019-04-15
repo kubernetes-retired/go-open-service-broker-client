@@ -131,6 +131,15 @@ func TestGetCatalog(t *testing.T) {
 	}
 }
 
+func provisionRequest() *v2.ProvisionRequest {
+	return &v2.ProvisionRequest{
+		ServiceID:        "test-service-id",
+		PlanID:           "test-plan-id",
+		OrganizationGUID: "test-organization-guid",
+		SpaceGUID:        "test-space-guid",
+	}
+}
+
 func provisionResponse() *v2.ProvisionResponse {
 	return &v2.ProvisionResponse{
 		Async: true,
@@ -191,7 +200,7 @@ func TestProvisionInstance(t *testing.T) {
 			ProvisionReaction: tc.reaction,
 		}
 
-		response, err := fakeClient.ProvisionInstance(&v2.ProvisionRequest{})
+		response, err := fakeClient.ProvisionInstance(provisionRequest())
 
 		if !reflect.DeepEqual(tc.response, response) {
 			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
@@ -208,6 +217,14 @@ func TestProvisionInstance(t *testing.T) {
 		if e, a := fake.ProvisionInstance, actions[0].Type; e != a {
 			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
+	}
+}
+
+func TestProvisionRequestRequiredFields(t *testing.T) {
+	fakeClient := &fake.FakeClient{ProvisionReaction: &fake.ProvisionReaction{}}
+	_, err := fakeClient.ProvisionInstance(&v2.ProvisionRequest{})
+	if err == nil {
+		t.Fatalf("request should have failed for missing required fields")
 	}
 }
 
