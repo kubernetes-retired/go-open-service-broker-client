@@ -489,3 +489,13 @@ func AppGUIDRequiredError() error {
 		Description:  strPtr(v2.AppGUIDRequiredErrorDescription),
 	}
 }
+
+// ConcurrencyError returns error for when concurrent requests to modify the
+// same resource is rejected.
+func ConcurrencyError() error {
+	return v2.HTTPStatusCodeError{
+		StatusCode:   http.StatusUnprocessableEntity,
+		ErrorMessage: strPtr(v2.ConcurrencyErrorMessage),
+		Description:  strPtr(v2.ConcurrencyErrorDescription),
+	}
+}
