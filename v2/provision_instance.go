@@ -16,6 +16,7 @@ type provisionRequestBody struct {
 	SpaceGUID        string                 `json:"space_guid"`
 	Parameters       map[string]interface{} `json:"parameters,omitempty"`
 	Context          map[string]interface{} `json:"context,omitempty"`
+	MaintenanceInfo  *MaintenanceInfo       `json:"maintenance_info,omitempty"`
 }
 
 type provisionSuccessResponseBody struct {
@@ -41,6 +42,7 @@ func (c *client) ProvisionInstance(r *ProvisionRequest) (*ProvisionResponse, err
 		OrganizationGUID: r.OrganizationGUID,
 		SpaceGUID:        r.SpaceGUID,
 		Parameters:       r.Parameters,
+		MaintenanceInfo:  r.MaintenanceInfo,
 	}
 
 	if c.APIVersion.AtLeast(Version2_12()) {

@@ -88,7 +88,8 @@ type Plan struct {
 	// Schemas is a set of optional JSONSchemas that describe
 	// the expected parameters for creation and update of instances and
 	// creation of bindings.
-	Schemas *Schemas `json:"schemas,omitempty"`
+	Schemas         *Schemas         `json:"schemas,omitempty"`
+	MaintenanceInfo *MaintenanceInfo `json:"maintenance_info,omitempty"`
 }
 
 // Schemas requires a client API version >=2.13.
@@ -203,6 +204,7 @@ type ProvisionRequest struct {
 	// OriginatingIdentity is the identity on the platform of the user making
 	// this request.
 	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
+	MaintenanceInfo     *MaintenanceInfo     `json:"maintenance_info,omitempty"`
 }
 
 // ProvisionResponse is sent in response to a provision call.
@@ -293,6 +295,7 @@ type UpdateInstanceRequest struct {
 	// OriginatingIdentity is the identity on the platform of the user making
 	// this request.
 	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
+	MaintenanceInfo     *MaintenanceInfo     `json:"maintenance_info,omitempty"`
 }
 
 // PreviousValues represents information about the service instance prior to the update.

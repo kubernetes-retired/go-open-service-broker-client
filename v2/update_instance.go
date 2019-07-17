@@ -8,11 +8,12 @@ import (
 // internal message body types
 
 type updateInstanceRequestBody struct {
-	ServiceID      string                 `json:"service_id"`
-	PlanID         *string                `json:"plan_id,omitempty"`
-	Parameters     map[string]interface{} `json:"parameters,omitempty"`
-	Context        map[string]interface{} `json:"context,omitempty"`
-	PreviousValues *PreviousValues        `json:"previous_values,omitempty"`
+	ServiceID       string                 `json:"service_id"`
+	PlanID          *string                `json:"plan_id,omitempty"`
+	Parameters      map[string]interface{} `json:"parameters,omitempty"`
+	Context         map[string]interface{} `json:"context,omitempty"`
+	PreviousValues  *PreviousValues        `json:"previous_values,omitempty"`
+	MaintenanceInfo *MaintenanceInfo       `json:"maintenance_info,omitempty"`
 }
 
 type updateInstanceResponseBody struct {
@@ -32,10 +33,11 @@ func (c *client) UpdateInstance(r *UpdateInstanceRequest) (*UpdateInstanceRespon
 	}
 
 	requestBody := &updateInstanceRequestBody{
-		ServiceID:      r.ServiceID,
-		PlanID:         r.PlanID,
-		Parameters:     r.Parameters,
-		PreviousValues: r.PreviousValues,
+		ServiceID:       r.ServiceID,
+		PlanID:          r.PlanID,
+		Parameters:      r.Parameters,
+		PreviousValues:  r.PreviousValues,
+		MaintenanceInfo: r.MaintenanceInfo,
 	}
 
 	if c.APIVersion.AtLeast(Version2_12()) {
