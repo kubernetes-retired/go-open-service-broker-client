@@ -7,7 +7,7 @@ import (
 
 	"sort"
 
-	"github.com/maplain/go-open-service-broker-client/v2"
+	"github.com/yangkai2g7k/go-open-service-broker-client/v2"
 )
 
 // GetCatalog will produce a valid GetCatalog response based on the generator settings.
