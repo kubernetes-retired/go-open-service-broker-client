@@ -53,7 +53,7 @@ func okCatalogResponse() *CatalogResponse {
 				},
 				Bindable:            true,
 				BindingsRetrievable: true,
-				PlanUpdatable:       truePtr(),
+				PlanUpdateble:       truePtr(),
 				Plans: []Plan{
 					{
 						ID:          "d3031751-XXXX-XXXX-XXXX-a42377d3320e",

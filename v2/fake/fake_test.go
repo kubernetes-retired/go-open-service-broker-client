@@ -24,7 +24,7 @@ func catalogResponse() *v2.CatalogResponse {
 					"route_forwarding",
 				},
 				Bindable:      true,
-				PlanUpdatable: truePtr(),
+				PlanUpdateble: truePtr(),
 				Plans: []v2.Plan{
 					{
 						ID:          "d3031751-XXXX-XXXX-XXXX-a42377d3320e",

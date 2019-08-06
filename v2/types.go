@@ -35,11 +35,11 @@ type Service struct {
 	// (/v2/service_instances/instance-id/service_bindings/binding-id) is
 	// supported for all plans.
 	BindingsRetrievable bool `json:"bindings_retrievable,omitempty"`
-	// PlanUpdatable represents whether instances of this service may be
+	// PlanUpdateble represents whether instances of this service may be
 	// updated to a different plan. The serialized form 'plan_updateable' is
 	// a mistake that has become written into the API for backward
 	// compatibility reasons and is intentional. Optional; defaults to false.
-	PlanUpdatable *bool `json:"plan_updateable,omitempty"`
+	PlanUpdateble *bool `json:"plan_updateable,omitempty"`
 	// Plans is the list of the Plans for a service. Plans represent
 	// different tiers.
 	Plans []Plan `json:"plans"`
