@@ -1,9 +1,9 @@
 # `go-open-service-broker-client`
 
-[![Build Status](https://travis-ci.org/pmorie/go-open-service-broker-client.svg?branch=master)](https://travis-ci.org/pmorie/go-open-service-broker-client)
-[![Coverage Status](https://coveralls.io/repos/github/pmorie/go-open-service-broker-client/badge.svg)](https://coveralls.io/github/pmorie/go-open-service-broker-client)
-[![Go Report Card](https://goreportcard.com/badge/github.com/pmorie/go-open-service-broker-client)](https://goreportcard.com/report/github.com/pmorie/go-open-service-broker-client)
-[![Godoc documentation](https://img.shields.io/badge/godoc-documentation-blue.svg)](https://godoc.org/github.com/pmorie/go-open-service-broker-client)
+[![Build Status](https://travis-ci.org/kubernetes-sigs/go-open-service-broker-client.svg?branch=master)](https://travis-ci.org/kubernetes-sigs/go-open-service-broker-client)
+[![Coverage Status](https://coveralls.io/repos/github/kubernetes-sigs/go-open-service-broker-client/badge.svg)](https://coveralls.io/github/kubernetes-sigs/go-open-service-broker-client)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kubernetes-sigs/go-open-service-broker-client)](https://goreportcard.com/report/github.com/kubernetes-sigs/go-open-service-broker-client)
+[![Godoc documentation](https://img.shields.io/badge/godoc-documentation-blue.svg)](https://godoc.org/github.com/kubernetes-sigs/go-open-service-broker-client)
 
 A golang client for communicating with service brokers implementing the
 [Open Service Broker API](https://github.com/openservicebrokerapi/servicebroker).
@@ -17,7 +17,7 @@ between an application platform and the Open Service Broker API.
 
 ```go
 import (
-	osb "github.com/pmorie/go-open-service-broker-client/v2"
+	osb "github.com/kubernetes-sigs/go-open-service-broker-client/v2"
 )
 
 func GetBrokerCatalog(URL string) (*osb.CatalogResponse, error) {

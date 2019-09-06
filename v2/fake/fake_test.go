@@ -21,8 +21,10 @@ import (
 	"reflect"
 	"testing"
 
-	v2 "github.com/pmorie/go-open-service-broker-client/v2"
-	"github.com/pmorie/go-open-service-broker-client/v2/fake"
+
+	v2 "github.com/kubernetes-sigs/go-open-service-broker-client/v2"
+	"github.com/kubernetes-sigs/go-open-service-broker-client/v2/fake"
+
 )
 
 func catalogResponse() *v2.CatalogResponse {

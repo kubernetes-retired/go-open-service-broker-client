@@ -1,5 +1,5 @@
 language: go
-go_import_path: github.com/pmorie/go-open-service-broker-client
+go_import_path: github.com/kubernetes-sigs/go-open-service-broker-client
 go:
   - 1.7.4
 before_install:
