@@ -89,3 +89,16 @@ This project does not aim to provide:
   [`osb-checker`](https://github.com/openservicebrokerapi/osb-checker) for that
 - Any 'custom' API features that are not either in a released version of the
   Open Service Broker API spec or accepted into the spec but not yet released
+
+## Community, discussion, contribution, and support
+
+Learn how to engage with the Kubernetes community on the [community page](http://kubernetes.io/community/).
+
+You can reach the maintainers of this project at:
+
+- [Slack channel](https://kubernetes.slack.com/messages/sig-service-catalog)
+- [Mailing list](https://groups.google.com/forum/#!forum/kubernetes-sig-service-catalog)
+
+### Code of conduct
+
+Participation in the Kubernetes community is governed by the [Kubernetes Code of Conduct](code-of-conduct.md).

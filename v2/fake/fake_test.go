@@ -1,3 +1,19 @@
+/*
+Copyright 2019 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package fake_test
 
 import (
@@ -5,8 +21,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/kubernetes-sigs/go-open-service-broker-client/v2"
+
+	v2 "github.com/kubernetes-sigs/go-open-service-broker-client/v2"
 	"github.com/kubernetes-sigs/go-open-service-broker-client/v2/fake"
+
 )
 
 func catalogResponse() *v2.CatalogResponse {
@@ -131,6 +149,15 @@ func TestGetCatalog(t *testing.T) {
 	}
 }
 
+func provisionRequest() *v2.ProvisionRequest {
+	return &v2.ProvisionRequest{
+		ServiceID:        "test-service-id",
+		PlanID:           "test-plan-id",
+		OrganizationGUID: "test-organization-guid",
+		SpaceGUID:        "test-space-guid",
+	}
+}
+
 func provisionResponse() *v2.ProvisionResponse {
 	return &v2.ProvisionResponse{
 		Async: true,
@@ -191,7 +218,7 @@ func TestProvisionInstance(t *testing.T) {
 			ProvisionReaction: tc.reaction,
 		}
 
-		response, err := fakeClient.ProvisionInstance(&v2.ProvisionRequest{})
+		response, err := fakeClient.ProvisionInstance(provisionRequest())
 
 		if !reflect.DeepEqual(tc.response, response) {
 			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
@@ -208,6 +235,14 @@ func TestProvisionInstance(t *testing.T) {
 		if e, a := fake.ProvisionInstance, actions[0].Type; e != a {
 			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
+	}
+}
+
+func TestProvisionRequestRequiredFields(t *testing.T) {
+	fakeClient := &fake.FakeClient{ProvisionReaction: &fake.ProvisionReaction{}}
+	_, err := fakeClient.ProvisionInstance(&v2.ProvisionRequest{})
+	if err == nil {
+		t.Fatalf("request should have failed for missing required fields")
 	}
 }
 
@@ -872,6 +907,11 @@ func TestFakeAsyncRequiredError(t *testing.T) {
 			err:      fake.AppGUIDRequiredError(),
 			expected: false,
 		},
+		{
+			name:     "concurrency error",
+			err:      fake.ConcurrencyError(),
+			expected: false,
+		},
 	}
 
 	for _, tc := range cases {
@@ -897,10 +937,45 @@ func TestFakeAppGUIDRequiredError(t *testing.T) {
 			err:      fake.AppGUIDRequiredError(),
 			expected: true,
 		},
+		{
+			name:     "concurrency error",
+			err:      fake.ConcurrencyError(),
+			expected: false,
+		},
 	}
 
 	for _, tc := range cases {
 		if e, a := tc.expected, v2.IsAppGUIDRequiredError(tc.err); e != a {
+			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
+		}
+	}
+}
+
+func TestFakeConcurrencyError(t *testing.T) {
+	cases := []struct {
+		name     string
+		err      error
+		expected bool
+	}{
+		{
+			name:     "async required error",
+			err:      fake.AsyncRequiredError(),
+			expected: false,
+		},
+		{
+			name:     "app guid required error",
+			err:      fake.AppGUIDRequiredError(),
+			expected: false,
+		},
+		{
+			name:     "concurrency error",
+			err:      fake.ConcurrencyError(),
+			expected: true,
+		},
+	}
+
+	for _, tc := range cases {
+		if e, a := tc.expected, v2.IsConcurrencyError(tc.err); e != a {
 			t.Errorf("%v: expected %v, got %v", tc.name, e, a)
 		}
 	}

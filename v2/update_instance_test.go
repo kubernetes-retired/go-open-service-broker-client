@@ -1,3 +1,19 @@
+/*
+Copyright 2019 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package v2
 
 import (
@@ -23,6 +39,7 @@ func defaultAsyncUpdateInstanceRequest() *UpdateInstanceRequest {
 const successUpdateInstanceRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id"}`
 
 const successUpdateInstanceResponseBody = `{}`
+const successUpdateInstanceResponseBodyWithNewDashboardURL = `{"dashboard_url":"http://updated.com"}`
 
 func successUpdateInstanceResponse() *UpdateInstanceResponse {
 	return &UpdateInstanceResponse{}
@@ -31,11 +48,29 @@ func successUpdateInstanceResponse() *UpdateInstanceResponse {
 const successAsyncUpdateInstanceResponseBody = `{
   "operation": "test-operation-key"
 }`
+const successAsyncUpdateInstanceResponseBodyWithNewDashboardURL = `{
+	"dashboard_url": "http://updated.com",
+	"operation": "test-operation-key"
+}`
+
+func successUpdateInstanceResponseWithDashboard() *UpdateInstanceResponse {
+	r := successUpdateInstanceResponse()
+	url := "http://updated.com"
+	r.DashboardURL = &url
+	return r
+}
 
 func successUpdateInstanceResponseAsync() *UpdateInstanceResponse {
 	r := successUpdateInstanceResponse()
 	r.Async = true
 	r.OperationKey = &testOperation
+	return r
+}
+
+func successUpdateInstanceResponeAsyncWithDashboard() *UpdateInstanceResponse {
+	r := successUpdateInstanceResponseAsync()
+	url := "http://updated.com"
+	r.DashboardURL = strPtr(url)
 	return r
 }
 
@@ -225,6 +260,52 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successUpdateInstanceResponseBody,
+			},
+			expectedResponse: successUpdateInstanceResponse(),
+		},
+		{
+			name:        "success with updated dashboard url - ok if alpha API features are enabled",
+			version:     LatestAPIVersion(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
+			},
+			expectedResponse: successUpdateInstanceResponseWithDashboard(),
+		},
+		{
+			name:        "success with updated dashboard url - async if alpha API features are enabled",
+			version:     LatestAPIVersion(),
+			enableAlpha: true,
+			request:     defaultAsyncUpdateInstanceRequest(),
+			httpChecks: httpChecks{
+				params: map[string]string{
+					AcceptsIncomplete: "true",
+				},
+			},
+			httpReaction: httpReaction{
+				status: http.StatusAccepted,
+				body:   successAsyncUpdateInstanceResponseBodyWithNewDashboardURL,
+			},
+			expectedResponse: successUpdateInstanceResponeAsyncWithDashboard(),
+		},
+		{
+			name:        "dashboard url not sent unless alpha API features enabled",
+			version:     LatestAPIVersion(),
+			enableAlpha: false,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
+			},
+			expectedResponse: successUpdateInstanceResponse(),
+		},
+		{
+			name:        "dashboard url not sent unless latest version of the API is used",
+			version:     Version2_12(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
 			},
 			expectedResponse: successUpdateInstanceResponse(),
 		},

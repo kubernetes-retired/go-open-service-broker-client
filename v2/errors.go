@@ -1,3 +1,19 @@
+/*
+Copyright 2019 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package v2
 
 import (
@@ -87,12 +103,14 @@ func IsConflictError(err error) bool {
 	return statusCodeError.StatusCode == http.StatusConflict
 }
 
-// Constants are used to check for "Async" and "RequiresApp" errors and their messages
+// Constants are used to check for spec-mandated errors and their messages
 const (
 	AsyncErrorMessage               = "AsyncRequired"
 	AsyncErrorDescription           = "This service plan requires client support for asynchronous service operations."
 	AppGUIDRequiredErrorMessage     = "RequiresApp"
 	AppGUIDRequiredErrorDescription = "This service supports generation of credentials through binding an application only."
+	ConcurrencyErrorMessage         = "ConcurrencyError"
+	ConcurrencyErrorDescription     = "The Service Broker does not support concurrent requests that mutate the same resource."
 )
 
 // IsAsyncRequiredError returns whether the error corresponds to the
@@ -141,6 +159,30 @@ func IsAppGUIDRequiredError(err error) bool {
 	}
 
 	return *statusCodeError.Description == AppGUIDRequiredErrorDescription
+}
+
+// IsConcurrencyError returns whether the error corresponds to the
+// conventional way of indicating that a service broker does not support
+// concurrent requests to modify the same resource
+func IsConcurrencyError(err error) bool {
+	statusCodeError, ok := err.(HTTPStatusCodeError)
+	if !ok {
+		return false
+	}
+
+	if statusCodeError.StatusCode != http.StatusUnprocessableEntity {
+		return false
+	}
+
+	if statusCodeError.ErrorMessage == nil || statusCodeError.Description == nil {
+		return false
+	}
+
+	if *statusCodeError.ErrorMessage != ConcurrencyErrorMessage {
+		return false
+	}
+
+	return *statusCodeError.Description == ConcurrencyErrorDescription
 }
 
 // AlphaAPIMethodsNotAllowedError is an error type signifying that alpha API

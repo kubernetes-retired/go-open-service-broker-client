@@ -1,3 +1,19 @@
+/*
+Copyright 2019 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package v2
 
 import (
@@ -58,6 +74,51 @@ func successProvisionResponseAsync() *ProvisionResponse {
 }
 
 const contextProvisionRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id","organization_guid":"test-organization-guid","space_guid":"test-space-guid","context":{"foo":"bar"}}`
+
+const provisionResponseBodyWithExtensions = `{
+  "extension_apis":[{
+      "discovery_url": "http://example-openapi-doc.example.com/extensions",
+      "server_url": "http://myremoteserver.example.com",
+      "credentials": {
+        "basic": {
+          "username": "admin",
+          "password": "changeme"
+        },
+        "api_key": {
+          "api_key": "some_key_value"
+        },
+        "petstore_auth": {
+          "token": "some_token_value"
+        }
+      },
+      "adheres_to": "http://example-specification.example.com"
+  }]
+}`
+
+func successProvisionResponseWithExtensions() *ProvisionResponse {
+	response := &ProvisionResponse{}
+	response.ExtensionAPIs = []ExtensionAPI{
+		{
+			DiscoveryURL: "http://example-openapi-doc.example.com/extensions",
+			ServerURL:    "http://myremoteserver.example.com",
+			Credentials: map[string]interface{}{
+				"basic": map[string]interface{}{
+					"username": "admin",
+					"password": "changeme",
+				},
+				"api_key": map[string]interface{}{
+					"api_key": "some_key_value",
+				},
+				"petstore_auth": map[string]interface{}{
+					"token": "some_token_value",
+				},
+			},
+			AdheresTo: "http://example-specification.example.com",
+		},
+	}
+
+	return response
+}
 
 func TestProvisionInstance(t *testing.T) {
 	cases := []struct {
@@ -219,6 +280,35 @@ func TestProvisionInstance(t *testing.T) {
 				body:   successProvisionResponseBody,
 			},
 			expectedResponse: successProvisionResponse(),
+		},
+		{
+			name:        "success with extension APIs",
+			version:     Version2_13(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   provisionResponseBodyWithExtensions,
+			},
+			expectedResponse: successProvisionResponseWithExtensions(),
+		},
+		{
+			name:        "extension APIs shouldn't be returned for < 2.13",
+			version:     Version2_12(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   provisionResponseBodyWithExtensions,
+			},
+			expectedResponse: &ProvisionResponse{},
+		},
+		{
+			name:    "extension APIs shouldn't be returned when alpha features disabled",
+			version: Version2_13(),
+			httpReaction: httpReaction{
+				status: http.StatusCreated,
+				body:   provisionResponseBodyWithExtensions,
+			},
+			expectedResponse: &ProvisionResponse{},
 		},
 	}
 

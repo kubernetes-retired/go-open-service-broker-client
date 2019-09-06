@@ -1,3 +1,19 @@
+/*
+Copyright 2019 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package v2
 
 // APIVersion represents a specific version of the OSB API.
@@ -16,6 +32,26 @@ func (v APIVersion) AtLeast(test APIVersion) bool {
 // for this API version.
 func (v APIVersion) HeaderValue() string {
 	return v.label
+}
+
+func (v APIVersion) String() string {
+	return v.label
+}
+
+// LatestAPIVersion returns the latest supported API version in the current
+// release of this library.
+func LatestAPIVersion() APIVersion {
+	return Version2_13()
+}
+
+// APIVersions returns a list of the APIVersions supported by this library, with
+// no guarantees of ordering.
+func APIVersions() []APIVersion {
+	return []APIVersion{
+		Version2_11(),
+		Version2_12(),
+		Version2_13(),
+	}
 }
 
 const (
@@ -45,10 +81,4 @@ func Version2_12() APIVersion {
 //Version2_13 returns an APIVersion struct with the internal API version set to "2.13"
 func Version2_13() APIVersion {
 	return APIVersion{label: internalAPIVersion2_13, order: 2}
-}
-
-// LatestAPIVersion returns the latest supported API version in the current
-// release of this library.
-func LatestAPIVersion() APIVersion {
-	return Version2_13()
 }

@@ -1,3 +1,19 @@
+/*
+Copyright 2019 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package v2
 
 import (
@@ -167,28 +183,91 @@ const alphaParameterSchemaCatalogBytes = `{
   }]
 }`
 
-func alphaParameterCatalogResponse() *CatalogResponse {
+const alphaParameterAndResponseSchemaCatalogBytes = `{
+  "services": [{
+    "name": "fake-service",
+    "id": "acb56d7c-XXXX-XXXX-XXXX-feb140a59a66",
+    "description": "fake service",
+    "tags": ["tag1", "tag2"],
+    "requires": ["route_forwarding"],
+    "bindable": true,
+    "bindings_retrievable": true,
+    "metadata": {
+    	"a": "b",
+    	"c": "d"
+    },
+    "dashboard_client": {
+      "id": "398e2f8e-XXXX-XXXX-XXXX-19a71ecbcf64",
+      "secret": "277cabb0-XXXX-XXXX-XXXX-7822c0a90e5d",
+      "redirect_uri": "http://localhost:1234"
+    },
+    "plan_updateable": true,
+    "plans": [{
+      "name": "fake-plan-1",
+      "id": "d3031751-XXXX-XXXX-XXXX-a42377d3320e",
+      "description": "description1",
+      "metadata": {
+      	"b": "c",
+      	"d": "e"
+      },
+      "schemas": {
+      	"service_instance": {
+	  	  "create": {
+	  	  	"parameters": {
+	  		  "foo": "bar"	
+	  	  	}
+	  	  },
+	  	  "update": {
+	  	  	"parameters": {
+	  		  "baz": "zap"
+	  	    }
+	  	  }
+      	},
+      	"service_binding": {
+      	  "create": {
+	  	  	"parameters": {
+      	  	  "zoo": "blu"
+      	    },
+	  	  	"response": {
+      	  	  "qux": "qax"
+      	    }
+      	  }
+      	}
+      }
+    }]
+  }]
+}`
+
+func alphaParameterCatalogResponse(includeResponseSchema bool) *CatalogResponse {
 	catalog := okCatalogResponse()
-	catalog.Services[0].Plans[0].ParameterSchemas = &ParameterSchemas{
-		ServiceInstances: &ServiceInstanceSchema{
-			Create: &InputParameters{
+	catalog.Services[0].Plans[0].Schemas = &Schemas{
+		ServiceInstance: &ServiceInstanceSchema{
+			Create: &InputParametersSchema{
 				Parameters: map[string]interface{}{
 					"foo": "bar",
 				},
 			},
-			Update: &InputParameters{
+			Update: &InputParametersSchema{
 				Parameters: map[string]interface{}{
 					"baz": "zap",
 				},
 			},
 		},
-		ServiceBindings: &ServiceBindingSchema{
-			Create: &InputParameters{
-				Parameters: map[string]interface{}{
-					"zoo": "blu",
+		ServiceBinding: &ServiceBindingSchema{
+			Create: &RequestResponseSchema{
+				InputParametersSchema: InputParametersSchema{
+					Parameters: map[string]interface{}{
+						"zoo": "blu",
+					},
 				},
 			},
 		},
+	}
+
+	if includeResponseSchema {
+		catalog.Services[0].Plans[0].Schemas.ServiceBinding.Create.Response = map[string]interface{}{
+			"qux": "qax",
+		}
 	}
 
 	return catalog
@@ -258,7 +337,7 @@ func TestGetCatalog(t *testing.T) {
 				status: http.StatusOK,
 				body:   alphaParameterSchemaCatalogBytes,
 			},
-			expectedResponse: alphaParameterCatalogResponse(),
+			expectedResponse: alphaParameterCatalogResponse(false),
 		},
 		{
 			name:    "schemas not included if API version < 2.13",
@@ -268,6 +347,26 @@ func TestGetCatalog(t *testing.T) {
 				body:   alphaParameterSchemaCatalogBytes,
 			},
 			expectedResponse: okCatalogResponse(),
+		},
+		{
+			name:        "response schemas included if alpha features enabled",
+			version:     Version2_13(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   alphaParameterAndResponseSchemaCatalogBytes,
+			},
+			expectedResponse: alphaParameterCatalogResponse(true),
+		},
+		{
+			name:        "response schemas not included if alpha features disabled",
+			version:     Version2_13(),
+			enableAlpha: false,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   alphaParameterAndResponseSchemaCatalogBytes,
+			},
+			expectedResponse: alphaParameterCatalogResponse(false),
 		},
 	}
 

@@ -1,3 +1,19 @@
+/*
+Copyright 2019 The Kubernetes Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package fake
 
 import (
@@ -249,6 +265,12 @@ func UnexpectedActionError() error {
 	return errors.New("Unexpected action")
 }
 
+// RequiredFieldsMissingError returns an error message indicating that
+// a required field was not set
+func RequiredFieldsMissingError() error {
+	return errors.New("A required field on the request was not set")
+}
+
 // CatalogReactionInterface defines the reaction to GetCatalog requests.
 type CatalogReactionInterface interface {
 	react() (*v2.CatalogResponse, error)
@@ -282,9 +304,12 @@ type ProvisionReaction struct {
 	Error    error
 }
 
-func (r *ProvisionReaction) react(_ *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
+func (r *ProvisionReaction) react(req *v2.ProvisionRequest) (*v2.ProvisionResponse, error) {
 	if r == nil {
 		return nil, UnexpectedActionError()
+	}
+	if req.ServiceID == "" || req.PlanID == "" || req.OrganizationGUID == "" || req.SpaceGUID == "" {
+		return nil, RequiredFieldsMissingError()
 	}
 	return r.Response, r.Error
 }
@@ -478,5 +503,15 @@ func AppGUIDRequiredError() error {
 		StatusCode:   http.StatusUnprocessableEntity,
 		ErrorMessage: strPtr(v2.AppGUIDRequiredErrorMessage),
 		Description:  strPtr(v2.AppGUIDRequiredErrorDescription),
+	}
+}
+
+// ConcurrencyError returns error for when concurrent requests to modify the
+// same resource is rejected.
+func ConcurrencyError() error {
+	return v2.HTTPStatusCodeError{
+		StatusCode:   http.StatusUnprocessableEntity,
+		ErrorMessage: strPtr(v2.ConcurrencyErrorMessage),
+		Description:  strPtr(v2.ConcurrencyErrorDescription),
 	}
 }
