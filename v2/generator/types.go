@@ -48,12 +48,13 @@ type Pull map[Property]int
 type Property string
 
 const (
-	Tags                Property = "tags"
-	Metadata            Property = "metadata"
-	Requires            Property = "Requires"
-	Bindable            Property = "bindable"
-	BindingsRetrievable Property = "bindings_retrievable"
-	Free                Property = "free"
+	Tags                 Property = "tags"
+	Metadata             Property = "metadata"
+	Requires             Property = "Requires"
+	Bindable             Property = "bindable"
+	InstancesRetrievable Property = "instances_retrievable"
+	BindingsRetrievable  Property = "bindings_retrievable"
+	Free                 Property = "free"
 )
 
 type Parameters struct {
@@ -64,12 +65,13 @@ type Parameters struct {
 
 type ServiceRanges struct {
 	// Plans will default to 1. Range will be [1-Plans)
-	Plans               int
-	Tags                int
-	Metadata            int
-	Requires            int
-	Bindable            int
-	BindingsRetrievable int
+	Plans                int
+	Tags                 int
+	Metadata             int
+	Requires             int
+	Bindable             int
+	InstancesRetrievable int
+	BindingsRetrievable  int
 }
 
 type PlanRanges struct {

@@ -148,6 +148,14 @@ type Client interface {
 	// there are special semantics for PollLastOperation when checking the
 	// status of deprovision operations; see the doc for that method.
 	DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionResponse, error)
+	// GetInstance is an ALPHA API method and may change. Alpha features must
+	// be enabled and the client must be using the latest API Version in
+	// order to use this method.
+	//
+	// GetInstance returns information about an existing instance.
+	// GetInstance calls GET on the Broker's endpoint for the requested
+	// instance ID (/v2/service_instances/instance-id)
+	GetInstance(r *GetInstanceRequest) (*GetInstanceResponse, error)
 	// PollLastOperation sends a request to query the last operation for a
 	// service instance to the broker and returns information about the
 	// operation or an error.  PollLastOperation does a GET on the broker's

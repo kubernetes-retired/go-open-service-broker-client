@@ -51,6 +51,8 @@ func (g *Generator) GetCatalog() (*v2.CatalogResponse, error) {
 				service.Metadata = g.metaNames(s, count)
 			case Bindable:
 				service.Bindable = count > 0
+			case InstancesRetrievable:
+				service.InstancesRetrievable = count > 0
 			case BindingsRetrievable:
 				service.BindingsRetrievable = count > 0
 			case Requires:
@@ -150,6 +152,7 @@ func (g *Generator) dashboardClient(name string) *v2.DashboardClient {
 //    "tags": ["tag1", "tag2"],
 //    "requires": ["route_forwarding"],
 //    "bindable": true,
+//    "instances_retrievable": true,
 //    "bindings_retrievable": true,
 //    "metadata": {
 //    	"a": "b",

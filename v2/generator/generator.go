@@ -40,6 +40,9 @@ func CreateGenerator(serviceCount int, params Parameters) *Generator {
 		if params.Services.Bindable > 0 {
 			service.FromPool[Bindable] = randn(params.Services.Bindable)
 		}
+		if params.Services.InstancesRetrievable > 0 {
+			service.FromPool[InstancesRetrievable] = randn(params.Services.InstancesRetrievable)
+		}
 		if params.Services.BindingsRetrievable > 0 {
 			service.FromPool[BindingsRetrievable] = randn(params.Services.BindingsRetrievable)
 		}
