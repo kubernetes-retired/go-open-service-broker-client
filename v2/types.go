@@ -43,6 +43,13 @@ type Service struct {
 	// Bindable represents whether a service is bindable. May be overridden
 	// on a per-plan basis by the Plan.Bindable field.
 	Bindable bool `json:"bindable"`
+	// InstancesRetrievable is ALPHA and may change or disappear at any time.
+	// InstancesRetrievable will only be provided if alpha features are enabled.
+	//
+	// InstancesRetrievable represents whether fetching a service instances via a
+	// GET on the service instance resource's endpoint
+	// (/v2/service_instances/instance-id) is supported for all plans.
+	InstancesRetrievable bool `json:"instances_retrievable,omitempty"`
 	// BindingsRetrievable is ALPHA and may change or disappear at any time.
 	// BindingsRetrievable will only be provided if alpha features are enabled.
 	//
@@ -369,6 +376,27 @@ type DeprovisionRequest struct {
 	// OriginatingIdentity is the identity on the platform of the user making
 	// this request.
 	OriginatingIdentity *OriginatingIdentity `json:"originatingIdentity,omitempty"`
+}
+
+// GetInstanceRequest represents a request to do a GET on a particular instance
+// of a service.
+type GetInstanceRequest struct {
+	// InstanceID is the ID of the instance
+	InstanceID string `json:"instance_id"`
+}
+
+// GetInstanceResponse is sent as the response to doing a GET on a particular
+// instance.
+type GetInstanceResponse struct {
+	// ServiceID is the ID of the service the instance is provisioned from.
+	ServiceID string `json:"service_id"`
+	// PlanID is the ID of the plan the instance is provisioned from.
+	PlanID string `json:"plan_id"`
+	// DashboardURL is the URL of a web-based management user interface for
+	// the service instance.
+	DashboardURL string `json:"dashboard_url,omitempty"`
+	// Parameters is a set of configuration options for the instance.
+	Parameters map[string]interface{} `json:"parameters,omitempty"`
 }
 
 // DeprovisionResponse represents a broker's response to a deprovision request.

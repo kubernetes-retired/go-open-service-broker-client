@@ -21,10 +21,8 @@ import (
 	"reflect"
 	"testing"
 
-
 	v2 "github.com/kubernetes-sigs/go-open-service-broker-client/v2"
 	"github.com/kubernetes-sigs/go-open-service-broker-client/v2/fake"
-
 )
 
 func catalogResponse() *v2.CatalogResponse {
@@ -401,6 +399,85 @@ func TestDeprovisionInstance(t *testing.T) {
 			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
 		}
 		if e, a := fake.DeprovisionInstance, actions[0].Type; e != a {
+			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
+		}
+	}
+}
+
+func getInstanceResponse() *v2.GetInstanceResponse {
+	response := &v2.GetInstanceResponse{}
+	return response
+}
+
+func TestGetInstance(t *testing.T) {
+	cases := []struct {
+		name     string
+		reaction fake.GetInstanceReactionInterface
+		response *v2.GetInstanceResponse
+		err      error
+	}{
+		{
+			name: "unexpected action",
+			err:  fake.UnexpectedActionError(),
+		},
+		{
+			name: "response",
+			reaction: &fake.GetInstanceReaction{
+				Response: getInstanceResponse(),
+			},
+			response: getInstanceResponse(),
+		},
+		{
+			name: "error",
+			reaction: &fake.GetInstanceReaction{
+				Error: errors.New("oops"),
+			},
+			err: errors.New("oops"),
+		},
+		{
+			name: "dynamic response",
+			reaction: fake.DynamicGetInstanceReaction(func() (*v2.GetInstanceResponse, error) {
+				return getInstanceResponse(), nil
+			}),
+			response: getInstanceResponse(),
+		},
+		{
+			name: "dynamic error",
+			reaction: fake.DynamicGetInstanceReaction(func() (*v2.GetInstanceResponse, error) {
+				return nil, errors.New("oops")
+			}),
+			err: errors.New("oops"),
+		},
+		{
+			name: "nil static reaction",
+			reaction: func() fake.GetInstanceReactionInterface {
+				var nilStaticReaction *fake.GetInstanceReaction
+				return nilStaticReaction
+			}(),
+			err: fake.UnexpectedActionError(),
+		},
+	}
+
+	for _, tc := range cases {
+		fakeClient := &fake.FakeClient{
+			GetInstanceReaction: tc.reaction,
+		}
+
+		response, err := fakeClient.GetInstance(&v2.GetInstanceRequest{})
+
+		if !reflect.DeepEqual(tc.response, response) {
+			t.Errorf("%v: unexpected response; expected %+v, got %+v", tc.name, tc.response, response)
+		}
+
+		if !reflect.DeepEqual(tc.err, err) {
+			t.Errorf("%v: unexpected error; expected %+v, got %+v", tc.name, tc.err, err)
+		}
+
+		actions := fakeClient.Actions()
+		if e, a := 1, len(actions); e != a {
+			t.Errorf("%v: unexpected actions; expected %v, got %v; actions = %+v", tc.name, e, a, actions)
+		}
+		if e, a := fake.GetInstance, actions[0].Type; e != a {
 			t.Errorf("%v: unexpected action type; expected %v, got %v", tc.name, e, a)
 		}
 	}
