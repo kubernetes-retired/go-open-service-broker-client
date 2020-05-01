@@ -133,7 +133,7 @@ func okCatalog2Response() *CatalogResponse {
 	}
 }
 
-const alphaParameterSchemaCatalogBytes = `{
+const schemaCatalogBytes = `{
   "services": [{
     "name": "fake-service",
     "id": "acb56d7c-XXXX-XXXX-XXXX-feb140a59a66",
@@ -186,63 +186,7 @@ const alphaParameterSchemaCatalogBytes = `{
   }]
 }`
 
-const alphaParameterAndResponseSchemaCatalogBytes = `{
-  "services": [{
-    "name": "fake-service",
-    "id": "acb56d7c-XXXX-XXXX-XXXX-feb140a59a66",
-    "description": "fake service",
-    "tags": ["tag1", "tag2"],
-    "requires": ["route_forwarding"],
-    "bindable": true,
-    "instances_retrievable": true,
-    "bindings_retrievable": true,
-    "metadata": {
-    	"a": "b",
-    	"c": "d"
-    },
-    "dashboard_client": {
-      "id": "398e2f8e-XXXX-XXXX-XXXX-19a71ecbcf64",
-      "secret": "277cabb0-XXXX-XXXX-XXXX-7822c0a90e5d",
-      "redirect_uri": "http://localhost:1234"
-    },
-    "plan_updateable": true,
-    "plans": [{
-      "name": "fake-plan-1",
-      "id": "d3031751-XXXX-XXXX-XXXX-a42377d3320e",
-      "description": "description1",
-      "metadata": {
-      	"b": "c",
-      	"d": "e"
-      },
-      "schemas": {
-      	"service_instance": {
-	  	  "create": {
-	  	  	"parameters": {
-	  		  "foo": "bar"	
-	  	  	}
-	  	  },
-	  	  "update": {
-	  	  	"parameters": {
-	  		  "baz": "zap"
-	  	    }
-	  	  }
-      	},
-      	"service_binding": {
-      	  "create": {
-	  	  	"parameters": {
-      	  	  "zoo": "blu"
-      	    },
-	  	  	"response": {
-      	  	  "qux": "qax"
-      	    }
-      	  }
-      	}
-      }
-    }]
-  }]
-}`
-
-func alphaParameterCatalogResponse(includeResponseSchema bool) *CatalogResponse {
+func schemaCatalogResponse() *CatalogResponse {
 	catalog := okCatalogResponse()
 	catalog.Services[0].Plans[0].Schemas = &Schemas{
 		ServiceInstance: &ServiceInstanceSchema{
@@ -258,20 +202,12 @@ func alphaParameterCatalogResponse(includeResponseSchema bool) *CatalogResponse 
 			},
 		},
 		ServiceBinding: &ServiceBindingSchema{
-			Create: &RequestResponseSchema{
-				InputParametersSchema: InputParametersSchema{
-					Parameters: map[string]interface{}{
-						"zoo": "blu",
-					},
+			Create: &InputParametersSchema{
+				Parameters: map[string]interface{}{
+					"zoo": "blu",
 				},
 			},
 		},
-	}
-
-	if includeResponseSchema {
-		catalog.Services[0].Plans[0].Schemas.ServiceBinding.Create.Response = map[string]interface{}{
-			"qux": "qax",
-		}
 	}
 
 	return catalog
@@ -339,38 +275,18 @@ func TestGetCatalog(t *testing.T) {
 			version: Version2_13(),
 			httpReaction: httpReaction{
 				status: http.StatusOK,
-				body:   alphaParameterSchemaCatalogBytes,
+				body:   schemaCatalogBytes,
 			},
-			expectedResponse: alphaParameterCatalogResponse(false),
+			expectedResponse: schemaCatalogResponse(),
 		},
 		{
 			name:    "schemas not included if API version < 2.13",
 			version: Version2_12(),
 			httpReaction: httpReaction{
 				status: http.StatusOK,
-				body:   alphaParameterSchemaCatalogBytes,
+				body:   schemaCatalogBytes,
 			},
 			expectedResponse: okCatalogResponse(),
-		},
-		{
-			name:        "response schemas included if alpha features enabled",
-			version:     Version2_13(),
-			enableAlpha: true,
-			httpReaction: httpReaction{
-				status: http.StatusOK,
-				body:   alphaParameterAndResponseSchemaCatalogBytes,
-			},
-			expectedResponse: alphaParameterCatalogResponse(true),
-		},
-		{
-			name:        "response schemas not included if alpha features disabled",
-			version:     Version2_13(),
-			enableAlpha: false,
-			httpReaction: httpReaction{
-				status: http.StatusOK,
-				body:   alphaParameterAndResponseSchemaCatalogBytes,
-			},
-			expectedResponse: alphaParameterCatalogResponse(false),
 		},
 	}
 

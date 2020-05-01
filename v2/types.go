@@ -146,7 +146,7 @@ type ServiceBindingSchema struct {
 	// Create holds the schemas for the parameters accepted when a new binding
 	// is created and for the credentials returned when a new binding is
 	// created.
-	Create *RequestResponseSchema `json:"create,omitempty"`
+	Create *InputParametersSchema `json:"create,omitempty"`
 }
 
 // InputParametersSchema requires a client API version >=2.13.
@@ -157,20 +157,6 @@ type InputParametersSchema struct {
 	// The schema definition for the input parameters. Each input parameter
 	// is expressed as a property within a JSON object.
 	Parameters interface{} `json:"parameters,omitempty"`
-}
-
-// RequestResponseSchema requires a client API version >=2.13.
-//
-// RequestResponseSchema contains a schema for input parameters for creation or
-// update of an API resource, and a schema for the credentials returned by the
-// broker
-type RequestResponseSchema struct {
-	InputParametersSchema
-	// The schema definition for the broker's response to the bind request.
-	// Response is an ALPHA API attribute and may change. Alpha features must be
-	// enabled and the client must be using the latest API Version in order to
-	// use this.
-	Response interface{} `json:"response,omitempty"`
 }
 
 // OriginatingIdentity requires a client API version >=2.13.
