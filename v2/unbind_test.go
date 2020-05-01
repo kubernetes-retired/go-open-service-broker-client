@@ -85,10 +85,9 @@ func TestUnbind(t *testing.T) {
 			expectedResponse: successUnbindResponse(),
 		},
 		{
-			name:        "success - asynchronous",
-			version:     LatestAPIVersion(),
-			enableAlpha: true,
-			request:     defaultAsyncUnbindRequest(),
+			name:    "success - asynchronous",
+			version: LatestAPIVersion(),
+			request: defaultAsyncUnbindRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
 					AcceptsIncomplete: "true",
@@ -173,18 +172,10 @@ func TestUnbind(t *testing.T) {
 			expectedResponse: successUnbindResponse(),
 		},
 		{
-			name:               "async with alpha features disabled",
-			version:            LatestAPIVersion(),
-			enableAlpha:        false,
-			request:            defaultAsyncUnbindRequest(),
-			expectedErrMessage: "Asynchronous binding operations are not allowed: alpha API methods not allowed: alpha features must be enabled",
-		},
-		{
 			name:               "async with unsupported API version",
-			version:            Version2_12(),
-			enableAlpha:        true,
+			version:            Version2_13(),
 			request:            defaultAsyncUnbindRequest(),
-			expectedErrMessage: "Asynchronous binding operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.12, Expected: 2.13",
+			expectedErrMessage: "Asynchronous binding operations are not allowed: operation not allowed: must have API version >= 2.14. Current: 2.13",
 		},
 	}
 

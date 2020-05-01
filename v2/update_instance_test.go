@@ -264,9 +264,8 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			expectedResponse: successUpdateInstanceResponse(),
 		},
 		{
-			name:        "success with updated dashboard url - ok if alpha API features are enabled",
-			version:     LatestAPIVersion(),
-			enableAlpha: true,
+			name:    "success with updated dashboard url - ok",
+			version: LatestAPIVersion(),
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
@@ -274,10 +273,9 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			expectedResponse: successUpdateInstanceResponseWithDashboard(),
 		},
 		{
-			name:        "success with updated dashboard url - async if alpha API features are enabled",
-			version:     LatestAPIVersion(),
-			enableAlpha: true,
-			request:     defaultAsyncUpdateInstanceRequest(),
+			name:    "success with updated dashboard url - async",
+			version: LatestAPIVersion(),
+			request: defaultAsyncUpdateInstanceRequest(),
 			httpChecks: httpChecks{
 				params: map[string]string{
 					AcceptsIncomplete: "true",
@@ -290,19 +288,8 @@ func TestUpdateInstanceInstance(t *testing.T) {
 			expectedResponse: successUpdateInstanceResponeAsyncWithDashboard(),
 		},
 		{
-			name:        "dashboard url not sent unless alpha API features enabled",
-			version:     LatestAPIVersion(),
-			enableAlpha: false,
-			httpReaction: httpReaction{
-				status: http.StatusOK,
-				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
-			},
-			expectedResponse: successUpdateInstanceResponse(),
-		},
-		{
-			name:        "dashboard url not sent unless latest version of the API is used",
-			version:     Version2_12(),
-			enableAlpha: true,
+			name:    "dashboard url not sent unless API version >= 2.14",
+			version: Version2_13(),
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successUpdateInstanceResponseBodyWithNewDashboardURL,
