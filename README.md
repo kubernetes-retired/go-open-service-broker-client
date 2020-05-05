@@ -54,7 +54,7 @@ Check out the detailed docs for the [v2 client here](docs/).
 
 This repository is used in:
 
-* The [Kubernetes `service-catalog`](https://github.com/kubernetes-incubator/service-catalog)
+* The [Kubernetes `service-catalog`](https://github.com/kubernetes-sigs/service-catalog)
 incubator repo
 * The [`osb-broker-lib`](https://github.com/pmorie/osb-broker-lib) library for
   creating service brokers
