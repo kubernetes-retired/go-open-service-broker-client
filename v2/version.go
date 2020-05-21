@@ -88,7 +88,7 @@ func Version2_13() APIVersion {
 	return APIVersion{label: internalAPIVersion2_13, order: 2}
 }
 
-//Version2_13 returns an APIVersion struct with the internal API version set to "2.13"
+//Version2_14 returns an APIVersion struct with the internal API version set to "2.14"
 func Version2_14() APIVersion {
 	return APIVersion{label: internalAPIVersion2_14, order: 3}
 }
