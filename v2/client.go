@@ -302,6 +302,22 @@ func (c *client) validateAlphaAPIMethodsAllowed() error {
 	return nil
 }
 
+// validateClientVersionIsAtLeast returns an error if client version is not at
+// least the specified version
+func (c *client) validateClientVersionIsAtLeast(version APIVersion) error {
+	if !c.APIVersion.AtLeast(version) {
+		return OperationNotAllowedError{
+			reason: fmt.Sprintf(
+				"must have API version >= %s. Current: %s",
+				version,
+				c.APIVersion.label,
+			),
+		}
+	}
+
+	return nil
+}
+
 // drainReader reads and discards the remaining data in reader (for example
 // response body data) For HTTP this ensures that the http connection
 // could be reused for another request if the keepalive is enabled.

@@ -53,8 +53,7 @@ func TestGetInstance(t *testing.T) {
 		expectedErr        error
 	}{
 		{
-			name:        "success",
-			enableAlpha: true,
+			name: "success",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   okInstanceBytes,
@@ -62,16 +61,14 @@ func TestGetInstance(t *testing.T) {
 			expectedResponse: okGetInstanceResponse(),
 		},
 		{
-			name:        "http error",
-			enableAlpha: true,
+			name: "http error",
 			httpReaction: httpReaction{
 				err: fmt.Errorf("http error"),
 			},
 			expectedErrMessage: "http error",
 		},
 		{
-			name:        "200 with malformed response",
-			enableAlpha: true,
+			name: "200 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   malformedResponse,
@@ -79,8 +76,7 @@ func TestGetInstance(t *testing.T) {
 			expectedErrMessage: "Status: 200; ErrorMessage: <nil>; Description: <nil>; ResponseError: unexpected end of JSON input",
 		},
 		{
-			name:        "500 with malformed response",
-			enableAlpha: true,
+			name: "500 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   malformedResponse,
@@ -88,8 +84,7 @@ func TestGetInstance(t *testing.T) {
 			expectedErrMessage: "Status: 500; ErrorMessage: <nil>; Description: <nil>; ResponseError: unexpected end of JSON input",
 		},
 		{
-			name:        "500 with conventional response",
-			enableAlpha: true,
+			name: "500 with conventional response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,
@@ -97,15 +92,9 @@ func TestGetInstance(t *testing.T) {
 			expectedErr: testHTTPStatusCodeError(),
 		},
 		{
-			name:               "alpha features disabled",
-			enableAlpha:        false,
-			expectedErrMessage: "GetInstance not allowed: alpha API methods not allowed: alpha features must be enabled",
-		},
-		{
-			name:        "unsupported API version",
-			enableAlpha: true,
-			APIVersion:  Version2_11(),
-			expectedErr: testGetInstanceNotAllowedErrorUnsupportedAPIVersion(),
+			name:               "unsupported API version",
+			APIVersion:         Version2_13(),
+			expectedErrMessage: "GetInstance not allowed: operation not allowed: must have API version >= 2.14. Current: 2.13",
 		},
 	}
 

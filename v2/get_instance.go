@@ -22,7 +22,7 @@ import (
 )
 
 func (c *client) GetInstance(r *GetInstanceRequest) (*GetInstanceResponse, error) {
-	if err := c.validateAlphaAPIMethodsAllowed(); err != nil {
+	if err := c.validateClientVersionIsAtLeast(Version2_14()); err != nil {
 		return nil, GetInstanceNotAllowedError{
 			reason: err.Error(),
 		}

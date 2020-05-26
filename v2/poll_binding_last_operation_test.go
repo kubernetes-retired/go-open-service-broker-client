@@ -47,8 +47,7 @@ func TestPollBindingLastOperation(t *testing.T) {
 		expectedErr         error
 	}{
 		{
-			name:        "op succeeded",
-			enableAlpha: true,
+			name: "op succeeded",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successLastOperationResponseBody,
@@ -56,8 +55,7 @@ func TestPollBindingLastOperation(t *testing.T) {
 			expectedResponse: successLastOperationResponse(),
 		},
 		{
-			name:        "op in progress",
-			enableAlpha: true,
+			name: "op in progress",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   inProgressLastOperationResponseBody,
@@ -65,8 +63,7 @@ func TestPollBindingLastOperation(t *testing.T) {
 			expectedResponse: inProgressLastOperationResponse(),
 		},
 		{
-			name:        "op failed",
-			enableAlpha: true,
+			name: "op failed",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   failedLastOperationResponseBody,
@@ -74,16 +71,14 @@ func TestPollBindingLastOperation(t *testing.T) {
 			expectedResponse: failedLastOperationResponse(),
 		},
 		{
-			name:        "http error",
-			enableAlpha: true,
+			name: "http error",
 			httpReaction: httpReaction{
 				err: fmt.Errorf("http error"),
 			},
 			expectedErrMessage: "http error",
 		},
 		{
-			name:        "200 with malformed response",
-			enableAlpha: true,
+			name: "200 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   malformedResponse,
@@ -91,8 +86,7 @@ func TestPollBindingLastOperation(t *testing.T) {
 			expectedErrMessage: "Status: 200; ErrorMessage: <nil>; Description: <nil>; ResponseError: unexpected end of JSON input",
 		},
 		{
-			name:        "500 with malformed response",
-			enableAlpha: true,
+			name: "500 with malformed response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   malformedResponse,
@@ -100,8 +94,7 @@ func TestPollBindingLastOperation(t *testing.T) {
 			expectedErrMessage: "Status: 500; ErrorMessage: <nil>; Description: <nil>; ResponseError: unexpected end of JSON input",
 		},
 		{
-			name:        "500 with conventional response",
-			enableAlpha: true,
+			name: "500 with conventional response",
 			httpReaction: httpReaction{
 				status: http.StatusInternalServerError,
 				body:   conventionalFailureResponseBody,
@@ -109,8 +102,7 @@ func TestPollBindingLastOperation(t *testing.T) {
 			expectedErr: testHTTPStatusCodeError(),
 		},
 		{
-			name:        "op succeeded",
-			enableAlpha: true,
+			name: "op succeeded",
 			httpReaction: httpReaction{
 				status: http.StatusOK,
 				body:   successLastOperationResponseBody,
@@ -119,7 +111,6 @@ func TestPollBindingLastOperation(t *testing.T) {
 		},
 		{
 			name:                "originating identity included",
-			enableAlpha:         true,
 			originatingIdentity: testOriginatingIdentity,
 			httpChecks:          httpChecks{headers: map[string]string{OriginatingIdentityHeader: testOriginatingIdentityHeaderValue}},
 			httpReaction: httpReaction{
@@ -130,7 +121,6 @@ func TestPollBindingLastOperation(t *testing.T) {
 		},
 		{
 			name:                "originating identity excluded",
-			enableAlpha:         true,
 			originatingIdentity: nil,
 			httpChecks:          httpChecks{headers: map[string]string{OriginatingIdentityHeader: ""}},
 			httpReaction: httpReaction{
@@ -140,15 +130,9 @@ func TestPollBindingLastOperation(t *testing.T) {
 			expectedResponse: successLastOperationResponse(),
 		},
 		{
-			name:               "alpha features disabled",
-			enableAlpha:        false,
-			expectedErrMessage: "Asynchronous binding operations are not allowed: alpha API methods not allowed: alpha features must be enabled",
-		},
-		{
 			name:               "unsupported API version",
-			enableAlpha:        true,
-			APIVersion:         Version2_12(),
-			expectedErrMessage: "Asynchronous binding operations are not allowed: alpha API methods not allowed: must have latest API Version. Current: 2.12, Expected: 2.13",
+			APIVersion:         Version2_13(),
+			expectedErrMessage: "Asynchronous binding operations are not allowed: operation not allowed: must have API version >= 2.14. Current: 2.13",
 		},
 	}
 

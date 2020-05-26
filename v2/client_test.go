@@ -54,34 +54,6 @@ func testHTTPStatusCodeError() error {
 	}
 }
 
-func testGetInstanceNotAllowedErrorUnsupportedAPIVersion() error {
-	e := AlphaAPIMethodsNotAllowedError{
-		reason: fmt.Sprintf(
-			"must have latest API Version. Current: %s, Expected: %s",
-			Version2_11().label,
-			LatestAPIVersion().label,
-		),
-	}
-
-	return GetInstanceNotAllowedError{
-		reason: e.Error(),
-	}
-}
-
-func testGetBindingNotAllowedErrorUnsupportedAPIVersion() error {
-	e := AlphaAPIMethodsNotAllowedError{
-		reason: fmt.Sprintf(
-			"must have latest API Version. Current: %s, Expected: %s",
-			Version2_11().label,
-			LatestAPIVersion().label,
-		),
-	}
-
-	return GetBindingNotAllowedError{
-		reason: e.Error(),
-	}
-}
-
 func truePtr() *bool {
 	b := true
 	return &b
