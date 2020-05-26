@@ -1,7 +1,7 @@
 language: go
 go_import_path: github.com/kubernetes-sigs/go-open-service-broker-client
 go:
-  - 1.7.4
+  - 1.14.x
 before_install:
   - go get github.com/mattn/goveralls
 before_script:
