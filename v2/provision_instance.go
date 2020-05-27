@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 // internal message body types
