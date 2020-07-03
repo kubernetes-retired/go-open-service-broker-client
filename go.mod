@@ -1,4 +1,4 @@
-module github.com/kubernetes-sigs/go-open-service-broker-client/v2
+module sigs.k8s.io/go-open-service-broker-client/v2
 
 go 1.14
 
