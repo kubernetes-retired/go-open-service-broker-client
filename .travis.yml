@@ -1,5 +1,5 @@
 language: go
-go_import_path: github.com/kubernetes-sigs/go-open-service-broker-client
+go_import_path: sigs.k8s.io/go-open-service-broker-client/v2
 go:
   - 1.14.x
 before_install:

@@ -21,7 +21,7 @@ import (
 	"net/http"
 	"sync"
 
-	v2 "github.com/kubernetes-sigs/go-open-service-broker-client/v2"
+	v2 "sigs.k8s.io/go-open-service-broker-client/v2"
 )
 
 // NewFakeClientFunc returns a v2.CreateFunc that returns a FakeClient with
