@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func defaultLastOperationRequest() *LastOperationRequest {
@@ -169,6 +170,35 @@ func TestPollLastOperation(t *testing.T) {
 			},
 			expectedResponse: successLastOperationResponse(),
 		},
+		{
+			name:        "retry delay header supplied with alpha features enabled",
+			version:     LatestAPIVersion(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   inProgressLastOperationResponseBody,
+				header: map[string][]string{PollingDelayHeader: {"600"}},
+			},
+			expectedResponse: &LastOperationResponse{
+				State:       StateInProgress,
+				Description: strPtr("test description"),
+				PollDelay:   durationPtr(600 * time.Second),
+			},
+		},
+		{
+			name:        "retry delay header supplied with alpha features disabled",
+			version:     LatestAPIVersion(),
+			enableAlpha: false,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   inProgressLastOperationResponseBody,
+				header: map[string][]string{PollingDelayHeader: {"600"}},
+			},
+			expectedResponse: &LastOperationResponse{
+				State:       StateInProgress,
+				Description: strPtr("test description"),
+			},
+		},
 	}
 
 	for _, tc := range cases {
@@ -199,6 +229,10 @@ func TestPollLastOperation(t *testing.T) {
 
 		doResponseChecks(t, tc.name, response, err, tc.expectedResponse, tc.expectedErrMessage, tc.expectedErr)
 	}
+}
+
+func durationPtr(d time.Duration) *time.Duration {
+	return &d
 }
 
 func TestValidateLastOperationRequest(t *testing.T) {

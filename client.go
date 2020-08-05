@@ -41,6 +41,9 @@ const (
 	// OriginatingIdentityHeader is the header associated with originating
 	// identity.
 	OriginatingIdentityHeader = "X-Broker-API-Originating-Identity"
+	// PollingDelayHeader is the header used by the brokers to tell the clients
+	// how many seconds they should wait before retrying the polling
+	PollingDelayHeader = "Retry-After"
 
 	catalogURL                 = "%s/v2/catalog"
 	serviceInstanceURLFmt      = "%s/v2/service_instances/%s"

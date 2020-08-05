@@ -16,6 +16,8 @@ limitations under the License.
 
 package v2
 
+import "time"
+
 // This file contains the user-facing types used for the Open Service Broker
 // client.
 
@@ -412,6 +414,10 @@ type LastOperationResponse struct {
 	// Description is a message from the broker describing the current state
 	// of the operation.
 	Description *string `json:"description,omitempty"`
+	// PollDelay is the time interval that may be returned by a broker using
+	// API >= 1.15 indicating how long the client should wait before retrying
+	// polling for the operation result again.
+	PollDelay *time.Duration `json:"-"`
 }
 
 // LastOperationState is a typedef representing the state of an ongoing
