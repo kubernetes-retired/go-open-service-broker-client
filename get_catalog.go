@@ -30,7 +30,7 @@ func (c *client) GetCatalog() (*CatalogResponse, error) {
 	}
 
 	defer func() {
-		drainReader(response.Body)
+		_ = drainReader(response.Body)
 		response.Body.Close()
 	}()
 

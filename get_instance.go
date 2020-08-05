@@ -36,7 +36,7 @@ func (c *client) GetInstance(r *GetInstanceRequest) (*GetInstanceResponse, error
 	}
 
 	defer func() {
-		drainReader(response.Body)
+		_ = drainReader(response.Body)
 		response.Body.Close()
 	}()
 

@@ -59,11 +59,6 @@ func truePtr() *bool {
 	return &b
 }
 
-func falsePtr() *bool {
-	b := false
-	return &b
-}
-
 func closer(s string) io.ReadCloser {
 	return nopCloser{bytes.NewBufferString(s)}
 }

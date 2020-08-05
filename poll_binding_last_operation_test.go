@@ -31,8 +31,6 @@ func defaultBindingLastOperationRequest() *BindingLastOperationRequest {
 	}
 }
 
-const successBindingLastOperationRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id"}`
-
 func TestPollBindingLastOperation(t *testing.T) {
 	cases := []struct {
 		name                string

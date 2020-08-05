@@ -24,7 +24,7 @@ func CreateGenerator(serviceCount int, params Parameters) *Generator {
 	rand.Seed(params.Seed)
 	g := Generator{}
 	g.Services = make(Services, serviceCount)
-	for s, _ := range g.Services {
+	for s := range g.Services {
 		service := &g.Services[s]
 		// Fill out the service.
 		service.FromPool = Pull{}
@@ -55,7 +55,7 @@ func CreateGenerator(serviceCount int, params Parameters) *Generator {
 		service.Plans = make(Plans, planCount)
 
 		// Fill out the plan.
-		for p, _ := range service.Plans {
+		for p := range service.Plans {
 			plan := &service.Plans[p]
 			plan.FromPool = Pull{}
 			if params.Plans.Metadata > 0 {

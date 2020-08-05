@@ -32,8 +32,6 @@ func defaultLastOperationRequest() *LastOperationRequest {
 	}
 }
 
-const successLastOperationRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id"}`
-
 func successLastOperationResponse() *LastOperationResponse {
 	return &LastOperationResponse{
 		State:       StateSucceeded,

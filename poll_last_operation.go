@@ -49,7 +49,7 @@ func (c *client) PollLastOperation(r *LastOperationRequest) (*LastOperationRespo
 	}
 
 	defer func() {
-		drainReader(response.Body)
+		_ = drainReader(response.Body)
 		response.Body.Close()
 	}()
 
