@@ -41,6 +41,9 @@ const (
 	// OriginatingIdentityHeader is the header associated with originating
 	// identity.
 	OriginatingIdentityHeader = "X-Broker-API-Originating-Identity"
+	// PollingDelayHeader is the header used by the brokers to tell the clients
+	// how many seconds they should wait before retrying the polling
+	PollingDelayHeader = "Retry-After"
 
 	catalogURL                 = "%s/v2/catalog"
 	serviceInstanceURLFmt      = "%s/v2/service_instances/%s"
@@ -280,28 +283,6 @@ func isValidJSON(s string) error {
 	return json.Unmarshal([]byte(s), &js)
 }
 
-// validateAlphaAPIMethodsAllowed returns an error if alpha API methods are not
-// allowed for this client.
-func (c *client) validateAlphaAPIMethodsAllowed() error {
-	if !c.EnableAlphaFeatures {
-		return AlphaAPIMethodsNotAllowedError{
-			reason: fmt.Sprintf("alpha features must be enabled"),
-		}
-	}
-
-	if !c.APIVersion.AtLeast(LatestAPIVersion()) {
-		return AlphaAPIMethodsNotAllowedError{
-			reason: fmt.Sprintf(
-				"must have latest API Version. Current: %s, Expected: %s",
-				c.APIVersion.label,
-				LatestAPIVersion().label,
-			),
-		}
-	}
-
-	return nil
-}
-
 // validateClientVersionIsAtLeast returns an error if client version is not at
 // least the specified version
 func (c *client) validateClientVersionIsAtLeast(version APIVersion) error {
@@ -336,9 +317,4 @@ func drainReader(reader io.Reader) error {
 
 type asyncSuccessResponseBody struct {
 	Operation *string `json:"operation"`
-}
-
-type failureResponseBody struct {
-	Err         *string `json:"error,omitempty"`
-	Description *string `json:"description,omitempty"`
 }

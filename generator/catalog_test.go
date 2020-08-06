@@ -60,7 +60,7 @@ func TestGetCatalog(t *testing.T) {
 		t.Errorf("Got error, %v", err)
 	}
 
-	catalogBytes, err := json.MarshalIndent(catalog, "", "  ")
+	catalogBytes, _ := json.MarshalIndent(catalog, "", "  ")
 
 	catalogJson := string(catalogBytes)
 

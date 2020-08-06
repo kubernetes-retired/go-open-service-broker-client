@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func defaultBindingLastOperationRequest() *BindingLastOperationRequest {
@@ -30,8 +31,6 @@ func defaultBindingLastOperationRequest() *BindingLastOperationRequest {
 		PlanID:     strPtr(testPlanID),
 	}
 }
-
-const successBindingLastOperationRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id"}`
 
 func TestPollBindingLastOperation(t *testing.T) {
 	cases := []struct {
@@ -133,6 +132,49 @@ func TestPollBindingLastOperation(t *testing.T) {
 			name:               "unsupported API version",
 			APIVersion:         Version2_13(),
 			expectedErrMessage: "Asynchronous binding operations are not allowed: operation not allowed: must have API version >= 2.14. Current: 2.13",
+		},
+		{
+			name: "polling delay header is decoded",
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   inProgressLastOperationResponseBody,
+				header: map[string][]string{PollingDelayHeader: {"300"}},
+			},
+			enableAlpha: true,
+			expectedResponse: &LastOperationResponse{
+				State:       StateInProgress,
+				Description: strPtr("test description"),
+				PollDelay:   durationPtr(300 * time.Second),
+			},
+		},
+		{
+			name:       "polling delay header is ignored when alpha feature is disabled",
+			APIVersion: LatestAPIVersion(),
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   inProgressLastOperationResponseBody,
+				header: map[string][]string{PollingDelayHeader: {"300"}},
+			},
+			expectedResponse: &LastOperationResponse{
+				State:       StateInProgress,
+				Description: strPtr("test description"),
+				PollDelay:   nil,
+			},
+		},
+		{
+			name:        "polling delay header as timestamp is ignored",
+			enableAlpha: true,
+			APIVersion:  LatestAPIVersion(),
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   inProgressLastOperationResponseBody,
+				header: map[string][]string{PollingDelayHeader: {"2021-01-23T23:12:00Z"}},
+			},
+			expectedResponse: &LastOperationResponse{
+				State:       StateInProgress,
+				Description: strPtr("test description"),
+				PollDelay:   nil,
+			},
 		},
 	}
 

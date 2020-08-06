@@ -54,7 +54,7 @@ func (c *client) Unbind(r *UnbindRequest) (*UnbindResponse, error) {
 	}
 
 	defer func() {
-		drainReader(response.Body)
+		_ = drainReader(response.Body)
 		response.Body.Close()
 	}()
 

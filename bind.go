@@ -92,7 +92,7 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 	}
 
 	defer func() {
-		drainReader(response.Body)
+		_ = drainReader(response.Body)
 		response.Body.Close()
 	}()
 

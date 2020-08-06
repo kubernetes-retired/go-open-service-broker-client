@@ -631,7 +631,7 @@ func TestPollLastOperations(t *testing.T) {
 			PollLastOperationReactions: tc.reactions,
 		}
 
-		fakeClient.DeprovisionInstance(&v2.DeprovisionRequest{})
+		_, _ = fakeClient.DeprovisionInstance(&v2.DeprovisionRequest{})
 		response, err := fakeClient.PollLastOperation(&v2.LastOperationRequest{OperationKey: tc.operationKey})
 
 		if !reflect.DeepEqual(tc.response, response) {

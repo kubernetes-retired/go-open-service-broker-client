@@ -59,11 +59,6 @@ func truePtr() *bool {
 	return &b
 }
 
-func falsePtr() *bool {
-	b := false
-	return &b
-}
-
 func closer(s string) io.ReadCloser {
 	return nopCloser{bytes.NewBufferString(s)}
 }
@@ -85,6 +80,7 @@ type httpReaction struct {
 	status int
 	body   string
 	err    error
+	header http.Header
 }
 
 func newTestClient(t *testing.T, name string, version APIVersion, enableAlpha bool, httpChecks httpChecks, httpReaction httpReaction) *client {
@@ -140,6 +136,7 @@ func doHTTP(t *testing.T, name string, checks httpChecks, reaction httpReaction)
 
 		return &http.Response{
 			StatusCode: reaction.status,
+			Header:     reaction.header,
 			Body:       closer(reaction.body),
 		}, reaction.err
 	}

@@ -42,8 +42,8 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 	}
 
 	defer func() {
-		drainReader(response.Body)
-		response.Body.Close()
+		_ = drainReader(response.Body)
+		_ = response.Body.Close()
 	}()
 
 	switch response.StatusCode {

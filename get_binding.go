@@ -36,7 +36,7 @@ func (c *client) GetBinding(r *GetBindingRequest) (*GetBindingResponse, error) {
 	}
 
 	defer func() {
-		drainReader(response.Body)
+		_ = drainReader(response.Body)
 		response.Body.Close()
 	}()
 
