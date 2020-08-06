@@ -197,6 +197,20 @@ func TestPollLastOperation(t *testing.T) {
 				Description: strPtr("test description"),
 			},
 		},
+		{
+			name:        "retry delay header with a timestamp is ignored",
+			version:     LatestAPIVersion(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   inProgressLastOperationResponseBody,
+				header: map[string][]string{PollingDelayHeader: {"2020-12-31T23:59:60Z"}},
+			},
+			expectedResponse: &LastOperationResponse{
+				State:       StateInProgress,
+				Description: strPtr("test description"),
+			},
+		},
 	}
 
 	for _, tc := range cases {

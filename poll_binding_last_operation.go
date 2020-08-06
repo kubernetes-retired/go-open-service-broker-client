@@ -19,6 +19,8 @@ package v2
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 func (c *client) PollBindingLastOperation(r *BindingLastOperationRequest) (*LastOperationResponse, error) {
@@ -62,6 +64,14 @@ func (c *client) PollBindingLastOperation(r *BindingLastOperationRequest) (*Last
 		userResponse := &LastOperationResponse{}
 		if err := c.unmarshalResponse(response, userResponse); err != nil {
 			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
+		}
+
+		if c.EnableAlphaFeatures {
+			delayInSeconds := response.Header.Get(PollingDelayHeader)
+			if delay, err := strconv.Atoi(delayInSeconds); err == nil {
+				pollDelay := time.Duration(delay) * time.Second
+				userResponse.PollDelay = &pollDelay
+			}
 		}
 
 		return userResponse, nil
