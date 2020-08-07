@@ -114,6 +114,30 @@ type Plan struct {
 	// the expected parameters for creation and update of instances and
 	// creation of bindings.
 	Schemas *Schemas `json:"schemas,omitempty"`
+	//PlanUpdateable requires alpha features flag to be enabled.
+	//
+	// PlanUpdateable specifies whether the Plan supports
+	// upgrade/downgrade/sidegrade to another version. If specified,
+	// this takes precedence over the Service Offering's PlanUpdateable
+	// field. Optional;
+	// defaults to unset
+	PlanUpdateable *bool `json:"plan_updateable,omitempty"`
+	// MaximumPollingDuration requires alpha features flag to be enabled.
+	//
+	// MaximumPollingDuration is a duration, in seconds, that the should
+	// be used as the Service's maximum polling duration.
+	MaximumPollingDuration *int64 `json:"maximum_polling_duration,omitempty"`
+	// MaintenanceInfo requires alpha features flag to be enabled.
+	//
+	// MaintenanceInfo represents maintenance information for a Service
+	// Instance which is provisioned using the Service Plan. Optional;
+	// defaults to unset
+	MaintenanceInfo *MaintenanceInfo `json:"maintenance_info,omitempty"`
+}
+
+type MaintenanceInfo struct {
+	Version     string `json:"version"`
+	Description string `json:"description,omitempty"`
 }
 
 // Schemas requires a client API version >=2.13.

@@ -213,6 +213,41 @@ func schemaCatalogResponse() *CatalogResponse {
 	return catalog
 }
 
+const okCatalog215Bytes = `{
+  "services": [{
+    "name": "fake-service-2",
+    "id": "fake-service-2-id",
+    "description": "service-description-2",
+    "bindable": false,
+    "plans": [{
+      "name": "fake-plan-2",
+      "id": "fake-plan-2-id",
+      "description": "description-2",
+      "bindable": true,
+      "plan_updateable": true,
+      "maximum_polling_duration": 600,
+      "maintenance_info": {
+        "version": "1.2.3",
+        "description": "Avast! Pieces o' madness are forever clear."
+      }
+    }]
+  }]
+}`
+
+func okCatalog215Response() *CatalogResponse {
+	response := okCatalog2Response()
+	var duration int64 = 600
+	response.Services[0].Plans[0].MaximumPollingDuration = &duration
+
+	response.Services[0].Plans[0].PlanUpdateable = truePtr()
+	response.Services[0].Plans[0].MaintenanceInfo = &MaintenanceInfo{
+		Version:     "1.2.3",
+		Description: "Avast! Pieces o' madness are forever clear.",
+	}
+
+	return response
+}
+
 func TestGetCatalog(t *testing.T) {
 	cases := []struct {
 		name               string
@@ -287,6 +322,26 @@ func TestGetCatalog(t *testing.T) {
 				body:   schemaCatalogBytes,
 			},
 			expectedResponse: okCatalogResponse(),
+		},
+		{
+			name:        "plan has its own updateable attribute, max polling duration and maintenance info",
+			version:     LatestAPIVersion(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   okCatalog215Bytes,
+			},
+			expectedResponse: okCatalog215Response(),
+		},
+		{
+			name:        "alpha disabled: plan has its own updateable attribute, max polling duration and maintenance info",
+			version:     LatestAPIVersion(),
+			enableAlpha: false,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   okCatalog215Bytes,
+			},
+			expectedResponse: okCatalog2Response(),
 		},
 	}
 

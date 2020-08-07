@@ -33,6 +33,23 @@ func TestAtLeast(t *testing.T) {
 	}
 }
 
+func TestIsLessThan(t *testing.T) {
+	v2_13 := Version2_13()
+	v2_12 := Version2_12()
+
+	if v2_13.IsLessThan(v2_12) {
+		t.Error("Expected 2.13 not to be less than 2.12")
+	}
+
+	if v2_13.IsLessThan(v2_13) {
+		t.Error("Expected 2.13 not to be less than itself")
+	}
+
+	if !v2_12.IsLessThan(v2_13) {
+		t.Error("Expected 2.12 to be less than 2.13")
+	}
+}
+
 func TestLatestAPIVersion(t *testing.T) {
 	if LatestAPIVersion() != Version2_14() {
 		t.Error("Unexpected Latest API Version--expected 2.14")
