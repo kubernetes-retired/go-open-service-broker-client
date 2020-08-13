@@ -501,6 +501,21 @@ type BindResource struct {
 	Route   *string `json:"route,omitempty"`
 }
 
+type EndpointProtocol string
+
+const (
+	EndpointProtocolTcp EndpointProtocol = "tcp"
+	EndpointProtocolUdp EndpointProtocol = "udp"
+	EndpointProtocolAll EndpointProtocol = "all"
+)
+
+// Endpoint contains data describing the service endpoints
+type Endpoint struct {
+	Host     string   `json:"host"`
+	Ports    []uint16 `json:"ports"`
+	Protocol *EndpointProtocol
+}
+
 // BindResponse represents a broker's response to a BindRequest.
 type BindResponse struct {
 	// Async requires a client API version >= 2.14.
@@ -529,6 +544,11 @@ type BindResponse struct {
 	// OperationKey is an extra identifier supplied by the broker to identify
 	// asynchronous operations.
 	OperationKey *OperationKey `json:"operation,omitempty"`
+	// Endpoints requires alpha features to be enabled
+	//
+	// The network endpoints that the Application uses to connect to the
+	// Service Instance.
+	Endpoints *[]Endpoint `json:"endpoints,omitempty"`
 }
 
 // UnbindRequest represents a request to unbind a particular binding.
@@ -598,4 +618,9 @@ type GetBindingResponse struct {
 	VolumeMounts []interface{} `json:"volume_mounts,omitempty"`
 	// Parameters is configuration parameters for the binding.
 	Parameters map[string]interface{} `json:"parameters,omitempty"`
+	// Endpoints requires alpha features to be enabled
+	//
+	// The network endpoints that the Application uses to connect to the
+	// Service Instance.
+	Endpoints *[]Endpoint `json:"endpoints,omitempty"`
 }

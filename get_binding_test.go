@@ -22,11 +22,21 @@ import (
 	"testing"
 )
 
-const okBindingBytes = `{
+const (
+	okBindingBytes = `{
   "credentials": {
     "test-key": "foo"
   }
 }`
+	okBindingEndpointBytes = `{
+  "credentials": {
+    "test-key": "foo"
+  },
+  "endpoints": [
+    {"host": "c-beam.alpha.city", "ports": [8080, 8443], "protocol": "tcp"}
+  ]
+}`
+)
 
 func defaultGetBindingRequest() *GetBindingRequest {
 	return &GetBindingRequest{
@@ -39,6 +49,17 @@ func okGetBindingResponse() *GetBindingResponse {
 	response := &GetBindingResponse{}
 	response.Credentials = map[string]interface{}{
 		"test-key": "foo",
+	}
+	return response
+}
+func okGetBindingEndpointResponse() *GetBindingResponse {
+	response := okGetBindingResponse()
+	response.Endpoints = &[]Endpoint{
+		{
+			Host:     "c-beam.alpha.city",
+			Ports:    []uint16{8080, 8443},
+			Protocol: (*EndpointProtocol)(strPtr("tcp")),
+		},
 	}
 	return response
 }
@@ -97,6 +118,26 @@ func TestGetBinding(t *testing.T) {
 			name:               "unsupported API version",
 			APIVersion:         Version2_13(),
 			expectedErrMessage: "GetBinding not allowed: operation not allowed: must have API version >= 2.14. Current: 2.13",
+		},
+		{
+			name:        "binding with endpoints",
+			APIVersion:  LatestAPIVersion(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   okBindingEndpointBytes,
+			},
+			expectedResponse: okGetBindingEndpointResponse(),
+		},
+		{
+			name:        "alpha features disabled: binding with endpoints",
+			APIVersion:  LatestAPIVersion(),
+			enableAlpha: false,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   okBindingEndpointBytes,
+			},
+			expectedResponse: okGetBindingResponse(),
 		},
 	}
 

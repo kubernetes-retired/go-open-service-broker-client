@@ -47,6 +47,10 @@ func (c *client) GetBinding(r *GetBindingRequest) (*GetBindingResponse, error) {
 			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
 		}
 
+		if !c.EnableAlphaFeatures {
+			userResponse.Endpoints = nil
+		}
+
 		return userResponse, nil
 	default:
 		return nil, c.handleFailureResponse(response)
