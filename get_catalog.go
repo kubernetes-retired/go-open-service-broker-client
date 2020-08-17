@@ -41,16 +41,27 @@ func (c *client) GetCatalog() (*CatalogResponse, error) {
 			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
 		}
 
-		if !c.APIVersion.AtLeast(Version2_13()) {
-			for ii := range catalogResponse.Services {
-				for jj := range catalogResponse.Services[ii].Plans {
-					catalogResponse.Services[ii].Plans[jj].Schemas = nil
-				}
-			}
+		if c.APIVersion.IsLessThan(Version2_13()) || !c.EnableAlphaFeatures {
+			c.pruneCatalogResponse(catalogResponse)
 		}
 
 		return catalogResponse, nil
 	default:
 		return nil, c.handleFailureResponse(response)
+	}
+}
+
+func (c *client) pruneCatalogResponse(catalogResponse *CatalogResponse) {
+	for ii := range catalogResponse.Services {
+		for jj := range catalogResponse.Services[ii].Plans {
+			if c.APIVersion.IsLessThan(Version2_13()) {
+				catalogResponse.Services[ii].Plans[jj].Schemas = nil
+			}
+			if !c.EnableAlphaFeatures {
+				catalogResponse.Services[ii].Plans[jj].MaintenanceInfo = nil
+				catalogResponse.Services[ii].Plans[jj].MaximumPollingDuration = nil
+				catalogResponse.Services[ii].Plans[jj].PlanUpdateable = nil
+			}
+		}
 	}
 }

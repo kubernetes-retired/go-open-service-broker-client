@@ -38,6 +38,10 @@ func (v APIVersion) String() string {
 	return v.label
 }
 
+func (v APIVersion) IsLessThan(other APIVersion) bool {
+	return !v.AtLeast(other)
+}
+
 // LatestAPIVersion returns the latest supported API version in the current
 // release of this library.
 func LatestAPIVersion() APIVersion {
