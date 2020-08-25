@@ -52,6 +52,34 @@ const successBindResponseBody = `{
   }
 }`
 
+const successBindResponseBodyWithEndpoints = `{
+  "credentials": {
+    "uri": "mysql://mysqluser:pass@mysqlhost:3306/dbname",
+    "username": "mysqluser",
+    "password": "pass",
+    "host": "mysqlhost",
+    "port": 3306,
+    "database": "dbname"
+  },
+  "endpoints": [
+    {
+      "host": "host.a.local",
+      "ports": [8433],
+      "protocol": "tcp"
+    },
+    {
+      "host": "host.b.local",
+      "ports": [15234],
+      "protocol": "udp"
+    },
+    {
+      "host": "host.c.local",
+      "ports": [80, 4816],
+      "protocol": "all"
+    }
+  ]
+}`
+
 const successAsyncBindResponseBody = `{
   "operation": "test-operation-key"
 }`
@@ -65,6 +93,36 @@ func successBindResponse() *BindResponse {
 			"host":     "mysqlhost",
 			"port":     float64(3306),
 			"database": "dbname",
+		},
+	}
+}
+
+func successBindResponseWithEndpoints() *BindResponse {
+	return &BindResponse{
+		Credentials: map[string]interface{}{
+			"uri":      "mysql://mysqluser:pass@mysqlhost:3306/dbname",
+			"username": "mysqluser",
+			"password": "pass",
+			"host":     "mysqlhost",
+			"port":     float64(3306),
+			"database": "dbname",
+		},
+		Endpoints: &[]Endpoint{
+			{
+				Host:     "host.a.local",
+				Ports:    []uint16{8433},
+				Protocol: (*EndpointProtocol)(strPtr("tcp")),
+			},
+			{
+				Host:     "host.b.local",
+				Ports:    []uint16{15234},
+				Protocol: (*EndpointProtocol)(strPtr("udp")),
+			},
+			{
+				Host:     "host.c.local",
+				Ports:    []uint16{80, 4816},
+				Protocol: (*EndpointProtocol)(strPtr("all")),
+			},
 		},
 	}
 }
@@ -269,6 +327,26 @@ func TestBind(t *testing.T) {
 			version:            Version2_13(),
 			request:            defaultAsyncBindRequest(),
 			expectedErrMessage: "Asynchronous binding operations are not allowed: operation not allowed: must have API version >= 2.14. Current: 2.13",
+		},
+		{
+			name:        "response with endpoints",
+			version:     LatestAPIVersion(),
+			enableAlpha: true,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successBindResponseBodyWithEndpoints,
+			},
+			expectedResponse: successBindResponseWithEndpoints(),
+		},
+		{
+			name:        "alpha disabled: response with endpoints",
+			version:     LatestAPIVersion(),
+			enableAlpha: false,
+			httpReaction: httpReaction{
+				status: http.StatusOK,
+				body:   successBindResponseBodyWithEndpoints,
+			},
+			expectedResponse: successBindResponse(),
 		},
 	}
 

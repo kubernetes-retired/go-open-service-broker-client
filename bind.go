@@ -103,6 +103,10 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 			return nil, HTTPStatusCodeError{StatusCode: response.StatusCode, ResponseError: err}
 		}
 
+		if !c.EnableAlphaFeatures {
+			userResponse.Endpoints = nil
+		}
+
 		return userResponse, nil
 	case http.StatusAccepted:
 		if !r.AcceptsIncomplete {
