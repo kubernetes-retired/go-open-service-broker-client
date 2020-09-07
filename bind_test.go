@@ -147,7 +147,7 @@ func optionalFieldsBindRequest() *BindRequest {
 	return r
 }
 
-const optionalFieldsBindRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id","parameters":{"blu":2,"foo":"bar"},"bind_resource":{"app_guid":"test-app-guid","route":"test-app-guid"}}`
+const optionalFieldsBindRequestBody = `{"service_id":"test-service-id","plan_id":"test-plan-id","parameters":{"blu":2,"foo":"bar"},"bind_resource":{"app_guid":"test-app-guid","route":"test-route"}}`
 
 func contextBindRequest() *BindRequest {
 	r := defaultBindRequest()

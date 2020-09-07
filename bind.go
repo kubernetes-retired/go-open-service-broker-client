@@ -82,7 +82,7 @@ func (c *client) Bind(r *BindRequest) (*BindResponse, error) {
 			requestBody.BindResource[bindResourceAppGUIDKey] = *r.BindResource.AppGUID
 		}
 		if r.BindResource.Route != nil {
-			requestBody.BindResource[bindResourceRouteKey] = *r.BindResource.AppGUID
+			requestBody.BindResource[bindResourceRouteKey] = *r.BindResource.Route
 		}
 	}
 
