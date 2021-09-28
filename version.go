@@ -77,22 +77,22 @@ const (
 	internalAPIVersion2_14 = "2.14"
 )
 
-//Version2_11 returns an APIVersion struct with the internal API version set to "2.11"
+// Version2_11 returns an APIVersion struct with the internal API version set to "2.11"
 func Version2_11() APIVersion {
 	return APIVersion{label: internalAPIVersion2_11, order: 0}
 }
 
-//Version2_12 returns an APIVersion struct with the internal API version set to "2.12"
+// Version2_12 returns an APIVersion struct with the internal API version set to "2.12"
 func Version2_12() APIVersion {
 	return APIVersion{label: internalAPIVersion2_12, order: 1}
 }
 
-//Version2_13 returns an APIVersion struct with the internal API version set to "2.13"
+// Version2_13 returns an APIVersion struct with the internal API version set to "2.13"
 func Version2_13() APIVersion {
 	return APIVersion{label: internalAPIVersion2_13, order: 2}
 }
 
-//Version2_14 returns an APIVersion struct with the internal API version set to "2.14"
+// Version2_14 returns an APIVersion struct with the internal API version set to "2.14"
 func Version2_14() APIVersion {
 	return APIVersion{label: internalAPIVersion2_14, order: 3}
 }

@@ -190,7 +190,7 @@ type Client interface {
 	// does a PUT on the Broker's endpoint for the requested instance and
 	// binding IDs (/v2/service_instances/instance-id/service_bindings/binding-id).
 	Bind(r *BindRequest) (*BindResponse, error)
-	// Bind requests that a binding between a service instance and an
+	// Unbind requests that a binding between a service instance and an
 	// application be deleted and returns information about the binding or an
 	// error. Unbind does a DELETE on the Broker's endpoint for the requested
 	// instance and binding IDs (/v2/service_instances/instance-id/service_bindings/binding-id).

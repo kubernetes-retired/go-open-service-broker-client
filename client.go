@@ -214,7 +214,7 @@ func (c *client) doRequest(request *http.Request) (*http.Response, error) {
 	return c.httpClient.Do(request)
 }
 
-// unmarshalResponse unmartials the response body of the given response into
+// unmarshalResponse unmarshals the response body of the given response into
 // the given object or returns an error.
 func (c *client) unmarshalResponse(response *http.Response, obj interface{}) error {
 	body, err := ioutil.ReadAll(response.Body)
