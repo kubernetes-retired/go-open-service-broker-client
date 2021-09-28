@@ -29,8 +29,8 @@ func (c *client) DeprovisionInstance(r *DeprovisionRequest) (*DeprovisionRespons
 	fullURL := fmt.Sprintf(serviceInstanceURLFmt, c.URL, r.InstanceID)
 
 	params := map[string]string{
-		VarKeyServiceID: string(r.ServiceID),
-		VarKeyPlanID:    string(r.PlanID),
+		VarKeyServiceID: r.ServiceID,
+		VarKeyPlanID:    r.PlanID,
 	}
 	if r.AcceptsIncomplete {
 		params[AcceptsIncomplete] = "true"

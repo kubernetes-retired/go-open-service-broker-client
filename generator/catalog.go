@@ -18,12 +18,11 @@ package generator
 
 import (
 	"fmt"
-
 	"math/rand"
-
 	"sort"
 
 	"k8s.io/klog/v2"
+
 	v2 "sigs.k8s.io/go-open-service-broker-client/v2"
 )
 

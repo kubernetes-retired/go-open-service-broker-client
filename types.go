@@ -114,7 +114,7 @@ type Plan struct {
 	// the expected parameters for creation and update of instances and
 	// creation of bindings.
 	Schemas *Schemas `json:"schemas,omitempty"`
-	//PlanUpdateable requires alpha features flag to be enabled.
+	// PlanUpdateable requires alpha features flag to be enabled.
 	//
 	// PlanUpdateable specifies whether the Plan supports
 	// upgrade/downgrade/sidegrade to another version. If specified,

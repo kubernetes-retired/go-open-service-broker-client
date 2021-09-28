@@ -16,7 +16,7 @@ limitations under the License.
 
 package generator
 
-// generator holds the parameters for generated responses.
+// Generator holds the parameters for generated responses.
 type Generator struct {
 	Services        Services
 	ClassPoolOffset int
